@@ -1,0 +1,109 @@
+name: 'Fresh VPN - Windows build'
+
+# Lightweight Windows-only build for the Fresh VPN fork.
+# Runs on GitHub-hosted windows-latest (no self-hosted android-runner needed).
+# No external conan/prod secrets required: deps are built from in-repo recipes,
+# endpoint defines are optional for a visual/reskin test build.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+
+env:
+  QT_MIRROR: https://mirrors.ocf.berkeley.edu/qt/
+
+jobs:
+  Build-Windows-Fresh:
+    runs-on: windows-latest
+
+    env:
+      QT_VERSION: 6.10.1
+      QIF_VERSION: 4.7
+
+    steps:
+    - name: 'Get sources'
+      uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+        fetch-depth: 10
+
+    - name: 'Install Qt'
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: ${{ env.QT_VERSION }}
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        modules: 'qtremoteobjects qt5compat qtshadertools'
+        dir: ${{ runner.temp }}
+        setup-python: 'true'
+        tools: 'tools_ifw'
+        set-env: 'true'
+        aqtversion: '==3.3.0'
+        py7zrversion: '==0.22.*'
+        extra: '--base ${{ env.QT_MIRROR }}'
+
+    - name: 'Setup msvc'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: 'x64'
+
+    - name: 'Setup .NET SDK'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: 'Install WiX Toolset'
+      shell: powershell
+      run: |
+        dotnet tool install --global wix --version 4.0.6
+        wix extension add -g WixToolset.UI.wixext/4.0.6
+        wix extension add -g WixToolset.Util.wixext/4.0.6
+        wix extension list -g
+        $wixBinDir = Join-Path $env:USERPROFILE ".dotnet\tools"
+        echo "WIX_BIN_DIR=$wixBinDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: 'Setup python'
+      uses: actions/setup-python@v6
+      with:
+        python-version: 3.14
+
+    - name: 'Install conan'
+      run: pip install "conan==2.28.0"
+
+    - name: 'Build project'
+      shell: cmd
+      env:
+        QT_INSTALL_DIR: ${{ runner.temp }}
+      run: |
+        set "WIX_ROOT_PATH=%USERPROFILE%\.dotnet\tools"
+        deploy\build.bat --installer all
+
+    - name: 'Upload WIX installer (.msi)'
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: FreshVPN-windows-msi
+        path: deploy/build/AmneziaVPN_*_windows_x64.msi
+        if-no-files-found: warn
+        retention-days: 7
+
+    - name: 'Upload IFW installer (.exe)'
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: FreshVPN-windows-exe
+        path: deploy/build/AmneziaVPN_*_windows_x64.exe
+        if-no-files-found: warn
+        retention-days: 7
+
+    - name: 'Upload raw client build (fallback)'
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: FreshVPN-windows-client-raw
+        path: deploy/build/client/
+        if-no-files-found: warn
+        retention-days: 7

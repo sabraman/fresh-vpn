@@ -1,0 +1,19 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+#ifndef APP_VERSION
+#define APP_VERSION "@CMAKE_PROJECT_VERSION@"
+#endif
+
+#ifndef APP_MAJOR_VERSION
+#define APP_MAJOR_VERSION "@APP_MAJOR_VERSION@"
+#endif
+
+#define APPLICATION_NAME    "Fresh VPN"
+// NOTE (Fresh fork): SERVICE_NAME / ORGANIZATION_NAME kept as-is for now -
+// renaming them ripples into the helper-service install (Windows service /
+// macOS launchd) and the QSettings path; do as a coordinated change + build test.
+#define SERVICE_NAME        "AmneziaVPN-service"
+#define ORGANIZATION_NAME   "AmneziaVPN.ORG"
+
+#endif  // VERSION_H
