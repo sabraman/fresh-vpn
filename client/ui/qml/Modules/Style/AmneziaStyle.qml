@@ -27,13 +27,13 @@ QtObject {
         readonly property color translucentWhite: Qt.rgba(1, 1, 1, 0.08)
         readonly property color barelyTranslucentWhite: Qt.rgba(1, 1, 1, 0.05)
         readonly property color translucentMidnightBlack: Qt.rgba(10/255, 14/255, 18/255, 0.8)
-        readonly property color softGoldenApricot: Qt.rgba(142/255, 198/255, 32/255, 0.3)
+        readonly property color softGoldenApricot: Qt.rgba(184/255, 230/255, 65/255, 0.3)
         readonly property color mistyGray: Qt.rgba(215/255, 216/255, 219/255, 0.8)
         readonly property color cloudyGray: Qt.rgba(215/255, 216/255, 219/255, 0.65)
         readonly property color translucentRichBrown: Qt.rgba(99/255, 51/255, 3/255, 0.26)
         readonly property color translucentSlateGray: Qt.rgba(85/255, 86/255, 92/255, 0.13)
         readonly property color translucentOnyxBlack: Qt.rgba(28/255, 29/255, 33/255, 0.13)
 
-        readonly property string goldenApricotString: '#8EC620'
+        readonly property string goldenApricotString: '#B8E641'
     }
 }
