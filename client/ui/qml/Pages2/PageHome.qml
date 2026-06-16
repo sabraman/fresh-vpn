@@ -50,6 +50,13 @@ PageType {
     }
 
 
+    // Фоновая матрица (падающие символы) — канон Fresh VPN, за контентом коннект-экрана
+    MatrixRain {
+        objectName: "matrixRain"
+        anchors.fill: parent
+        z: -1
+    }
+
     Item {
         objectName: "homeColumnItem"
 

@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/ui/qml">
         <file>Components/AdLabel.qml</file>
+        <file>Components/MatrixRain.qml</file>
         <file>Components/ConnectButton.qml</file>
         <file>Components/ConnectionTypeSelectionDrawer.qml</file>
         <file>Components/GamepadLoader.qml</file>
