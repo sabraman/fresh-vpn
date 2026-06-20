@@ -8,6 +8,7 @@ PageType {
   property color line: Qt.rgba(1,1,1,0.08); property color fg:"#F5F4EF"; property color mute:"#878B91"; property color dim:"#5A5D63"
   property color lime:"#B8E641"; property color limeStrong:"#C8F050"
   property color limeSoft: Qt.rgba(184/255,230/255,65/255,0.10); property color limeLine: Qt.rgba(184/255,230/255,65/255,0.30)
+  property color warn:"#FBB26A"
 
   property bool conn: ConnectionController.isConnected
   property var samples: []
@@ -22,6 +23,13 @@ PageType {
   }
   function fmtUp(s){ var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60; return (h>0?(h+":"):"")+("0"+m).slice(-2)+":"+("0"+ss).slice(-2) }
   function refreshServerName(){ var s=proxyServersModel.get(0); root.serverName=(s&&s.name)?s.name:"" }
+  function healthText(){
+    var s=ConnectionHealth.healthState
+    var st = s===1?"Стабильно":(s===2?"Нестабильно":"проверка…")
+    var lat = ConnectionHealth.latencyMs>=0 ? (ConnectionHealth.latencyMs+" мс") : "—"
+    var jit = ConnectionHealth.jitterMs>=0 ? (" · джиттер "+ConnectionHealth.jitterMs+" мс") : ""
+    return "пинг " + lat + jit + " · " + st
+  }
 
   SortFilterProxyModel {
     id: proxyServersModel
@@ -70,16 +78,21 @@ PageType {
       Item { width: parent.width; height: 34
         Text { x:20; anchors.verticalCenter: parent.verticalCenter; text:"Статистика"; color: root.fg; font.pixelSize:24; font.weight:800 } }
 
-      // status card
-      Rectangle { x:16; width: root.width-32; height:72; radius:14; color: root.card; border.color: root.line; border.width:1
+      // status + health card
+      Rectangle { x:16; width: root.width-32; height: root.conn ? 98 : 72; radius:14; color: root.card; border.color: root.line; border.width:1
         Row { anchors.left: parent.left; anchors.leftMargin:16; anchors.verticalCenter: parent.verticalCenter; spacing:12
           Rectangle { width:12; height:12; radius:6; anchors.verticalCenter: parent.verticalCenter
-            color: root.conn ? root.limeStrong : root.dim }
+            color: !root.conn ? root.dim : (ConnectionHealth.healthState===2 ? root.warn : root.limeStrong) }
           Column { anchors.verticalCenter: parent.verticalCenter; spacing:3; width: root.width-150
             Text { width: parent.width; elide: Text.ElideRight
               text: root.conn ? ("Подключено" + (root.serverName.length>0 ? (" · " + root.serverName) : "")) : "Отключено"
               color: root.fg; font.pixelSize:15; font.weight:700 }
-            Text { text: root.conn ? ("в сети " + root.fmtUp(root.upSec)) : "трафик появится после подключения"; color: root.mute; font.pixelSize:12 } } } }
+            Text { width: parent.width; elide: Text.ElideRight
+              text: root.conn ? ("в сети " + root.fmtUp(root.upSec) + (ServersUiController.defaultServerDefaultContainerName.length>0 ? (" · " + ServersUiController.defaultServerDefaultContainerName) : "")) : "трафик появится после подключения"
+              color: root.mute; font.pixelSize:12 }
+            Text { visible: root.conn; width: parent.width; elide: Text.ElideRight
+              text: root.healthText()
+              color: ConnectionHealth.healthState===2 ? root.warn : root.limeStrong; font.pixelSize:12; font.weight:600 } } } }
 
       // live speed card
       Rectangle { x:16; width: root.width-32; height:150; radius:14; color: root.card; border.color: root.line; border.width:1
@@ -121,7 +134,7 @@ PageType {
 
       Item { width: parent.width; height: 4 }
       Text { visible: !root.conn; x:20; width: root.width-40; wrapMode: Text.WordWrap
-        text:"Здесь — живой трафик и скорость текущего подключения. История за день/неделю появится, когда подключим хранение на сервере."
+        text:"Здесь — живой трафик, скорость и пинг текущего подключения. История за день/неделю появится, когда подключим хранение на сервере."
         color: root.dim; font.pixelSize:11 }
     }
   }

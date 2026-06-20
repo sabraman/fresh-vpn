@@ -127,6 +127,34 @@ PageType {
                 Layout.alignment: Qt.AlignCenter
             }
 
+            Item {
+                id: healthRow
+                Layout.alignment: Qt.AlignHCenter
+                visible: ConnectionController.isConnected
+                Layout.preferredHeight: visible ? 24 : 0
+                implicitWidth: hpRow.implicitWidth
+                Row {
+                    id: hpRow
+                    anchors.centerIn: parent
+                    spacing: 8
+                    Rectangle {
+                        width: 8; height: 8; radius: 4
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: ConnectionHealth.healthState === 1 ? "#C8F050" : (ConnectionHealth.healthState === 2 ? "#FBB26A" : "#878B91")
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: {
+                            var s = ConnectionHealth.healthState
+                            var st = s === 1 ? qsTr("Стабильно") : (s === 2 ? qsTr("Нестабильно") : qsTr("Проверка…"))
+                            var lat = ConnectionHealth.latencyMs >= 0 ? ("  ·  " + ConnectionHealth.latencyMs + qsTr(" мс")) : ""
+                            return st + lat
+                        }
+                        color: "#F5F4EF"; font.pixelSize: 13; font.weight: 600
+                    }
+                }
+            }
+
             BasicButtonType {
                 id: splitTunnelingButton
                 objectName: "splitTunnelingButton"

@@ -24,6 +24,7 @@
 #include "ui/controllers/settingsUiController.h"
 #include "ui/controllers/serversUiController.h"
 #include "ui/controllers/serverLatencyController.h"
+#include "ui/controllers/connectionHealthController.h"
 #include "ui/controllers/ipSplitTunnelingUiController.h"
 #include "ui/controllers/systemController.h"
 #include "ui/controllers/languageUiController.h"
@@ -169,6 +170,7 @@ private:
     SettingsUiController* m_settingsUiController;
     ServersUiController* m_serversUiController;
     ServerLatencyController* m_serverLatencyController;
+    ConnectionHealthController* m_connectionHealthController;
     IpSplitTunnelingUiController* m_ipSplitTunnelingUiController;
     SystemController* m_systemController;
     NetworkReachabilityController* m_networkReachabilityController;
