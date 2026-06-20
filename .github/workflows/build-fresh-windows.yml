@@ -63,8 +63,7 @@ jobs:
           set "QTBIN=${{ runner.temp }}\Qt\%QT_VERSION%\msvc2022_64\bin"
           mkdir dist
           copy /y deploy\build\client\Release\AmneziaVPN.exe dist\
-          if exist deploy\build\client\service\Release\AmneziaVPN-service.exe copy /y deploy\build\client\service\Release\AmneziaVPN-service.exe dist\
-          if exist deploy\build\service\Release\AmneziaVPN-service.exe copy /y deploy\build\service\Release\AmneziaVPN-service.exe dist\
+          for /r deploy\build %%f in (AmneziaVPN-service.exe) do @if exist "%%f" copy /y "%%f" dist\ >nul 2>&1
           "%QTBIN%\windeployqt.exe" --qmldir client\ui\qml --release --no-translations dist\AmneziaVPN.exe
           for /r "%USERPROFILE%\.conan2\p" %%f in (libcrypto-3-x64.dll) do @if exist "%%f" copy /y "%%f" dist\ >nul 2>&1
           for /r "%USERPROFILE%\.conan2\p" %%f in (libssl-3-x64.dll) do @if exist "%%f" copy /y "%%f" dist\ >nul 2>&1
