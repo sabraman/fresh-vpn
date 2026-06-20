@@ -25,6 +25,8 @@
 #include "ui/controllers/serversUiController.h"
 #include "ui/controllers/serverLatencyController.h"
 #include "ui/controllers/connectionHealthController.h"
+#include "ui/controllers/speedTestController.h"
+#include "ui/controllers/leakTestController.h"
 #include "ui/controllers/ipSplitTunnelingUiController.h"
 #include "ui/controllers/systemController.h"
 #include "ui/controllers/languageUiController.h"
@@ -171,6 +173,8 @@ private:
     ServersUiController* m_serversUiController;
     ServerLatencyController* m_serverLatencyController;
     ConnectionHealthController* m_connectionHealthController;
+    SpeedTestController* m_speedTestController;
+    LeakTestController* m_leakTestController;
     IpSplitTunnelingUiController* m_ipSplitTunnelingUiController;
     SystemController* m_systemController;
     NetworkReachabilityController* m_networkReachabilityController;

@@ -121,8 +121,26 @@ PageType {
             c.lineTo(width,height); c.lineTo(0,height); c.closePath(); c.fillStyle="rgba(184,230,65,0.12)"; c.fill();
           } } }
 
-      // session totals
-      Item { width: parent.width; height: 2 }
+      // speed test card
+      Rectangle { x:16; width: root.width-32; height:96; radius:14; color: root.card; border.color: root.line; border.width:1
+        Text { x:16; y:14; text:"СПИД-ТЕСТ"; color: root.dim; font.pixelSize:10; font.weight:700 }
+        Text { x:16; y:36; width: parent.width-130; elide: Text.ElideRight
+          text: {
+            var s=SpeedTest.state
+            if(s===1) return "Загрузка… " + SpeedTest.progress + "%"
+            if(s===2) return "Отдача… " + SpeedTest.progress + "%"
+            if(s===4) return "Не удалось замерить"
+            if(s===3 || SpeedTest.downloadMbps>0) return "↓ " + SpeedTest.downloadMbps.toFixed(1) + "   ↑ " + SpeedTest.uploadMbps.toFixed(1) + " Mbps"
+            return "Замерь реальную скорость через VPN"
+          }
+          color: SpeedTest.state===4 ? root.warn : root.fg; font.pixelSize:16; font.weight:700 }
+        Rectangle { anchors.right: parent.right; anchors.rightMargin:14; anchors.verticalCenter: parent.verticalCenter
+          width:104; height:40; radius:10
+          color: (SpeedTest.state===1||SpeedTest.state===2) ? root.bg3 : root.limeStrong
+          Text { anchors.centerIn: parent; text: (SpeedTest.state===1||SpeedTest.state===2) ? "…" : "Запустить"; color:"#0E0E11"; font.pixelSize:13; font.weight:800 }
+          MouseArea { anchors.fill: parent; enabled: !(SpeedTest.state===1||SpeedTest.state===2); onClicked: SpeedTest.runTest() } } }
+
+      // session totals      Item { width: parent.width; height: 2 }
       Text { x:20; text:"ТРАФИК СЕССИИ"; color: root.dim; font.pixelSize:10; font.weight:700 }
       Grid { x:16; columns:2; rowSpacing:8; columnSpacing:8
         Repeater { model:[ {cap:"СКАЧАНО",dl:true},{cap:"ОТДАНО",dl:false} ]
@@ -131,6 +149,32 @@ PageType {
               Text { text: modelData.cap; color: root.dim; font.pixelSize:9; font.weight:700 }
               Text { text: root.fmtB(modelData.dl ? ConnectionController.rxTotalBytes : ConnectionController.txTotalBytes)
                 color: modelData.dl ? root.limeStrong : root.fg; font.pixelSize:22; font.weight:800 } } } } }
+
+      // leak detector card
+      Rectangle { x:16; width: root.width-32; height: 58 + leakBody.implicitHeight; radius:14; color: root.card; border.color: root.line; border.width:1
+        Text { x:16; y:14; text:"ПРОВЕРКА УТЕЧЕК"; color: root.dim; font.pixelSize:10; font.weight:700 }
+        Rectangle { anchors.right: parent.right; anchors.rightMargin:14; y:8; width:104; height:36; radius:10
+          color: (LeakTest.state===1||LeakTest.state===2) ? root.bg3 : root.limeStrong
+          Text { anchors.centerIn: parent; text:(LeakTest.state===1||LeakTest.state===2)?"…":"Проверить"; color:"#0E0E11"; font.pixelSize:13; font.weight:800 }
+          MouseArea { anchors.fill: parent; enabled: !(LeakTest.state===1||LeakTest.state===2); onClicked: LeakTest.runTest() } }
+        Column { id: leakBody; x:16; y:44; width: parent.width-32; spacing:6
+          Text { width: parent.width; elide: Text.ElideRight
+            text: LeakTest.exitIp.length>0 ? ("IP: " + LeakTest.exitIp) : "Покажу IP, гео и DNS, которые видит внешний мир"
+            color: root.fg; font.pixelSize:14; font.weight:700 }
+          Text { visible: LeakTest.exitCountry.length>0; width: parent.width; elide: Text.ElideRight
+            text: "Гео: " + LeakTest.exitCity + ((LeakTest.exitCity.length>0 && LeakTest.exitCountry.length>0) ? ", " : "") + LeakTest.exitCountry + (LeakTest.isp.length>0 ? (" · " + LeakTest.isp) : "")
+            color: root.mute; font.pixelSize:12 }
+          Text { visible: LeakTest.state===2 || LeakTest.dnsServers.length>0 || LeakTest.dnsLeak>=0
+            width: parent.width; wrapMode: Text.WordWrap
+            text: {
+              if(LeakTest.state===2) return "DNS: проверяю…"
+              if(LeakTest.dnsLeak===0) return "DNS: без утечек · " + LeakTest.dnsServers.length + " сервер(ов)"
+              if(LeakTest.dnsLeak===1) return "DNS: возможна утечка — " + LeakTest.dnsServers.join(", ")
+              if(LeakTest.dnsServers.length>0) return "DNS: " + LeakTest.dnsServers.join(", ")
+              return ""
+            }
+            color: LeakTest.dnsLeak===1 ? root.warn : (LeakTest.dnsLeak===0 ? root.limeStrong : root.mute); font.pixelSize:12; font.weight:600 }
+          Text { visible: LeakTest.state===4; width: parent.width; text:"Не удалось проверить"; color: root.warn; font.pixelSize:12 } } }
 
       Item { width: parent.width; height: 4 }
       Text { visible: !root.conn; x:20; width: root.width-40; wrapMode: Text.WordWrap

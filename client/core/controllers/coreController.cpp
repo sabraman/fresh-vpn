@@ -203,6 +203,10 @@ void CoreController::initControllers()
     setQmlContextProperty("ServerLatencyController", m_serverLatencyController);
     m_connectionHealthController = new ConnectionHealthController(m_connectionController, m_serversModel, this);
     setQmlContextProperty("ConnectionHealth", m_connectionHealthController);
+    m_speedTestController = new SpeedTestController(this);
+    setQmlContextProperty("SpeedTest", m_speedTestController);
+    m_leakTestController = new LeakTestController(this);
+    setQmlContextProperty("LeakTest", m_leakTestController);
 
     m_ipSplitTunnelingUiController = new IpSplitTunnelingUiController(m_ipSplitTunnelingController, m_ipSplitTunnelingModel, this);
     setQmlContextProperty("IpSplitTunnelingController", m_ipSplitTunnelingUiController);
