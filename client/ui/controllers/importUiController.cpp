@@ -5,6 +5,13 @@
 #include <QFileInfo>
 #include <QMutex>
 #include <QJsonDocument>
+#include <QEventLoop>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QRegularExpression>
+#include <QTimer>
+#include <QUrl>
 
 #include "systemController.h"
 
@@ -64,6 +71,22 @@ bool ImportUiController::extractConfigFromFile(const QString &fileName)
 
 bool ImportUiController::extractConfigFromData(QString data)
 {
+    data = data.trimmed();
+
+    // If the user pasted an http(s) subscription link (or a deep-link wrapper that
+    // carries one), download the body first, then parse it like any other config.
+    const QString url = extractFetchableUrl(data);
+    if (!url.isEmpty()) {
+        QString fetchError;
+        const QString body = fetchSubscriptionBody(url, fetchError);
+        if (body.trimmed().isEmpty()) {
+            qWarning() << "Subscription fetch failed:" << fetchError;
+            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            return false;
+        }
+        data = body.trimmed();
+    }
+
     auto result = m_importController->extractConfigFromData(data);
     
     if (result.errorCode != ErrorCode::NoError) {
@@ -209,4 +232,78 @@ QString ImportUiController::readTextFile(const QString &fileName)
         return {};
     }
     return QString::fromUtf8(file.readAll());
+}
+
+QString ImportUiController::extractFetchableUrl(const QString &data) const
+{
+    const QString trimmed = data.trimmed();
+
+    // A bare http(s) subscription URL (single token, no embedded whitespace).
+    if ((trimmed.startsWith("http://", Qt::CaseInsensitive) || trimmed.startsWith("https://", Qt::CaseInsensitive))
+        && !trimmed.contains(QRegularExpression("\\s"))) {
+        return trimmed;
+    }
+
+    // Deep-link wrappers carrying the real subscription URL in a "url=" parameter,
+    // e.g. clash://install-config?url=...  sing-box://import-remote-profile?url=...
+    //      hiddify://import?url=...  streisand://import?url=...  v2rayng://...?url=...
+    if (trimmed.contains("://") && trimmed.contains("url=", Qt::CaseInsensitive)) {
+        const int u = trimmed.indexOf("url=", 0, Qt::CaseInsensitive);
+        QString inner = trimmed.mid(u + 4);
+        const int amp = inner.indexOf('&');
+        if (amp >= 0) {
+            inner = inner.left(amp);
+        }
+        inner = QUrl::fromPercentEncoding(inner.toUtf8()).trimmed();
+        if (inner.startsWith("http://", Qt::CaseInsensitive) || inner.startsWith("https://", Qt::CaseInsensitive)) {
+            return inner;
+        }
+    }
+
+    return QString();
+}
+
+QString ImportUiController::fetchSubscriptionBody(const QString &url, QString &errorString)
+{
+    QNetworkAccessManager manager;
+    QNetworkRequest request{ QUrl(url) };
+
+    // A v2ray-family User-Agent makes most panels (incl. Remnawave) return the
+    // base64 share-URI list, which the core parser understands universally.
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("v2rayNG/1.8.5 (FreshVPN)"));
+    request.setRawHeader("Accept", "*/*");
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+
+    QNetworkReply *reply = manager.get(request);
+
+    QEventLoop loop;
+    QTimer timeoutTimer;
+    timeoutTimer.setSingleShot(true);
+    bool timedOut = false;
+    QObject::connect(&timeoutTimer, &QTimer::timeout, &loop, [&loop, &timedOut]() {
+        timedOut = true;
+        loop.quit();
+    });
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+
+    timeoutTimer.start(15000);
+    loop.exec();
+
+    QString body;
+    if (timedOut) {
+        errorString = QStringLiteral("Request timed out");
+        reply->abort();
+    } else if (reply->error() != QNetworkReply::NoError) {
+        errorString = reply->errorString();
+    } else {
+        const QByteArray raw = reply->readAll();
+        if (raw.size() > 5 * 1024 * 1024) {
+            errorString = QStringLiteral("Response too large");
+        } else {
+            body = QString::fromUtf8(raw);
+        }
+    }
+
+    reply->deleteLater();
+    return body;
 }

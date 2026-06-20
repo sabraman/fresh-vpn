@@ -61,6 +61,9 @@ Window  {
     maximumWidth: 600
     maximumHeight: 800
 
+    flags: Qt.platform.os === "windows" ? (Qt.Window | Qt.FramelessWindowHint) : Qt.Window
+    property int chromeHeight: Qt.platform.os === "windows" ? 34 : 0
+
     color: AmneziaStyle.color.midnightBlack
 
     onClosing: function(close) {
@@ -73,7 +76,7 @@ Window  {
         console.warn("Scene graph error:", error, message)
     }
 
-    title: "AmneziaVPN"
+    title: "Fresh VPN"
 
     Item { // This item is needed for focus handling
         id: defaultFocusItem
@@ -162,8 +165,66 @@ Window  {
 
     PageStart {
         objectName: "pageStart"
+        y: root.chromeHeight
         width: root.width
-        height: root.height
+        height: root.height - root.chromeHeight
+    }
+
+    // ===== Fresh window chrome (frameless title bar, Windows only) =====
+    Rectangle {
+        id: freshTitleBar
+        visible: Qt.platform.os === "windows"
+        height: root.chromeHeight
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        color: AmneziaStyle.color.midnightBlack
+
+        Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Qt.rgba(1,1,1,0.07) }
+
+        DragHandler { target: null; onActiveChanged: if (active) root.startSystemMove() }
+
+        Row {
+            anchors.right: parent.right
+            anchors.top: parent.top
+            height: parent.height
+
+            Rectangle {
+                width: 46; height: parent.height
+                color: minMA.containsMouse ? Qt.rgba(1,1,1,0.08) : "transparent"
+                Rectangle { anchors.centerIn: parent; width: 11; height: 1; color: AmneziaStyle.color.mutedGray }
+                MouseArea { id: minMA; anchors.fill: parent; hoverEnabled: true; onClicked: root.showMinimized() }
+            }
+            Rectangle {
+                width: 46; height: parent.height
+                color: closeMA.containsMouse ? "#E5484D" : "transparent"
+                Item {
+                    anchors.centerIn: parent; width: 12; height: 12
+                    Rectangle { anchors.centerIn: parent; width: 13; height: 1.4; rotation: 45; color: closeMA.containsMouse ? "#FFFFFF" : AmneziaStyle.color.mutedGray }
+                    Rectangle { anchors.centerIn: parent; width: 13; height: 1.4; rotation: -45; color: closeMA.containsMouse ? "#FFFFFF" : AmneziaStyle.color.mutedGray }
+                }
+                MouseArea { id: closeMA; anchors.fill: parent; hoverEnabled: true; onClicked: root.close() }
+            }
+        }
+    }
+
+    Rectangle {
+        visible: Qt.platform.os === "windows"
+        anchors.fill: parent
+        color: "transparent"
+        border.color: Qt.rgba(1,1,1,0.09)
+        border.width: 1
+    }
+    // ===== Edge resize handles (frameless, Windows only) =====
+    Item {
+        visible: Qt.platform.os === "windows"
+        anchors.fill: parent
+        property int hw: 6
+        MouseArea { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: parent.hw; cursorShape: Qt.SizeHorCursor; onPressed: root.startSystemResize(Qt.LeftEdge) }
+        MouseArea { anchors.right: parent.right; anchors.top: parent.top; anchors.bottom: parent.bottom; width: parent.hw; cursorShape: Qt.SizeHorCursor; onPressed: root.startSystemResize(Qt.RightEdge) }
+        MouseArea { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; height: parent.hw; cursorShape: Qt.SizeVerCursor; onPressed: root.startSystemResize(Qt.BottomEdge) }
+        MouseArea { anchors.right: parent.right; anchors.bottom: parent.bottom; width: parent.hw*2; height: parent.hw*2; cursorShape: Qt.SizeFDiagCursor; onPressed: root.startSystemResize(Qt.RightEdge | Qt.BottomEdge) }
+        MouseArea { anchors.left: parent.left; anchors.bottom: parent.bottom; width: parent.hw*2; height: parent.hw*2; cursorShape: Qt.SizeBDiagCursor; onPressed: root.startSystemResize(Qt.LeftEdge | Qt.BottomEdge) }
     }
 
     Item {

@@ -54,6 +54,9 @@ private:
     void stopDecodingQr();
 #endif
 
+    QString extractFetchableUrl(const QString &data) const;
+    QString fetchSubscriptionBody(const QString &url, QString &errorString);
+
     ImportController* m_importController;
 
     QJsonObject m_config;

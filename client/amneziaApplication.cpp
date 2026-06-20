@@ -225,6 +225,9 @@ void AmneziaApplication::loadFonts()
     QQuickStyle::setStyle("Basic");
 
     QFontDatabase::addApplicationFont(":/fonts/pt-root-ui_vf.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Inter-VF.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/BricolageGrotesque-VF.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-VF.ttf");
 }
 
 bool AmneziaApplication::parseCommands()

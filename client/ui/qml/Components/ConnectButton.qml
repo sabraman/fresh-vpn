@@ -11,154 +11,103 @@ import Style 1.0
 Button {
     id: root
 
-    property string defaultButtonColor: AmneziaStyle.color.paleGray
-    property string progressButtonColor: AmneziaStyle.color.paleGray
-    property string connectedButtonColor: AmneziaStyle.color.goldenApricot
     property bool buttonActiveFocus: activeFocus && (Qt.platform.os !== "android" || SettingsController.isOnTv())
-
     property bool isFocusable: true
-    
-    Keys.onTabPressed: {
-        FocusController.nextKeyTabItem()
-    }
 
-    Keys.onBacktabPressed: {
-        FocusController.previousKeyTabItem()
-    }
+    readonly property bool isOn: ConnectionController.isConnected
+    readonly property bool isBusy: ConnectionController.isConnectionInProgress
 
-    Keys.onUpPressed: {
-        FocusController.nextKeyUpItem()
-    }
-    
-    Keys.onDownPressed: {
-        FocusController.nextKeyDownItem()
-    }
-    
-    Keys.onLeftPressed: {
-        FocusController.nextKeyLeftItem()
-    }
+    Keys.onTabPressed: { FocusController.nextKeyTabItem() }
+    Keys.onBacktabPressed: { FocusController.previousKeyTabItem() }
+    Keys.onUpPressed: { FocusController.nextKeyUpItem() }
+    Keys.onDownPressed: { FocusController.nextKeyDownItem() }
+    Keys.onLeftPressed: { FocusController.nextKeyLeftItem() }
+    Keys.onRightPressed: { FocusController.nextKeyRightItem() }
 
-    Keys.onRightPressed: {
-        FocusController.nextKeyRightItem()
-    }
-        
     implicitWidth: 190
     implicitHeight: 190
 
+    // оставлено для доступности (screen-reader), визуально текст НЕ показывается
     text: ConnectionController.connectionStateText
 
     Connections {
         target: ConnectionController
-
         function onPreparingConfig() {
             PageController.showNotificationMessage(qsTr("Unable to disconnect during configuration preparation"))
         }
     }
 
-//    enabled: !ConnectionController.isConnectionInProgress
-
     background: Item {
         implicitWidth: parent.width
         implicitHeight: parent.height
-        transformOrigin: Item.Center
 
-        Shape {
-            id: backgroundCircle
-            width: parent.implicitWidth
-            height: parent.implicitHeight
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
+        Rectangle {
+            anchors.centerIn: parent
+            width: 190; height: 190; radius: 95
+            color: AmneziaStyle.color.transparent
+            border.width: 1.5
+            border.color: root.isOn ? Qt.rgba(184/255, 230/255, 65/255, 0.12) : AmneziaStyle.color.translucentWhite
+        }
+        Rectangle {
+            anchors.centerIn: parent
+            width: 166; height: 166; radius: 83
+            color: AmneziaStyle.color.transparent
+            border.width: 1.5
+            border.color: root.isOn ? Qt.rgba(184/255, 230/255, 65/255, 0.22) : AmneziaStyle.color.sheerWhite
+        }
+
+        Rectangle {
+            id: coreBase
+            anchors.centerIn: parent
+            width: 150; height: 150; radius: 75
+            color: AmneziaStyle.color.onyxBlack
+            border.width: 1.5
+            border.color: root.isOn ? AmneziaStyle.color.transparent : AmneziaStyle.color.charcoalGray
+        }
+
+        Rectangle {
+            id: coreOn
+            anchors.centerIn: parent
+            width: 150; height: 150; radius: 75
+            visible: root.isOn
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: AmneziaStyle.color.goldenApricotStrong }
+                GradientStop { position: 1.0; color: "#5FA524" }
+            }
             layer.enabled: true
-            layer.samples: 4
-            layer.smooth: true
             layer.effect: DropShadow {
-                anchors.fill: backgroundCircle
-                horizontalOffset: 0
-                verticalOffset: 0
-                radius: 10
-                samples: 25
-                color: root.buttonActiveFocus ? AmneziaStyle.color.paleGray : AmneziaStyle.color.goldenApricot
-                source: backgroundCircle
-            }
-
-            ShapePath {
-                fillColor: AmneziaStyle.color.transparent
-                strokeColor: AmneziaStyle.color.paleGray
-                strokeWidth: root.buttonActiveFocus ? 1 : 0
-                capStyle: ShapePath.RoundCap
-
-                PathAngleArc {
-                    centerX: backgroundCircle.width / 2
-                    centerY: backgroundCircle.height / 2
-                    radiusX: 94
-                    radiusY: 94
-                    startAngle: 0
-                    sweepAngle: 360
-                }
-            }
-
-            ShapePath {
-                fillColor: AmneziaStyle.color.transparent
-                strokeColor: {
-                    if (ConnectionController.isConnectionInProgress) {
-                        return AmneziaStyle.color.darkCharcoal
-                    } else if (ConnectionController.isConnected) {
-                        return connectedButtonColor
-                    } else {
-                        return defaultButtonColor
-                    }
-                }
-                strokeWidth: root.buttonActiveFocus ? 2 : 3
-                capStyle: ShapePath.RoundCap
-
-                PathAngleArc {
-                    centerX: backgroundCircle.width / 2
-                    centerY: backgroundCircle.height / 2
-                    radiusX: 93 - (root.buttonActiveFocus ? 2 : 0)
-                    radiusY: 93 - (root.buttonActiveFocus ? 2 : 0)
-                    startAngle: 0
-                    sweepAngle: 360
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-
-                cursorShape: Qt.PointingHandCursor
-                enabled: false
+                horizontalOffset: 0; verticalOffset: 0
+                radius: 28; samples: 43
+                color: Qt.rgba(184/255, 230/255, 65/255, 0.55)
+                source: coreOn
             }
         }
 
         Shape {
-            id: shape
-            width: parent.implicitWidth
-            height: parent.implicitHeight
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
+            id: spinner
+            anchors.centerIn: parent
+            width: 150; height: 150
+            visible: root.isBusy
             layer.enabled: true
             layer.samples: 4
 
-            visible: ConnectionController.isConnectionInProgress
-
             ShapePath {
                 fillColor: AmneziaStyle.color.transparent
-                strokeColor: AmneziaStyle.color.paleGray
+                strokeColor: AmneziaStyle.color.goldenApricot
                 strokeWidth: 3
                 capStyle: ShapePath.RoundCap
 
                 PathAngleArc {
-                    centerX: shape.width / 2
-                    centerY: shape.height / 2
-                    radiusX: 93
-                    radiusY: 93
-                    startAngle: 245
-                    sweepAngle: -180
+                    centerX: spinner.width / 2
+                    centerY: spinner.height / 2
+                    radiusX: 80; radiusY: 80
+                    startAngle: 245; sweepAngle: -150
                 }
             }
 
             RotationAnimator {
-                target: shape
-                running: ConnectionController.isConnectionInProgress
+                target: spinner
+                running: root.isBusy
                 from: 0
                 to: 360
                 loops: Animation.Infinite
@@ -167,18 +116,30 @@ Button {
         }
     }
 
-    contentItem: Text {
-        height: 24
-
-        font.family: "PT Root UI VF"
-        font.weight: 700
-        font.pixelSize: 20
-
-        color: ConnectionController.isConnected ? connectedButtonColor : defaultButtonColor
-        text: root.text
-
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
+    contentItem: Item {
+        Canvas {
+            id: powerIcon
+            anchors.centerIn: parent
+            width: 58; height: 58
+            property color col: root.isOn ? AmneziaStyle.color.midnightBlack : AmneziaStyle.color.mutedGray
+            onColChanged: requestPaint()
+            onPaint: {
+                var c = getContext("2d")
+                c.reset()
+                c.strokeStyle = col
+                c.lineWidth = 5
+                c.lineCap = "round"
+                c.lineJoin = "round"
+                var cx = 29, cy = 31, r = 16
+                c.beginPath()
+                c.arc(cx, cy, r, -Math.PI / 2 + 0.55, -Math.PI / 2 - 0.55 + 2 * Math.PI, false)
+                c.stroke()
+                c.beginPath()
+                c.moveTo(cx, cy - r - 4)
+                c.lineTo(cx, cy - 1)
+                c.stroke()
+            }
+        }
     }
 
     onClicked: {

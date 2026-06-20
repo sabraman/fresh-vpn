@@ -1,6 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>../fonts/pt-root-ui_vf.ttf</file>
+        <file>../fonts/Inter-VF.ttf</file>
+        <file>../fonts/BricolageGrotesque-VF.ttf</file>
+        <file>../fonts/JetBrainsMono-VF.ttf</file>
     </qresource>
     <qresource prefix="/images">
         <file>amneziaBigLogo.png</file>

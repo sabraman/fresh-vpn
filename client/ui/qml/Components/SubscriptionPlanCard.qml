@@ -71,7 +71,7 @@ Rectangle {
                 visible: root.showRecommendedBadge
                 Layout.alignment: Qt.AlignVCenter
                 radius: 10
-                color: AmneziaStyle.color.softViolet
+                color: AmneziaStyle.color.goldenApricot
                 implicitHeight: recLabel.implicitHeight + 8
                 implicitWidth: recLabel.implicitWidth + 16
 

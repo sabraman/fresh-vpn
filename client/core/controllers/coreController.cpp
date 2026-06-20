@@ -199,6 +199,8 @@ void CoreController::initControllers()
 
     m_serversUiController = new ServersUiController(m_serversController, m_settingsController, m_serversModel, m_containersModel, m_defaultServerContainersModel, this);
     setQmlContextProperty("ServersUiController", m_serversUiController);
+    m_serverLatencyController = new ServerLatencyController(m_serversModel, this);
+    setQmlContextProperty("ServerLatencyController", m_serverLatencyController);
 
     m_ipSplitTunnelingUiController = new IpSplitTunnelingUiController(m_ipSplitTunnelingController, m_ipSplitTunnelingModel, this);
     setQmlContextProperty("IpSplitTunnelingController", m_ipSplitTunnelingUiController);

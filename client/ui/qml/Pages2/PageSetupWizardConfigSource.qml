@@ -188,7 +188,10 @@ PageType {
                 text: qsTr("Continue")
 
                 clickedFunc: function() {
-                    if (ImportController.extractConfigFromData(textKey.textField.text)) {
+                    PageController.showBusyIndicator(true)
+                    var ok = ImportController.extractConfigFromData(textKey.textField.text)
+                    PageController.showBusyIndicator(false)
+                    if (ok) {
                         PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
                     }
                 }

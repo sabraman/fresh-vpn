@@ -73,6 +73,7 @@ signals:
 
 private:
     ConfigTypes checkConfigFormat(const QString &config) const;
+    QString firstUriFromSubscription(const QString &data) const;
     QJsonObject extractOpenVpnConfig(const QString &data) const;
     QJsonObject extractWireGuardConfig(const QString &data, ConfigTypes &configType) const;
     QJsonObject extractXrayConfig(const QString &data, ConfigTypes configType, const QString &description = "") const;

@@ -144,6 +144,8 @@
         <file>Components/AwgTextField.qml</file>
         <file>Pages2/PageSettingsApiSubscriptionKey.qml</file>
         <file>Components/SmartScroll.qml</file>
+        <file>Pages2/PageStatistics.qml</file>
+        <file>Pages2/PageProfile.qml</file>
     </qresource>
 </RCC>
 

@@ -63,7 +63,7 @@ PageType {
         color: AmneziaStyle.color.paleGray
         font.pixelSize: 32
         font.weight: 700
-        font.family: "PT Root UI VF"
+        font.family: "Inter"
         wrapMode: Text.WordWrap
     }
 
@@ -252,7 +252,7 @@ PageType {
                                 selectedTextColor: AmneziaStyle.color.paleGray
                                 font.pixelSize: 16
                                 font.weight: Font.Medium
-                                font.family: "PT Root UI VF"
+                                font.family: "Inter"
                                 text: ExportController.config
                                 wrapMode: Text.Wrap
                                 background: Rectangle { color: AmneziaStyle.color.transparent }

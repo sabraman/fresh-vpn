@@ -39,7 +39,7 @@ void SecureAppSettingsRepository::setValue(const QString &key, const QVariant &v
 
 QLocale SecureAppSettingsRepository::getAppLanguage() const
 {
-    QString localeStr = value("Conf/appLanguage", QLocale::system().name()).toString();
+    QString localeStr = value("Conf/appLanguage", QStringLiteral("ru_RU")).toString();
     return QLocale(localeStr);
 }
 

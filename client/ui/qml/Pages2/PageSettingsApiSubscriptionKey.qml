@@ -229,7 +229,7 @@ PageType {
                     selectedTextColor: AmneziaStyle.color.paleGray
                     font.pixelSize: 16
                     font.weight: Font.Medium
-                    font.family: "PT Root UI VF"
+                    font.family: "Inter"
                     text: SubscriptionUiController.vpnKey
                     wrapMode: Text.Wrap
                     background: Rectangle { color: AmneziaStyle.color.transparent }

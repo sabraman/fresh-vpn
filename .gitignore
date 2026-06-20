@@ -144,3 +144,10 @@ macos-with-sign-build.sh
 DeveloperIdApplicationCertificate.p12
 DeveloperIdInstallerCertificate.p12
 
+
+# Fresh local build + backups (not for cloud)
+build_cc/
+build/
+*.bak-pre-*
+*bak-pre*
+*.bak*

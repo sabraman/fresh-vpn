@@ -19,6 +19,7 @@ ConnectionUiController::ConnectionUiController(ConnectionController* connectionC
       m_serversController(serversController)
 {
     connect(m_connectionController, &ConnectionController::connectionStateChanged, this, &ConnectionUiController::onConnectionStateChanged);
+    connect(m_connectionController, &ConnectionController::bytesChanged, this, &ConnectionUiController::onBytesChanged);
 
     connect(this, &ConnectionUiController::connectButtonClicked, this, &ConnectionUiController::toggleConnection, Qt::QueuedConnection);
 
@@ -63,6 +64,9 @@ void ConnectionUiController::onConnectionStateChanged(Vpn::ConnectionState state
         m_isConnectionInProgress = false;
         m_isConnected = true;
         m_connectionStateText = tr("Connected");
+        m_sessionRx = 0; m_sessionTx = 0; m_rxSpeedMbps = 0.0; m_txSpeedMbps = 0.0;
+        m_speedTimer.start();
+        emit trafficChanged();
         break;
     }
     case Vpn::ConnectionState::Connecting: {
@@ -75,6 +79,8 @@ void ConnectionUiController::onConnectionStateChanged(Vpn::ConnectionState state
         break;
     }
     case Vpn::ConnectionState::Disconnected: {
+        m_sessionRx = 0; m_sessionTx = 0; m_rxSpeedMbps = 0.0; m_txSpeedMbps = 0.0;
+        emit trafficChanged();
         m_isConnectionInProgress = false;
         m_connectionStateText = tr("Connect");
         break;
@@ -200,3 +206,28 @@ bool ConnectionUiController::isRevokeBlockedDuringActiveConnection(const QString
 
     return connectionClientId == clientId || connectionClientId.contains(clientId);
 }
+
+void ConnectionUiController::onBytesChanged(quint64 receivedBytes, quint64 sentBytes)
+{
+    qint64 ms;
+    if (m_speedTimer.isValid()) {
+        ms = m_speedTimer.restart();
+    } else {
+        m_speedTimer.start();
+        ms = 1000;
+    }
+    double dt = ms > 0 ? ms / 1000.0 : 1.0;
+
+    m_sessionRx += receivedBytes;
+    m_sessionTx += sentBytes;
+
+    m_rxSpeedMbps = (receivedBytes * 8.0 / 1e6) / dt;
+    m_txSpeedMbps = (sentBytes * 8.0 / 1e6) / dt;
+
+    emit trafficChanged();
+}
+
+double ConnectionUiController::rxSpeedMbps() const { return m_rxSpeedMbps; }
+double ConnectionUiController::txSpeedMbps() const { return m_txSpeedMbps; }
+double ConnectionUiController::rxTotalBytes() const { return static_cast<double>(m_sessionRx); }
+double ConnectionUiController::txTotalBytes() const { return static_cast<double>(m_sessionTx); }

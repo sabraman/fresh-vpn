@@ -83,7 +83,7 @@ Button {
                     anchors.verticalCenter: parent.top
 
                     radius: 10
-                    color: AmneziaStyle.color.softViolet
+                    color: AmneziaStyle.color.goldenApricot
                     implicitHeight: recLabel.implicitHeight + 8
                     implicitWidth: recLabel.implicitWidth + 16
 
@@ -95,6 +95,7 @@ Button {
 
                         anchors.centerIn: parent
                         text: root.recommendedText
+                        color: AmneziaStyle.color.midnightBlack
                     }
                 }
             }

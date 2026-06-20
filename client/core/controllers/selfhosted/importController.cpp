@@ -162,6 +162,19 @@ ImportController::ImportResult ImportController::extractConfigFromData(const QSt
     }
 
     configType = checkConfigFormat(config);
+
+    // Subscription support: the fetched body may be a base64 blob or a newline-separated
+    // list of share-URIs (vless/vmess/trojan/ss). Take the first usable server from it.
+    if (configType == ConfigTypes::Invalid && !config.trimmed().startsWith("vpn://")) {
+        const QString firstUri = firstUriFromSubscription(config);
+        if (!firstUri.isEmpty() && firstUri != config.trimmed()) {
+            ImportResult subResult = extractConfigFromData(firstUri, configFileName);
+            if (subResult.errorCode == ErrorCode::NoError && !subResult.config.empty()) {
+                return subResult;
+            }
+        }
+    }
+
     if (configType == ConfigTypes::Invalid) {
         config.replace("vpn://", "");
         QByteArray ba = QByteArray::fromBase64(config.toUtf8(), QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
@@ -453,6 +466,49 @@ QJsonObject ImportController::processNativeWireGuardConfig(const QJsonObject &co
         result[configKey::containers] = containers;
     }
     return result;
+}
+
+QString ImportController::firstUriFromSubscription(const QString &data) const
+{
+    static const QStringList schemes = { "vless://", "vmess://", "trojan://", "ss://", "ssd://" };
+
+    auto pickFirstUri = [](const QString &text) -> QString {
+        const QStringList lines = text.split(QRegularExpression("[\\r\\n]+"), Qt::SkipEmptyParts);
+        for (const QString &rawLine : lines) {
+            const QString line = rawLine.trimmed();
+            for (const QString &scheme : schemes) {
+                if (line.startsWith(scheme)) {
+                    return line;
+                }
+            }
+        }
+        return QString();
+    };
+
+    // 1) Plain text: one share-URI per line (decoded subscription or pasted list).
+    const QString direct = pickFirstUri(data);
+    if (!direct.isEmpty()) {
+        return direct;
+    }
+
+    // 2) Base64-encoded subscription blob (the v2ray/xray standard).
+    QString compact = data;
+    compact.remove(QRegularExpression("\\s"));
+    if (compact.isEmpty()) {
+        return QString();
+    }
+
+    QByteArray decoded = QByteArray::fromBase64(compact.toUtf8(),
+                                                QByteArray::Base64Encoding | QByteArray::AbortOnBase64DecodingErrors);
+    if (decoded.isEmpty()) {
+        decoded = QByteArray::fromBase64(compact.toUtf8(),
+                                         QByteArray::Base64UrlEncoding | QByteArray::AbortOnBase64DecodingErrors);
+    }
+    if (!decoded.isEmpty()) {
+        return pickFirstUri(QString::fromUtf8(decoded));
+    }
+
+    return QString();
 }
 
 ConfigTypes ImportController::checkConfigFormat(const QString &config) const

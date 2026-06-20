@@ -312,114 +312,102 @@ PageType {
         }
     }
 
-    TabBar {
+    Item {
         id: tabBar
         objectName: "tabBar"
 
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-
-        // Also adjust TabBar position when keyboard appears (Android 14+ workaround)
         anchors.bottomMargin: PageController.imeHeight
 
-        topPadding: 8
-        bottomPadding: 8 + PageController.safeAreaBottomMargin
-        leftPadding: 96
-        rightPadding: 96
-
-        height: visible ? homeTabButton.implicitHeight + tabBar.topPadding + tabBar.bottomPadding : 0
+        property int currentIndex: 0
+        function setCurrentIndex(i) { currentIndex = i }
 
         enabled: !root.isControlsDisabled && !root.isTabBarDisabled
+        height: visible ? 60 + PageController.safeAreaBottomMargin : 0
 
-        background: Shape {
-            objectName: "backgroundShape"
-
-            width: parent.width
-            height: parent.height
-
-            ShapePath {
-                startX: 0
-                startY: 0
-
-                PathLine { x: width; y: 0 }
-                PathLine { x: width; y: tabBar.height - 1 }
-                PathLine { x: 0; y: tabBar.height - 1 }
-                PathLine { x: 0; y: 0 }
-
-                strokeWidth: 1
-                strokeColor: AmneziaStyle.color.slateGray
-                fillColor: AmneziaStyle.color.onyxBlack
-            }
-        }
-
-        TabImageButtonType {
-            id: homeTabButton
-            objectName: "homeTabButton"
-
-            isSelected: tabBar.currentIndex === 0
-            image: "qrc:/images/controls/home.svg"
-            clickedFunc: function () {
+        function navTo(i) {
+            tabBar.currentIndex = i
+            if (i === 0) {
                 tabBarStackView.goToTabBarPage(PageEnum.PageHome)
                 ServersUiController.setProcessedServerId(ServersUiController.defaultServerId)
-                tabBar.currentIndex = 0
+            } else if (i === 1) {
+                tabBarStackView.goToTabBarPage(PageEnum.PageSettingsServersList)
+            } else if (i === 2) {
+                tabBarStackView.goToTabBarPage(PageEnum.PageStatistics)
+            } else if (i === 3) {
+                ServersUiController.setProcessedServerId(ServersUiController.defaultServerId)
+                tabBarStackView.goToTabBarPage(PageEnum.PageProfile)
             }
         }
 
-        TabImageButtonType {
-            id: shareTabButton
-            objectName: "shareTabButton"
+        Rectangle {
+            anchors.fill: parent
+            color: AmneziaStyle.color.onyxBlack
+            Rectangle { width: parent.width; height: 1; color: Qt.rgba(1,1,1,0.06); anchors.top: parent.top }
+        }
 
-            Connections {
-                target: ServersModel
+        Row {
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 52
 
-                function onModelReset() {
-                    if (!SettingsController.isOnTv()) {
-                        var hasServerWithWriteAccess = ServersUiController.hasServerWithWriteAccess()
-                        shareTabButton.visible = hasServerWithWriteAccess
-                        shareTabButton.width = hasServerWithWriteAccess ? undefined : 0
+            Repeater {
+                model: [
+                    { lbl: qsTr("Главная"),    t: "house" },
+                    { lbl: qsTr("Серверы"),    t: "globe" },
+                    { lbl: qsTr("Статистика"), t: "chart" },
+                    { lbl: qsTr("Профиль"),    t: "user" }
+                ]
+                delegate: Item {
+                    width: tabBar.width / 4
+                    height: 52
+                    property bool sel: tabBar.currentIndex === index
+                    property color c: sel ? AmneziaStyle.color.goldenApricotStrong : AmneziaStyle.color.mutedGray
+
+                    Rectangle {
+                        visible: parent.sel
+                        width: 20; height: 3; radius: 2
+                        color: AmneziaStyle.color.goldenApricotStrong
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: 0
+                    }
+
+                    Canvas {
+                        width: 24; height: 24
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: 6
+                        property color col: parent.c
+                        property string tp: modelData.t
+                        onColChanged: requestPaint()
+                        onPaint: {
+                            var c = getContext("2d"); c.reset()
+                            c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.8; c.lineCap = "round"; c.lineJoin = "round"
+                            if (tp === "house") { c.beginPath(); c.moveTo(12,3); c.lineTo(21,11); c.lineTo(19,11); c.lineTo(19,21); c.lineTo(5,21); c.lineTo(5,11); c.lineTo(3,11); c.closePath(); c.stroke() }
+                            else if (tp === "globe") { c.beginPath(); c.arc(12,12,9,0,2*Math.PI); c.stroke(); c.beginPath(); c.moveTo(3,12); c.lineTo(21,12); c.stroke(); c.beginPath(); c.moveTo(12,3); c.bezierCurveTo(6,7,6,17,12,21); c.stroke(); c.beginPath(); c.moveTo(12,3); c.bezierCurveTo(18,7,18,17,12,21); c.stroke() }
+                            else if (tp === "chart") { c.beginPath(); c.moveTo(4,4); c.lineTo(4,20); c.lineTo(21,20); c.stroke(); c.beginPath(); c.moveTo(7,15); c.lineTo(11,10); c.lineTo(14,13); c.lineTo(20,6); c.stroke() }
+                            else if (tp === "user") { c.beginPath(); c.arc(12,12,9,0,2*Math.PI); c.stroke(); c.beginPath(); c.arc(12,10,3.2,0,2*Math.PI); c.stroke(); c.beginPath(); c.arc(12,21,6,Math.PI*1.15,Math.PI*1.85,false); c.stroke() }
+                        }
+                    }
+
+                    Text {
+                        text: modelData.lbl
+                        color: parent.c
+                        font.pixelSize: 10
+                        font.weight: parent.sel ? 700 : 600
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: 33
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: tabBar.navTo(index)
                     }
                 }
-            }
-
-            visible: !SettingsController.isOnTv() && ServersUiController.hasServerWithWriteAccess()
-            width: !SettingsController.isOnTv() && ServersUiController.hasServerWithWriteAccess() ? undefined : 0
-
-            isSelected: tabBar.currentIndex === 1
-            image: "qrc:/images/controls/share-2.svg"
-            clickedFunc: function () {
-                tabBarStackView.goToTabBarPage(PageEnum.PageShare)
-                tabBar.currentIndex = 1
-            }
-        }
-
-        TabImageButtonType {
-            id: settingsTabButton
-            objectName: "settingsTabButton"
-
-            isSelected: tabBar.currentIndex === 2
-            image: (ServersUiController.hasServersFromGatewayApi && NewsModel.hasUnread && SettingsController.isNewsNotificationsEnabled()) ? "qrc:/images/controls/settings-news.svg" : "qrc:/images/controls/settings.svg"
-            Binding {
-                target: settingsTabButton
-                property: "defaultColor"
-                value: "transparent"
-                when: (ServersUiController.hasServersFromGatewayApi && NewsModel.hasUnread)
-            }
-            clickedFunc: function () {
-                tabBarStackView.goToTabBarPage(PageEnum.PageSettings)
-                tabBar.currentIndex = 2
-            }
-        }
-
-        TabImageButtonType {
-            id: plusTabButton
-            objectName: "plusTabButton"
-
-            isSelected: tabBar.currentIndex === 3
-            image: "qrc:/images/controls/plus.svg"
-            clickedFunc: function () {
-                tabBarStackView.goToTabBarPage(PageEnum.PageSetupWizardConfigSource)
-                tabBar.currentIndex = 3
             }
         }
     }
