@@ -1,0 +1,71 @@
+name: Build Fresh VPN (Windows)
+
+on:
+  push:
+    branches: [ fresh-vpn ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    env:
+      QT_VERSION: 6.10.1
+    steps:
+      - name: Checkout (recursive submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install conan
+        run: pip install "conan==2.28.0"
+
+      - name: Conan profile + amnezia remote (anonymous read)
+        shell: bash
+        run: |
+          conan profile detect --force
+          conan remote add amnezia https://artifactory.amnezia.org/artifactory/api/conan/client-prebuilts || echo "remote exists"
+          conan remote list
+
+      - name: Install Qt ${{ env.QT_VERSION }}
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          modules: qtremoteobjects qt5compat qtshadertools
+          dir: ${{ runner.temp }}
+          setup-python: false
+          set-env: true
+          aqtversion: '==3.3.0'
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build (exe, Release)
+        shell: cmd
+        env:
+          QT_INSTALL_DIR: ${{ runner.temp }}
+        run: |
+          deploy\build.bat
+
+      - name: Bundle Qt runtime (windeployqt) + zip
+        shell: cmd
+        run: |
+          windeployqt --qmldir client\ui\qml --release deploy\build\client\AmneziaVPN.exe
+          powershell -Command "Compress-Archive -Path deploy\build\client\* -DestinationPath FreshVPN-windows.zip -Force"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreshVPN-windows
+          path: FreshVPN-windows.zip
+          retention-days: 7
