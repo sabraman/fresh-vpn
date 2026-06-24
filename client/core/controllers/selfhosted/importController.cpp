@@ -419,7 +419,9 @@ void ImportController::importConfig(const QJsonObject &config)
         }
     } else {
         qDebug() << "Failed to import profile";
-        qDebug().noquote() << QJsonDocument(config).toJson();
+        // SECURITY: never dump the full config - it may contain clientPrivKey / passwords.
+        // Log only field names (keys), never their values.
+        qDebug().noquote() << "Config rejected (contents omitted to avoid logging secrets); fields:" << config.keys();
         emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
     }
 }

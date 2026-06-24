@@ -65,5 +65,21 @@ jobs:
       env:
         QT_INSTALL_DIR: ${{ runner.temp }}
       run: |
-        sh deploy/build.sh -t ios || echo "::warning::iOS build stopped (expected without signing) - this run is a compile-check only"
-        echo "iOS compile-check finished. Device install needs Apple Developer signing."
+        set -o pipefail
+        # Capture the build result instead of blanket-masking it with "|| echo".
+        sh deploy/build.sh -t ios 2>&1 | tee build_ios.log && BUILD_RC=0 || BUILD_RC=$?
+        if [ "${BUILD_RC:-0}" -eq 0 ]; then
+          echo "iOS build fully succeeded."
+          exit 0
+        fi
+        # Non-zero: distinguish a REAL compile regression from the expected code-signing failure.
+        if grep -qiE 'error: |fatal error|ld: |[Uu]ndefined symbol|CMake Error|compilation terminated' build_ios.log; then
+          echo "::error::iOS COMPILE failure detected (not signing) - failing the compile-check."
+          exit 1
+        fi
+        if grep -qiE 'code ?sign|provisioning|development team|Signing for' build_ios.log; then
+          echo "::warning::iOS compiled OK; failed only at code-signing (expected for an unsigned compile-check)."
+          exit 0
+        fi
+        echo "::error::iOS build failed for an unrecognized reason - failing so it gets reviewed."
+        exit 1
