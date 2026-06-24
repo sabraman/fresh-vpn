@@ -17,12 +17,12 @@ QtObject {
         readonly property color goldenApricotPressed: '#9FC72E'
         readonly property color benefitsPanelBackground: '#1C1C1E'
         readonly property color softViolet: '#A87BE2'
-        readonly property color burntOrange: '#A85809'
-        readonly property color mutedBrown: '#84603D'
-        readonly property color richBrown: '#633303'
-        readonly property color deepBrown: '#402102'
+        readonly property color burntOrange: '#9FC72E'
+        readonly property color mutedBrown: '#6E7A50'
+        readonly property color richBrown: '#9FC72E'
+        readonly property color deepBrown: '#3E4A22'
         readonly property color vibrantRed: '#EB5757'
-        readonly property color darkCharcoal: '#261E1A'
+        readonly property color darkCharcoal: '#1A1C18'
         readonly property color pearlGray: '#EAEAEC'
 
         readonly property color sheerWhite: Qt.rgba(1, 1, 1, 0.12)
@@ -32,7 +32,7 @@ QtObject {
         readonly property color softGoldenApricot: Qt.rgba(184/255, 230/255, 65/255, 0.3)
         readonly property color mistyGray: Qt.rgba(245/255, 244/255, 239/255, 0.8)
         readonly property color cloudyGray: Qt.rgba(245/255, 244/255, 239/255, 0.65)
-        readonly property color translucentRichBrown: Qt.rgba(99/255, 51/255, 3/255, 0.26)
+        readonly property color translucentRichBrown: Qt.rgba(184/255, 230/255, 65/255, 0.12)
         readonly property color translucentSlateGray: Qt.rgba(85/255, 86/255, 92/255, 0.13)
         readonly property color translucentOnyxBlack: Qt.rgba(28/255, 29/255, 33/255, 0.13)
 

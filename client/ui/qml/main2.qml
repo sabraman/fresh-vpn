@@ -3,6 +3,8 @@ import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import QtQuick.Shapes
+import Qt5Compat.GraphicalEffects
 
 import PageEnum 1.0
 import Style 1.0
@@ -54,17 +56,17 @@ Window  {
     }
 
     visible: true
-    width: GC.screenWidth
-    height: GC.screenHeight
-    minimumWidth: GC.isDesktop() ? 360 : 0
-    minimumHeight: GC.isDesktop() ? 640 : 0
-    maximumWidth: 600
-    maximumHeight: 800
+    width: GC.isDesktop() ? 1080 : GC.screenWidth
+    height: GC.isDesktop() ? 720 : GC.screenHeight
+    minimumWidth: GC.isDesktop() ? 900 : 0
+    minimumHeight: GC.isDesktop() ? 600 : 0
+    maximumWidth: GC.isDesktop() ? 1600 : 600
+    maximumHeight: GC.isDesktop() ? 1000 : 800
 
     flags: Qt.platform.os === "windows" ? (Qt.Window | Qt.FramelessWindowHint) : Qt.Window
-    property int chromeHeight: Qt.platform.os === "windows" ? 34 : 0
+    property int chromeHeight: Qt.platform.os === "windows" ? 42 : 0
 
-    color: AmneziaStyle.color.midnightBlack
+    color: Qt.platform.os === "windows" ? "transparent" : AmneziaStyle.color.midnightBlack
 
     onClosing: function(close) {
         close.accepted = false
@@ -163,6 +165,21 @@ Window  {
         }
     }
 
+    Item {
+        id: winContent
+        anchors.fill: parent
+        layer.enabled: Qt.platform.os === "windows"
+        layer.smooth: true
+        layer.effect: OpacityMask {
+            maskSource: Rectangle {
+                width: winContent.width
+                height: winContent.height
+                radius: 16
+            }
+        }
+
+        Rectangle { id: winBg; anchors.fill: parent; color: AmneziaStyle.color.midnightBlack }
+
     PageStart {
         objectName: "pageStart"
         y: root.chromeHeight
@@ -170,7 +187,7 @@ Window  {
         height: root.height - root.chromeHeight
     }
 
-    // ===== Fresh window chrome (frameless title bar, Windows only) =====
+    // ===== Fresh window chrome (frameless, Windows only) — demo "Quiet Fortress" look =====
     Rectangle {
         id: freshTitleBar
         visible: Qt.platform.os === "windows"
@@ -178,32 +195,91 @@ Window  {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        color: AmneziaStyle.color.midnightBlack
+        color: "#15151A"
 
         Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: Qt.rgba(1,1,1,0.07) }
 
         DragHandler { target: null; onActiveChanged: if (active) root.startSystemMove() }
 
+        // ---- Brand (left): lime logo + leaf + two-tone wordmark ----
         Row {
-            anchors.right: parent.right
-            anchors.top: parent.top
-            height: parent.height
+            anchors.left: parent.left
+            anchors.leftMargin: 14
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 10
 
             Rectangle {
-                width: 46; height: parent.height
-                color: minMA.containsMouse ? Qt.rgba(1,1,1,0.08) : "transparent"
-                Rectangle { anchors.centerIn: parent; width: 11; height: 1; color: AmneziaStyle.color.mutedGray }
-                MouseArea { id: minMA; anchors.fill: parent; hoverEnabled: true; onClicked: root.showMinimized() }
+                width: 26; height: 26; radius: 8
+                anchors.verticalCenter: parent.verticalCenter
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#B8E641" }
+                    GradientStop { position: 1.0; color: "#1F7A3A" }
+                }
+                Shape {
+                    anchors.centerIn: parent
+                    width: 15; height: 15
+                    ShapePath {
+                        fillColor: "#0E0E10"
+                        strokeWidth: 0
+                        PathSvg { path: "M7.5 1 C4 3 2.5 5.5 2.5 8.4 a4.6 4.6 0 0 0 9.2 0 c0 -1.9 -0.9 -3.7 -2.3 -5.1 -0.5 2.3 -1.9 3.2 -3.2 4.1 0.5 -2.3 0.9 -4.1 0.9 -6 z" }
+                    }
+                }
+            }
+
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 3
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Fresh"
+                    color: "#F5F4EF"
+                    font.pixelSize: 14
+                    font.weight: Font.ExtraBold
+                }
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "VPN"
+                    color: Qt.rgba(245/255, 244/255, 239/255, 0.62)
+                    font.pixelSize: 12
+                    font.weight: Font.Medium
+                }
+            }
+        }
+
+        // ---- Window controls as round dots (right): minimize / maximize / close ----
+        Row {
+            anchors.right: parent.right
+            anchors.rightMargin: 14
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 9
+
+            Rectangle {
+                width: 12; height: 12; radius: 6
+                anchors.verticalCenter: parent.verticalCenter
+                color: minMA.containsMouse ? "#55555E" : "#3A3A40"
+                Rectangle { anchors.centerIn: parent; width: 6; height: 1.4; radius: 1; color: "#0E0E10"; visible: minMA.containsMouse }
+                MouseArea { id: minMA; anchors.fill: parent; anchors.margins: -4; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.showMinimized() }
             }
             Rectangle {
-                width: 46; height: parent.height
-                color: closeMA.containsMouse ? "#E5484D" : "transparent"
-                Item {
-                    anchors.centerIn: parent; width: 12; height: 12
-                    Rectangle { anchors.centerIn: parent; width: 13; height: 1.4; rotation: 45; color: closeMA.containsMouse ? "#FFFFFF" : AmneziaStyle.color.mutedGray }
-                    Rectangle { anchors.centerIn: parent; width: 13; height: 1.4; rotation: -45; color: closeMA.containsMouse ? "#FFFFFF" : AmneziaStyle.color.mutedGray }
+                width: 12; height: 12; radius: 6
+                anchors.verticalCenter: parent.verticalCenter
+                color: maxMA.containsMouse ? "#55555E" : "#3A3A40"
+                Rectangle { anchors.centerIn: parent; width: 7; height: 7; radius: 2; color: "transparent"; border.color: "#0E0E10"; border.width: 1.4; visible: maxMA.containsMouse }
+                MouseArea {
+                    id: maxMA; anchors.fill: parent; anchors.margins: -4; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                    onClicked: root.visibility === Window.Maximized ? root.showNormal() : root.showMaximized()
                 }
-                MouseArea { id: closeMA; anchors.fill: parent; hoverEnabled: true; onClicked: root.close() }
+            }
+            Rectangle {
+                width: 12; height: 12; radius: 6
+                anchors.verticalCenter: parent.verticalCenter
+                color: closeMA.containsMouse ? "#E5484D" : "#46262A"
+                Item {
+                    anchors.centerIn: parent; width: 8; height: 8; visible: closeMA.containsMouse
+                    Rectangle { anchors.centerIn: parent; width: 9; height: 1.4; rotation: 45; color: "#FFFFFF" }
+                    Rectangle { anchors.centerIn: parent; width: 9; height: 1.4; rotation: -45; color: "#FFFFFF" }
+                }
+                MouseArea { id: closeMA; anchors.fill: parent; anchors.margins: -4; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.close() }
             }
         }
     }
@@ -212,9 +288,11 @@ Window  {
         visible: Qt.platform.os === "windows"
         anchors.fill: parent
         color: "transparent"
+        radius: 16
         border.color: Qt.rgba(1,1,1,0.09)
         border.width: 1
     }
+    } // winContent rounded mask
     // ===== Edge resize handles (frameless, Windows only) =====
     Item {
         visible: Qt.platform.os === "windows"
@@ -453,7 +531,7 @@ Window  {
 
     function showUnsupportedConnectDrawer() {
         let headerText = qsTr("This subscription format is no longer supported")
-        let descriptionText = qsTr("This legacy Amnezia subscription type can no longer be used to connect in this application version.\nRemove the server from the app to continue.")
+        let descriptionText = qsTr("This legacy Fresh subscription type can no longer be used to connect in this application version.\nRemove the server from the app to continue.")
         let yesButtonText = qsTr("Continue")
         let noButtonText = qsTr("Cancel")
 

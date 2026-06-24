@@ -18,6 +18,15 @@ PageType {
     property bool isControlsDisabled: false
     property bool isTabBarDisabled: false
 
+    function iconPath(t) {
+        if (t === "house") return "M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z M9 22V12H15V22"
+        if (t === "globe") return "M15 21V17C15 16.4696 15.2107 15.9609 15.5858 15.5858C15.9609 15.2107 16.4696 15 17 15H21 M7 4V6C7.21572 6.61347 7.62494 7.14024 8.16602 7.50096C8.7071 7.86168 9.35075 8.03682 10 8V8C10.5304 8 11.0391 8.21071 11.4142 8.58579C11.7893 8.96086 12 9.46957 12 10C12 10.5304 12.2107 11.0391 12.5858 11.4142C12.9609 11.7893 13.4696 12 14 12C14.5304 12 15.0391 11.7893 15.4142 11.4142C15.7893 11.0391 16 10.5304 16 10C16 9.46957 16.2107 8.96086 16.5858 8.58579C16.9609 8.21071 17.4696 8 18 8H21 M3 11H5C5.53043 11 6.03914 11.2107 6.41421 11.5858C6.78929 11.9609 7 12.4696 7 13V14C7 14.5304 7.21071 15.0391 7.58579 15.4142C7.96086 15.7893 8.46957 16 9 16C9.53043 16 10.0391 16.2107 10.4142 16.5858C10.7893 16.9609 11 17.4696 11 18V22 M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+        if (t === "chart") return "M12 15L15.5 11.5 M20.3 18C20.7 17 21 15.8 21 14.6C21 9.8 17 6 12 6C7 6 3 9.8 3 14.6C3 15.8 3.3 17 3.7 18"
+        if (t === "user") return "M8.6 8A3.4 3.4 0 1 0 15.4 8A3.4 3.4 0 1 0 8.6 8 M5.5 20C5.5 16 8.5 14 12 14C15.5 14 18.5 16 18.5 20"
+        if (t === "gear") return "M12.22 2H11.78C11.2496 2 10.7409 2.21071 10.3658 2.58579C9.99072 2.96086 9.78 3.46957 9.78 4V4.18C9.77964 4.53073 9.68706 4.87519 9.51154 5.17884C9.33602 5.48248 9.08374 5.73464 8.78 5.91L8.35 6.16C8.04596 6.33554 7.70108 6.42795 7.35 6.42795C6.99893 6.42795 6.65404 6.33554 6.35 6.16L6.2 6.08C5.74107 5.81526 5.19584 5.74344 4.684 5.88031C4.17217 6.01717 3.73555 6.35154 3.47 6.81L3.25 7.19C2.98526 7.64893 2.91345 8.19416 3.05031 8.706C3.18717 9.21783 3.52154 9.65445 3.98 9.92L4.13 10.02C4.43228 10.1945 4.68362 10.4451 4.85905 10.7468C5.03448 11.0486 5.1279 11.391 5.13 11.74V12.25C5.1314 12.6024 5.03965 12.949 4.86405 13.2545C4.68844 13.5601 4.43521 13.8138 4.13 13.99L3.98 14.08C3.52154 14.3456 3.18717 14.7822 3.05031 15.294C2.91345 15.8058 2.98526 16.3511 3.25 16.81L3.47 17.19C3.73555 17.6485 4.17217 17.9828 4.684 18.1197C5.19584 18.2566 5.74107 18.1847 6.2 17.92L6.35 17.84C6.65404 17.6645 6.99893 17.5721 7.35 17.5721C7.70108 17.5721 8.04596 17.6645 8.35 17.84L8.78 18.09C9.08374 18.2654 9.33602 18.5175 9.51154 18.8212C9.68706 19.1248 9.77964 19.4693 9.78 19.82V20C9.78 20.5304 9.99072 21.0391 10.3658 21.4142C10.7409 21.7893 11.2496 22 11.78 22H12.22C12.7504 22 13.2591 21.7893 13.6342 21.4142C14.0093 21.0391 14.22 20.5304 14.22 20V19.82C14.2204 19.4693 14.3129 19.1248 14.4885 18.8212C14.664 18.5175 14.9163 18.2654 15.22 18.09L15.65 17.84C15.954 17.6645 16.2989 17.5721 16.65 17.5721C17.0011 17.5721 17.346 17.6645 17.65 17.84L17.8 17.92C18.2589 18.1847 18.8042 18.2566 19.316 18.1197C19.8278 17.9828 20.2645 17.6485 20.53 17.19L20.75 16.8C21.0147 16.3411 21.0866 15.7958 20.9497 15.284C20.8128 14.7722 20.4785 14.3356 20.02 14.07L19.87 13.99C19.5648 13.8138 19.3116 13.5601 19.136 13.2545C18.9604 12.949 18.8686 12.6024 18.87 12.25V11.75C18.8686 11.3976 18.9604 11.051 19.136 10.7455C19.3116 10.4399 19.5648 10.1862 19.87 10.01L20.02 9.92C20.4785 9.65445 20.8128 9.21783 20.9497 8.706C21.0866 8.19416 21.0147 7.64893 20.75 7.19L20.53 6.81C20.2645 6.35154 19.8278 6.01717 19.316 5.88031C18.8042 5.74344 18.2589 5.81526 17.8 6.08L17.65 6.16C17.346 6.33554 17.0011 6.42795 16.65 6.42795C16.2989 6.42795 15.954 6.33554 15.65 6.16L15.22 5.91C14.9163 5.73464 14.664 5.48248 14.4885 5.17884C14.3129 4.87519 14.2204 4.53073 14.22 4.18V4C14.22 3.46957 14.0093 2.96086 13.6342 2.58579C13.2591 2.21071 12.7504 2 12.22 2Z M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+        return ""
+    }
+
     Connections {
         objectName: "pageControllerConnection"
 
@@ -35,7 +44,7 @@ PageType {
         }
 
         function onGoToPageSettings() {
-            tabBar.setCurrentIndex(2)
+            tabBar.setCurrentIndex(4)
             tabBarStackView.goToTabBarPage(PageEnum.PageSettings)
         }
 
@@ -268,8 +277,8 @@ PageType {
 
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.bottom: tabBar.top
+        anchors.left: tabBar.right
+        anchors.bottom: parent.bottom
 
         enabled: !root.isControlsDisabled
 
@@ -316,16 +325,20 @@ PageType {
         id: tabBar
         objectName: "tabBar"
 
-        anchors.right: parent.right
+        property bool isDesktop: GC.isDesktop()
+
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: PageController.imeHeight
+        anchors.top: isDesktop ? parent.top : undefined
+        anchors.right: isDesktop ? undefined : parent.right
+        anchors.bottomMargin: isDesktop ? 0 : PageController.imeHeight
 
         property int currentIndex: 0
         function setCurrentIndex(i) { currentIndex = i }
 
         enabled: !root.isControlsDisabled && !root.isTabBarDisabled
-        height: visible ? 60 + PageController.safeAreaBottomMargin : 0
+        width: isDesktop ? (visible ? 84 : 0) : parent.width
+        height: isDesktop ? parent.height : (visible ? 60 + PageController.safeAreaBottomMargin : 0)
 
         function navTo(i) {
             tabBar.currentIndex = i
@@ -339,16 +352,96 @@ PageType {
             } else if (i === 3) {
                 ServersUiController.setProcessedServerId(ServersUiController.defaultServerId)
                 tabBarStackView.goToTabBarPage(PageEnum.PageProfile)
+            } else if (i === 4) {
+                tabBarStackView.goToTabBarPage(PageEnum.PageSettings)
             }
         }
 
         Rectangle {
             anchors.fill: parent
             color: AmneziaStyle.color.onyxBlack
-            Rectangle { width: parent.width; height: 1; color: Qt.rgba(1,1,1,0.06); anchors.top: parent.top }
+            Rectangle {
+                color: Qt.rgba(1,1,1,0.06)
+                width: tabBar.isDesktop ? 1 : parent.width
+                height: tabBar.isDesktop ? parent.height : 1
+                anchors.right: tabBar.isDesktop ? parent.right : undefined
+                anchors.left: tabBar.isDesktop ? undefined : parent.left
+                anchors.top: parent.top
+            }
         }
 
+        // ===== Desktop: left rail (vertical, 5 items incl. Settings) =====
+        Column {
+            visible: tabBar.isDesktop
+            anchors.top: parent.top
+            anchors.topMargin: 14
+            anchors.left: parent.left
+            anchors.right: parent.right
+            spacing: 4
+
+            Repeater {
+                model: [
+                    { lbl: qsTr("Главная"),    t: "house" },
+                    { lbl: qsTr("Серверы"),    t: "globe" },
+                    { lbl: qsTr("Статистика"), t: "chart" },
+                    { lbl: qsTr("Профиль"),    t: "user" },
+                    { lbl: qsTr("Настройки"),  t: "gear" }
+                ]
+                delegate: Item {
+                    id: rnav
+                    width: tabBar.width
+                    height: 62
+                    property bool sel: tabBar.currentIndex === index
+                    property color c: sel ? AmneziaStyle.color.goldenApricotStrong : (rma.containsMouse ? AmneziaStyle.color.paleGray : AmneziaStyle.color.mutedGray)
+
+                    Rectangle {
+                        visible: rnav.sel
+                        width: 3; height: 32; radius: 2
+                        color: AmneziaStyle.color.goldenApricotStrong
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Shape {
+                        id: dIc
+                        width: 24; height: 24
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: 10
+                        antialiasing: true
+                        preferredRendererType: Shape.CurveRenderer
+                        ShapePath {
+                            strokeColor: rnav.c
+                            fillColor: "transparent"
+                            strokeWidth: 1.8
+                            capStyle: ShapePath.RoundCap
+                            joinStyle: ShapePath.RoundJoin
+                            PathSvg { path: root.iconPath(modelData.t) }
+                        }
+                    }
+
+                    Text {
+                        text: modelData.lbl
+                        color: rnav.c
+                        font.pixelSize: 11
+                        font.weight: rnav.sel ? 700 : 600
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: 38
+                    }
+
+                    MouseArea {
+                        id: rma
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: tabBar.navTo(index)
+                    }
+                }
+            }
+        }
+
+        // ===== Mobile: bottom bar (horizontal, 4 items) =====
         Row {
+            visible: !tabBar.isDesktop
             anchors.top: parent.top
             anchors.topMargin: 8
             anchors.left: parent.left
@@ -376,20 +469,20 @@ PageType {
                         y: 0
                     }
 
-                    Canvas {
+                    Shape {
+                        id: mIc
                         width: 24; height: 24
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: 6
-                        property color col: parent.c
-                        property string tp: modelData.t
-                        onColChanged: requestPaint()
-                        onPaint: {
-                            var c = getContext("2d"); c.reset()
-                            c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.8; c.lineCap = "round"; c.lineJoin = "round"
-                            if (tp === "house") { c.beginPath(); c.moveTo(12,3); c.lineTo(21,11); c.lineTo(19,11); c.lineTo(19,21); c.lineTo(5,21); c.lineTo(5,11); c.lineTo(3,11); c.closePath(); c.stroke() }
-                            else if (tp === "globe") { c.beginPath(); c.arc(12,12,9,0,2*Math.PI); c.stroke(); c.beginPath(); c.moveTo(3,12); c.lineTo(21,12); c.stroke(); c.beginPath(); c.moveTo(12,3); c.bezierCurveTo(6,7,6,17,12,21); c.stroke(); c.beginPath(); c.moveTo(12,3); c.bezierCurveTo(18,7,18,17,12,21); c.stroke() }
-                            else if (tp === "chart") { c.beginPath(); c.moveTo(4,4); c.lineTo(4,20); c.lineTo(21,20); c.stroke(); c.beginPath(); c.moveTo(7,15); c.lineTo(11,10); c.lineTo(14,13); c.lineTo(20,6); c.stroke() }
-                            else if (tp === "user") { c.beginPath(); c.arc(12,12,9,0,2*Math.PI); c.stroke(); c.beginPath(); c.arc(12,10,3.2,0,2*Math.PI); c.stroke(); c.beginPath(); c.arc(12,21,6,Math.PI*1.15,Math.PI*1.85,false); c.stroke() }
+                        antialiasing: true
+                        preferredRendererType: Shape.CurveRenderer
+                        ShapePath {
+                            strokeColor: mIc.parent.c
+                            fillColor: "transparent"
+                            strokeWidth: 1.8
+                            capStyle: ShapePath.RoundCap
+                            joinStyle: ShapePath.RoundJoin
+                            PathSvg { path: root.iconPath(modelData.t) }
                         }
                     }
 

@@ -550,7 +550,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="88"/>
-        <source>AmneziaVPN notification</source>
+        <source>Fresh VPN notification</source>
         <translation>Уведомление FreshVPN</translation>
     </message>
     <message>
@@ -1630,7 +1630,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="177"/>
-        <source>About AmneziaVPN</source>
+        <source>About Fresh VPN</source>
         <translation>Об FreshVPN</translation>
     </message>
     <message>
@@ -1902,7 +1902,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="102"/>
-        <source>Setup guides on the Amnezia website</source>
+        <source>Setup guides on the Fresh VPN website</source>
         <translation>Инструкции по настройке</translation>
     </message>
 </context>
@@ -1910,7 +1910,7 @@ Thank you for staying with us!</source>
     <name>PageSettingsApiNativeConfigs</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="23"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Fresh VPN config</source>
         <translation>Сохранить конфигурацию FreshVPN</translation>
     </message>
     <message>
@@ -2156,7 +2156,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="113"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Fresh VPN config</source>
         <translation>Сохранить конфигурацию FreshVPN</translation>
     </message>
     <message>
@@ -2171,7 +2171,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiSubscriptionKey.qml" line="180"/>
-        <source>To read the QR code in the Amnezia app, tap + in the main menu → &apos;QR code&apos;</source>
+        <source>To read the QR code in the Fresh VPN app, tap + in the main menu → &apos;QR code&apos;</source>
         <translation>Для считывания QR-кода в приложении Fresh выберите + в главном меню → &apos;QR-код&apos;</translation>
     </message>
 </context>
@@ -2375,7 +2375,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="243"/>
-        <source>All settings will be reset to default. All installed AmneziaVPN services will still remain on the server.</source>
+        <source>All settings will be reset to default. All installed Fresh VPN services will still remain on the server.</source>
         <translation>Все настройки будут сброшены до значений по умолчанию. Все установленные сервисы FreshVPN останутся на сервере.</translation>
     </message>
     <message>
@@ -2413,7 +2413,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsBackup.qml" line="90"/>
-        <source>The backup will contain your passwords and private keys for all servers added to AmneziaVPN. Keep this information in a secure place.</source>
+        <source>The backup will contain your passwords and private keys for all servers added to Fresh VPN. Keep this information in a secure place.</source>
         <translation>Резервная копия будет содержать ваши пароли и закрытые ключи для всех серверов, добавленных в FreshVPN. Храните эту информацию в надежном месте.</translation>
     </message>
     <message>
@@ -2805,7 +2805,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="182"/>
-        <source>AmneziaVPN logs</source>
+        <source>Fresh VPN logs</source>
         <translation>FreshVPN logs</translation>
     </message>
     <message>
@@ -2825,7 +2825,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="211"/>
-        <source>AmneziaVPN-service logs</source>
+        <source>Fresh VPN-service logs</source>
         <translation>FreshVPN-service logs</translation>
     </message>
     <message>
@@ -2872,7 +2872,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="110"/>
-        <source>Check the server for previously installed Amnezia services</source>
+        <source>Check the server for previously installed Fresh services</source>
         <translation>Проверить сервер на наличие ранее установленных сервисов Fresh</translation>
     </message>
     <message>
@@ -2912,7 +2912,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="188"/>
-        <source>Do you want to clear server from Amnezia software?</source>
+        <source>Do you want to clear server from Fresh software?</source>
         <translation>Вы хотите очистить сервер от всех сервисов Fresh?</translation>
     </message>
     <message>
@@ -2922,7 +2922,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="195"/>
-        <source>Cannot clear server from Amnezia software during active connection</source>
+        <source>Cannot clear server from Fresh software during active connection</source>
         <translation>Невозможно очистить сервер от сервисов Fresh во время активного соединения</translation>
     </message>
     <message>
@@ -2951,12 +2951,12 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="159"/>
-        <source>All installed AmneziaVPN services will still remain on the server.</source>
+        <source>All installed Fresh VPN services will still remain on the server.</source>
         <translation>Все установленные сервисы и протоколы Fresh останутся на сервере.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="184"/>
-        <source>Clear server from Amnezia software</source>
+        <source>Clear server from Fresh software</source>
         <translation>Очистить сервер от протоколов и сервисов Fresh</translation>
     </message>
 </context>
@@ -3263,7 +3263,7 @@ Thank you for staying with us!</source>
     <name>PageSetupWizardApiServicesList</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="52"/>
-        <source>VPN by Amnezia</source>
+        <source>Fresh VPN</source>
         <translation>VPN от Fresh</translation>
     </message>
     <message>
@@ -3395,7 +3395,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="256"/>
-        <source>Site Amnezia</source>
+        <source>Fresh VPN site</source>
         <translation>Сайт Fresh</translation>
     </message>
     <message>
@@ -3410,7 +3410,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="280"/>
-        <source>VPN by Amnezia</source>
+        <source>Fresh VPN</source>
         <translation>VPN от Fresh</translation>
     </message>
     <message>
@@ -3424,7 +3424,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="300"/>
-        <source>Configure Amnezia VPN on your own server</source>
+        <source>Configure Fresh VPN on your own server</source>
         <translation>Настроить VPN на собственном сервере</translation>
     </message>
     <message>
@@ -3513,7 +3513,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardCredentials.qml" line="144"/>
-        <source>All data you enter will remain strictly confidential and will not be shared or disclosed to the Amnezia or any third parties</source>
+        <source>All data you enter will remain strictly confidential and will not be shared or disclosed to Fresh or any third parties</source>
         <translation>Все данные, которые вы вводите, останутся строго конфиденциальными и не будут переданы или раскрыты Fresh или каким-либо третьим лицам</translation>
     </message>
     <message>
@@ -3579,12 +3579,12 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardInstalling.qml" line="69"/>
-        <source>Amnezia has detected that your server is currently </source>
+        <source>Fresh has detected that your server is currently </source>
         <translation>Fresh обнаружила, что ваш сервер в настоящее время </translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardInstalling.qml" line="70"/>
-        <source>busy installing other software. Amnezia installation </source>
+        <source>busy installing other software. Fresh installation </source>
         <translation>занят установкой других протоколов или сервисов. Установка Fresh </translation>
     </message>
     <message>
@@ -3767,7 +3767,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="50"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Fresh VPN config</source>
         <translation>Сохранить конфигурацию FreshVPN</translation>
     </message>
     <message>
@@ -3812,7 +3812,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="120"/>
-        <source>For the AmneziaVPN app</source>
+        <source>For the Fresh VPN app</source>
         <translation>Для приложения FreshVPN</translation>
     </message>
     <message>
@@ -3969,7 +3969,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="30"/>
-        <source>Save AmneziaVPN config</source>
+        <source>Save Fresh VPN config</source>
         <translation>Сохранить конфигурацию FreshVPN</translation>
     </message>
     <message>
@@ -3990,7 +3990,7 @@ Thank you for staying with us!</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShareConnection.qml" line="323"/>
-        <source>To read the QR code in the Amnezia app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
+        <source>To read the QR code in the Fresh VPN app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
         <translation>Для считывания QR-кода в приложении Fresh выберите &quot;Добавить сервер&quot; → &quot;У меня есть данные для подключения&quot; → &quot;Открыть файл конфигурации, ключ или QR-код&quot;</translation>
     </message>
 </context>
@@ -4707,7 +4707,7 @@ Thank you for staying with us!</source>
         <source>OpenVPN is one of the most popular and reliable VPN protocols. It uses SSL/TLS encryption, supports a wide variety of devices and operating systems, and is continuously improved by the community due to its open-source nature. It provides a good balance between speed and security but is easily recognized by DPI systems, making it susceptible to blocking.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Fresh VPN platforms
 * Normal battery consumption on mobile devices
 * Flexible customization for various devices and OS
 * Operates over both TCP and UDP protocols</source>
@@ -4724,7 +4724,7 @@ Features:
         <source>Shadowsocks is based on the SOCKS5 protocol and encrypts connections using AEAD cipher. Although designed to be discreet, it doesn&apos;t mimic a standard HTTPS connection and can be detected by some DPI systems. Due to limited support in Amnezia, we recommend using the AmneziaWG protocol.
 
 Features:
-* Available in AmneziaVPN only on desktop platforms
+* Available in Fresh VPN only on desktop platforms
 * Customizable encryption protocol
 * Detectable by some DPI systems
 * Operates over TCP protocol
@@ -4748,7 +4748,7 @@ The Cloak plugin further protects the connection from DPI detection. It modifies
 In regions with heavy internet censorship, we strongly recommend using OpenVPN with Cloak from your first connection.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Fresh VPN platforms
 * High power consumption on mobile devices
 * Flexible configuration options
 * Undetectable by DPI systems
@@ -4773,7 +4773,7 @@ OpenVPN надёжно шифрует весь интернет-трафик м�
         <source>WireGuard is a modern, streamlined VPN protocol offering stable connectivity and excellent performance across all devices. It uses fixed encryption settings, delivering lower latency and higher data transfer speeds compared to OpenVPN. However, WireGuard is easily identifiable by DPI systems due to its distinctive packet signatures, making it susceptible to blocking.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Fresh VPN platforms
 * Low power consumption on mobile devices
 * Minimal configuration required
 * Easily detected by DPI systems (susceptible to blocking)
@@ -4796,7 +4796,7 @@ Features:
 AmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.
 
 Features:
-* Available on all AmneziaVPN platforms
+* Available on all Fresh VPN platforms
 * Low battery consumption on mobile devices
 * Minimal settings required
 * Undetectable by traffic analysis systems (DPI)
@@ -4841,7 +4841,7 @@ REALITY распознаёт системы блокировки во время
         <source>IKEv2, combined with IPSec encryption, is a modern and reliable VPN protocol. It reconnects quickly when switching networks or devices, making it ideal for dynamic network environments. While it provides good security and speed, it&apos;s easily recognized by DPI systems and susceptible to blocking.
 
 Features:
-* Available in AmneziaVPN only on Windows
+* Available in Fresh VPN only on Windows
 * Low battery consumption on mobile devices
 * Minimal configuration required
 * Detectable by DPI analysis systems(easily blocked)
@@ -4882,7 +4882,7 @@ FileZilla или другие SFTP-клиенты, а также смонтир�
 
 				Features:
 
-				* Available on all AmneziaVPN platforms
+				* Available on all Fresh VPN platforms
 				* Low battery consumption on mobile devices
 				* Minimal settings required
 				* Undetectable by traffic analysis systems (DPI)

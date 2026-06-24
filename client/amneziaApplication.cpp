@@ -2,6 +2,7 @@
 
 #include <QClipboard>
 #include <QFontDatabase>
+#include <QFont>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QMimeData>
@@ -228,6 +229,7 @@ void AmneziaApplication::loadFonts()
     QFontDatabase::addApplicationFont(":/fonts/Inter-VF.ttf");
     QFontDatabase::addApplicationFont(":/fonts/BricolageGrotesque-VF.ttf");
     QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-VF.ttf");
+    QApplication::setFont(QFont("Inter"));
 }
 
 bool AmneziaApplication::parseCommands()

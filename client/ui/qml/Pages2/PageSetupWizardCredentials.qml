@@ -141,11 +141,12 @@ PageType {
                 Layout.rightMargin: 16
                 Layout.bottomMargin: 16
 
-                text: qsTr("All data you enter will remain strictly confidential and will not be shared or disclosed to the Amnezia or any third parties")
+                text: qsTr("All data you enter will remain strictly confidential and will not be shared or disclosed to Fresh or any third parties")
             }
 
             CardWithIconsType {
                 id: siteLink
+                visible: false  // Fresh: убрана ссылка-редирект на Amnezia
 
                 Layout.fillWidth: true
                 Layout.leftMargin: 16
