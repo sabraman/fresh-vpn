@@ -301,6 +301,19 @@ PageType {
                     }
                 }
 
+                // ===== Add subscription =====
+                Rectangle {
+                    width: parent.width; height: 48; radius: 14
+                    color: addM.pressed ? root.limeSoft : "transparent"
+                    border.color: root.limeLine; border.width: 1
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Row {
+                        anchors.centerIn: parent; spacing: 8
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: "+"; color: root.limeStrong; font.pixelSize: 18; font.weight: 800 }
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: "Добавить подписку"; color: root.limeStrong; font.pixelSize: 14; font.weight: 700 }
+                    }
+                    MouseArea { id: addM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: PageController.goToStartPage() }
+                }
                 // ===== Minigrid =====
                 Row {
                     id: mg
