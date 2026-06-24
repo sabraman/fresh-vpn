@@ -144,3 +144,8 @@ macos-with-sign-build.sh
 DeveloperIdApplicationCertificate.p12
 DeveloperIdInstallerCertificate.p12
 
+
+# Fresh: per-file pre-edit backups (.bak-pre-*) — git history is the real backup
+*.bak
+*.bak-*
+deploy/build-smoke*.log

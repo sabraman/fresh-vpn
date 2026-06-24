@@ -5,7 +5,7 @@
     <name>AdLabel</name>
     <message>
         <location filename="../ui/qml/Components/AdLabel.qml" line="57"/>
-        <source>Amnezia Premium - for access to all websites and online resources</source>
+        <source>Fresh VPN Premium - for access to all websites and online resources</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -23,8 +23,8 @@
 <context>
     <name>AndroidController</name>
     <message>
-        <source>AmneziaVPN</source>
-        <translation type="vanished">AmneziaVPN</translation>
+        <source>Fresh VPN</source>
+        <translation type="vanished">Fresh VPN</translation>
     </message>
     <message>
         <source>VPN Connected</source>
@@ -105,27 +105,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Amnezia Premium - A classic VPN for comfortable work, downloading large files, and watching videos in high resolution. It works for all websites, even in countries with the highest level of internet censorship.</source>
-        <translation type="vanished">Amnezia Premium - звичайний VPN для комфортної роботи, завантаження великих файлів та перегляду відео у високій роздільній здатності. Працює для всіх вебсайтів, навіть у країнах з найвищим рівнем інтернет-цензури.</translation>
+        <source>Fresh VPN Premium - A classic VPN for comfortable work, downloading large files, and watching videos in high resolution. It works for all websites, even in countries with the highest level of internet censorship.</source>
+        <translation type="vanished">Fresh VPN Premium - звичайний VPN для комфортної роботи, завантаження великих файлів та перегляду відео у високій роздільній здатності. Працює для всіх вебсайтів, навіть у країнах з найвищим рівнем інтернет-цензури.</translation>
     </message>
     <message>
-        <source>Amnezia Free is a free VPN to bypass blocking in countries with high levels of internet censorship</source>
-        <translation type="vanished">Amnezia Free — це безкоштовний VPN для обходу блокувань у країнах з високим рівнем інтернет-цензури</translation>
+        <source>Fresh VPN Free is a free VPN to bypass blocking in countries with high levels of internet censorship</source>
+        <translation type="vanished">Fresh VPN Free — це безкоштовний VPN для обходу блокувань у країнах з високим рівнем інтернет-цензури</translation>
     </message>
     <message>
         <location filename="../ui/models/api/apiServicesModel.cpp" line="68"/>
-        <source>Amnezia Premium is classic VPN for seamless work, downloading large files, and watching videos. Access all websites and online resources. Speeds up to %1 Mbps.</source>
+        <source>Fresh VPN Premium is classic VPN for seamless work, downloading large files, and watching videos. Access all websites and online resources. Speeds up to %1 Mbps.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/models/api/apiServicesModel.cpp" line="72"/>
         <location filename="../ui/models/api/apiServicesModel.cpp" line="85"/>
-        <source>AmneziaFree provides free unlimited access to a basic set of web sites, such as Facebook, Instagram, Twitter (X), Discord, Telegram, and others. YouTube is not included in the free plan.</source>
+        <source>Fresh VPN Free provides free unlimited access to a basic set of web sites, such as Facebook, Instagram, Twitter (X), Discord, Telegram, and others. YouTube is not included in the free plan.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/models/api/apiServicesModel.cpp" line="82"/>
-        <source>Amnezia Premium is classic VPN for for seamless work, downloading large files, and watching videos. Access all websites and online resources.</source>
+        <source>Fresh VPN Premium is classic VPN for for seamless work, downloading large files, and watching videos. Access all websites and online resources.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -510,8 +510,8 @@ Already installed containers were found on the server. All installed containers 
     <message>
         <location filename="../ui/notificationhandler.cpp" line="63"/>
         <location filename="../ui/notificationhandler.cpp" line="70"/>
-        <source>AmneziaVPN</source>
-        <translation>AmneziaVPN</translation>
+        <source>Fresh VPN</source>
+        <translation>Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="64"/>
@@ -525,8 +525,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="94"/>
-        <source>AmneziaVPN notification</source>
-        <translation>Сповіщення AmneziaVPN</translation>
+        <source>Fresh VPN notification</source>
+        <translation>Сповіщення Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/notificationhandler.cpp" line="95"/>
@@ -764,8 +764,8 @@ Already installed containers were found on the server. All installed containers 
         <translation>Відмінити</translation>
     </message>
     <message>
-        <source>Save and Restart Amnezia</source>
-        <translation type="vanished">Зберегти і перезапустити Amnezia</translation>
+        <source>Save and Restart Fresh VPN</source>
+        <translation type="vanished">Зберегти і перезапустити Fresh VPN</translation>
     </message>
 </context>
 <context>
@@ -802,8 +802,8 @@ Already installed containers were found on the server. All installed containers 
         <translation>Неможливо змінити налаштування, поки є активне підключення</translation>
     </message>
     <message>
-        <source>Save and Restart Amnezia</source>
-        <translation type="vanished">Зберегти і перезавантажити Amnezia</translation>
+        <source>Save and Restart Fresh VPN</source>
+        <translation type="vanished">Зберегти і перезавантажити Fresh VPN</translation>
     </message>
 </context>
 <context>
@@ -1010,8 +1010,8 @@ Already installed containers were found on the server. All installed containers 
         <translation type="vanished">Відмінити</translation>
     </message>
     <message>
-        <source>Save and Restart Amnezia</source>
-        <translation type="vanished">Зберегти и перезапустити Amnezia</translation>
+        <source>Save and Restart Fresh VPN</source>
+        <translation type="vanished">Зберегти и перезапустити Fresh VPN</translation>
     </message>
 </context>
 <context>
@@ -1094,7 +1094,7 @@ Already installed containers were found on the server. All installed containers 
         <translation>Неможливо змінити налаштування, поки є активне підключення</translation>
     </message>
     <message>
-        <source>Save and Restart Amnezia</source>
+        <source>Save and Restart Fresh VPN</source>
         <translation type="vanished">Зберегти і перезавантажити</translation>
     </message>
 </context>
@@ -1269,8 +1269,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageServiceDnsSettings.qml" line="75"/>
-        <source>Cannot remove AmneziaDNS from running server</source>
-        <translation>Не вдається видалити AmneziaDNS з працюючого сервера</translation>
+        <source>Cannot remove Fresh VPN DNS from running server</source>
+        <translation>Не вдається видалити Fresh VPN DNS з працюючого сервера</translation>
     </message>
 </context>
 <context>
@@ -1518,8 +1518,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="107"/>
-        <source>About AmneziaVPN</source>
-        <translation>Про AmneziaVPN</translation>
+        <source>About Fresh VPN</source>
+        <translation>Про Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettings.qml" line="123"/>
@@ -1540,8 +1540,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="144"/>
-        <source>Support Amnezia</source>
-        <translation>Підтримайте Amnezia</translation>
+        <source>Support Fresh VPN</source>
+        <translation>Підтримайте Fresh VPN</translation>
     </message>
     <message>
         <source>This is a free and open source application. If you like it, support the developers with a donation. </source>
@@ -1565,8 +1565,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="159"/>
-        <source>Amnezia is a free and open-source application. You can support the developers if you like it.</source>
-        <translation>Amnezia — це безкоштовний додаток з відкритим кодом. Якщо вам подобається цей додаток, ви можете підтримати розробників.</translation>
+        <source>Fresh VPN is a free and open-source application. You can support the developers if you like it.</source>
+        <translation>Fresh VPN — це безкоштовний додаток з відкритим кодом. Якщо вам подобається цей додаток, ви можете підтримати розробників.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsAbout.qml" line="169"/>
@@ -1806,7 +1806,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiInstructions.qml" line="102"/>
-        <source>Setup guides on the Amnezia website</source>
+        <source>Setup guides on the Fresh VPN website</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1814,8 +1814,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageSettingsApiNativeConfigs</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="23"/>
-        <source>Save AmneziaVPN config</source>
-        <translation type="unfinished">Зберегти config AmneziaVPN</translation>
+        <source>Save Fresh VPN config</source>
+        <translation type="unfinished">Зберегти config Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiNativeConfigs.qml" line="48"/>
@@ -1942,7 +1942,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApiServerInfo.qml" line="190"/>
-        <source>Amnezia Premium subscription key</source>
+        <source>Fresh VPN Premium subscription key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2250,8 +2250,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="212"/>
-        <source>All settings will be reset to default. All installed AmneziaVPN services will still remain on the server.</source>
-        <translation>Всі дані із застосунку будуть видалені, всі встановлені сервіси AmneziaVPN залишаться на сервері.</translation>
+        <source>All settings will be reset to default. All installed Fresh VPN services will still remain on the server.</source>
+        <translation>Всі дані із застосунку будуть видалені, всі встановлені сервіси Fresh VPN залишаться на сервері.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsApplication.qml" line="213"/>
@@ -2296,8 +2296,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsBackup.qml" line="74"/>
-        <source>The backup will contain your passwords and private keys for all servers added to AmneziaVPN. Keep this information in a secure place.</source>
-        <translation>Резервна копія міститиме ваші паролі та приватні ключі для всіх серверів, доданих до AmneziaVPN. Зберігайте цю інформацію у безпечному місці.</translation>
+        <source>The backup will contain your passwords and private keys for all servers added to Fresh VPN. Keep this information in a secure place.</source>
+        <translation>Резервна копія міститиме ваші паролі та приватні ключі для всіх серверів, доданих до Fresh VPN. Зберігайте цю інформацію у безпечному місці.</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsBackup.qml" line="85"/>
@@ -2373,12 +2373,12 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="52"/>
-        <source>Use AmneziaDNS</source>
-        <translation>Використовувати AmneziaDNS</translation>
+        <source>Use Fresh VPN DNS</source>
+        <translation>Використовувати Fresh VPN DNS</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="53"/>
-        <source>If AmneziaDNS is installed on the server</source>
+        <source>If Fresh VPN DNS is installed on the server</source>
         <translation>Якщо він встановлений на сервері</translation>
     </message>
     <message>
@@ -2388,8 +2388,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="70"/>
-        <source>When AmneziaDNS is not used or installed</source>
-        <translation>Ці адреси будуть використовуватись коли вимкнений AmneziaDNS</translation>
+        <source>When Fresh VPN DNS is not used or installed</source>
+        <translation>Ці адреси будуть використовуватись коли вимкнений Fresh VPN DNS</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsConnection.qml" line="108"/>
@@ -2448,13 +2448,13 @@ Already installed containers were found on the server. All installed containers 
         <translation>DNS сервер</translation>
     </message>
     <message>
-        <source>When AmneziaDNS is not used or installed</source>
-        <translation type="vanished">Ці адреси будуть використовуватись, коли вимкнено або не встановлено AmneziaDNS</translation>
+        <source>When Fresh VPN DNS is not used or installed</source>
+        <translation type="vanished">Ці адреси будуть використовуватись, коли вимкнено або не встановлено Fresh VPN DNS</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsDns.qml" line="61"/>
-        <source>If AmneziaDNS is not used or installed</source>
-        <translation>Якщо AmneziaDNS вимкнено або не встановлено</translation>
+        <source>If Fresh VPN DNS is not used or installed</source>
+        <translation>Якщо Fresh VPN DNS вимкнено або не встановлено</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsDns.qml" line="68"/>
@@ -2580,7 +2580,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="176"/>
-        <source>AmneziaVPN logs</source>
+        <source>Fresh VPN logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2600,7 +2600,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsLogging.qml" line="205"/>
-        <source>AmneziaVPN-service logs</source>
+        <source>Fresh VPN-service logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2617,8 +2617,8 @@ Already installed containers were found on the server. All installed containers 
         <translation>Всі встановлені протоколи та сервіси були додані в застосунок</translation>
     </message>
     <message>
-        <source>Clear Amnezia cache</source>
-        <translation type="vanished">Очистити кеш Amnezia</translation>
+        <source>Clear Fresh VPN cache</source>
+        <translation type="vanished">Очистити кеш Fresh VPN</translation>
     </message>
     <message>
         <source>May be needed when changing other settings</source>
@@ -2626,7 +2626,7 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <source>Clear cached profiles?</source>
-        <translation type="vanished">Видалити кеш Amnezia?</translation>
+        <translation type="vanished">Видалити кеш Fresh VPN?</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="33"/>
@@ -2656,8 +2656,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="90"/>
-        <source>Check the server for previously installed Amnezia services</source>
-        <translation>Проверить сервер на наличие ранее установленных сервисов Amnezia</translation>
+        <source>Check the server for previously installed Fresh VPN services</source>
+        <translation>Проверить сервер на наличие ранее установленных сервисов Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="91"/>
@@ -2701,13 +2701,13 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="186"/>
-        <source>Clear server from Amnezia software</source>
-        <translation>Очистити сервер від програмного забезпечення Amnezia</translation>
+        <source>Clear server from Fresh VPN software</source>
+        <translation>Очистити сервер від програмного забезпечення Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="190"/>
-        <source>Do you want to clear server from Amnezia software?</source>
-        <translation>Ви дійсно хочете очистити сервер від програмного забезпечення Amnezia?</translation>
+        <source>Do you want to clear server from Fresh VPN software?</source>
+        <translation>Ви дійсно хочете очистити сервер від програмного забезпечення Fresh VPN?</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="191"/>
@@ -2716,8 +2716,8 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="197"/>
-        <source>Cannot clear server from Amnezia software during active connection</source>
-        <translation>Неможливо очистити сервер від програмного забезпечення Amnezia під час активного підключення</translation>
+        <source>Cannot clear server from Fresh VPN software during active connection</source>
+        <translation>Неможливо очистити сервер від програмного забезпечення Fresh VPN під час активного підключення</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="236"/>
@@ -2725,8 +2725,8 @@ Already installed containers were found on the server. All installed containers 
         <translation>Неможливо скинути конфігурацію API під час активного підключення</translation>
     </message>
     <message>
-        <source>Do you want to clear server Amnezia-installed services?</source>
-        <translation type="obsolete">Ви хочете очистити сервер від сервісів Amnezia?</translation>
+        <source>Do you want to clear server Fresh VPN-installed services?</source>
+        <translation type="obsolete">Ви хочете очистити сервер від сервісів Fresh VPN?</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="225"/>
@@ -2748,20 +2748,20 @@ Already installed containers were found on the server. All installed containers 
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSettingsServerData.qml" line="153"/>
-        <source>All installed AmneziaVPN services will still remain on the server.</source>
-        <translation>Всі встановлені сервіси та протоколи Amnezia все ще залишаться на сервері.</translation>
+        <source>All installed Fresh VPN services will still remain on the server.</source>
+        <translation>Всі встановлені сервіси та протоколи Fresh VPN все ще залишаться на сервері.</translation>
     </message>
     <message>
-        <source>Clear server Amnezia-installed services</source>
-        <translation type="vanished">Видалити всі сервіси і протоколи Amnezia з сервера</translation>
+        <source>Clear server Fresh VPN-installed services</source>
+        <translation type="vanished">Видалити всі сервіси і протоколи Fresh VPN з сервера</translation>
     </message>
     <message>
-        <source>Clear server Amnezia-installed services?</source>
-        <translation type="vanished">Видалити всі сервіси і протоколи Amnezia з сервера?</translation>
+        <source>Clear server Fresh VPN-installed services?</source>
+        <translation type="vanished">Видалити всі сервіси і протоколи Fresh VPN з сервера?</translation>
     </message>
     <message>
         <source>All containers will be deleted on the server. This means that configuration files, keys and certificates will be deleted.</source>
-        <translation type="vanished">На сервері будуть видалені всі дані, повязані з Amnezia: протоколи, сервіси, конфігураційні файли, ключі та сертифікати.</translation>
+        <translation type="vanished">На сервері будуть видалені всі дані, повязані з Fresh VPN: протоколи, сервіси, конфігураційні файли, ключі та сертифікати.</translation>
     </message>
 </context>
 <context>
@@ -3036,8 +3036,8 @@ Already installed containers were found on the server. All installed containers 
     <name>PageSetupWizardApiServicesList</name>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="38"/>
-        <source>VPN by Amnezia</source>
-        <translation>VPN від Amnezia</translation>
+        <source>Fresh VPN</source>
+        <translation>VPN від Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardApiServicesList.qml" line="39"/>
@@ -3128,7 +3128,7 @@ It&apos;s okay as long as it&apos;s from someone you trust.</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="228"/>
-        <source>Site Amnezia</source>
+        <source>Fresh VPN</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3138,13 +3138,13 @@ It&apos;s okay as long as it&apos;s from someone you trust.</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="251"/>
-        <source>VPN by Amnezia</source>
-        <translation>VPN від Amnezia</translation>
+        <source>Fresh VPN</source>
+        <translation>VPN від Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="252"/>
-        <source>Connect to classic paid and free VPN services from Amnezia</source>
-        <translation>Підключайтеся до звичайних платних та безкоштовних VPN-сервісів від Amnezia</translation>
+        <source>Connect to classic paid and free VPN services from Fresh VPN</source>
+        <translation>Підключайтеся до звичайних платних та безкоштовних VPN-сервісів від Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="268"/>
@@ -3153,8 +3153,8 @@ It&apos;s okay as long as it&apos;s from someone you trust.</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="269"/>
-        <source>Configure Amnezia VPN on your own server</source>
-        <translation>Налаштуйте Amnezia VPN на власному сервері</translation>
+        <source>Configure Fresh VPN on your own server</source>
+        <translation>Налаштуйте Fresh VPN на власному сервері</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardConfigSource.qml" line="280"/>
@@ -3222,9 +3222,9 @@ It&apos;s okay as long as it&apos;s from someone you trust.</source>
     </message>
     <message>
         <source>All data you enter will remain strictly confidential
-and will not be shared or disclosed to the Amnezia or any third parties</source>
+and will not be shared or disclosed to the Fresh VPN or any third parties</source>
         <translation type="vanished">Усі введені вами дані залишатимуться суворо конфіденційними
-і не будуть передані чи розголошені Amnezia або будь-яким третім особам</translation>
+і не будуть передані чи розголошені Fresh VPN або будь-яким третім особам</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardCredentials.qml" line="192"/>
@@ -3257,8 +3257,8 @@ and will not be shared or disclosed to the Amnezia or any third parties</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardCredentials.qml" line="160"/>
-        <source>All data you enter will remain strictly confidential and will not be shared or disclosed to the Amnezia or any third parties</source>
-        <translation>Усі дані, які ви вводите, залишатимуться суворо конфіденційними та не будуть передані чи розголошені Amnezia або будь-яким третім особам</translation>
+        <source>All data you enter will remain strictly confidential and will not be shared or disclosed to the Fresh VPN or any third parties</source>
+        <translation>Усі дані, які ви вводите, залишатимуться суворо конфіденційними та не будуть передані чи розголошені Fresh VPN або будь-яким третім особам</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardCredentials.qml" line="171"/>
@@ -3339,21 +3339,21 @@ and will not be shared or disclosed to the Amnezia or any third parties</source>
     </message>
     <message>
         <source>Amnesia has detected that your server is currently </source>
-        <translation type="vanished">Amnezia виявила, що ваш сервер зараз</translation>
+        <translation type="vanished">Fresh VPN виявила, що ваш сервер зараз</translation>
     </message>
     <message>
         <source>busy installing other software. Amnesia installation </source>
-        <translation type="vanished">зайнятий встановленням інших протоколів та сервісів. Встановлення Amnezia </translation>
+        <translation type="vanished">зайнятий встановленням інших протоколів та сервісів. Встановлення Fresh VPN </translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardInstalling.qml" line="65"/>
-        <source>Amnezia has detected that your server is currently </source>
-        <translation>Amnezia виявила, що сервер </translation>
+        <source>Fresh VPN has detected that your server is currently </source>
+        <translation>Fresh VPN виявила, що сервер </translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardInstalling.qml" line="66"/>
-        <source>busy installing other software. Amnezia installation </source>
-        <translation>зайнятий встановленням інших протоколів та сервісів. Встановлення Amnezia </translation>
+        <source>busy installing other software. Fresh VPN installation </source>
+        <translation>зайнятий встановленням інших протоколів та сервісів. Встановлення Fresh VPN </translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageSetupWizardInstalling.qml" line="67"/>
@@ -3619,8 +3619,8 @@ and will not be shared or disclosed to the Amnezia or any third parties</source>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="119"/>
-        <source>For the AmneziaVPN app</source>
-        <translation>Для AmneziaVPN</translation>
+        <source>For the Fresh VPN app</source>
+        <translation>Для Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Pages2/PageShare.qml" line="134"/>
@@ -4308,8 +4308,8 @@ and will not be shared or disclosed to the Amnezia or any third parties</source>
     </message>
     <message>
         <location filename="../core/errorstrings.cpp" line="49"/>
-        <source>Amnezia helper service error</source>
-        <translation>Amnezia helper service error</translation>
+        <source>Fresh VPN helper service error</source>
+        <translation>Fresh VPN helper service error</translation>
     </message>
     <message>
         <location filename="../core/errorstrings.cpp" line="50"/>
@@ -4454,7 +4454,7 @@ Immediately after receiving the first data packet, Cloak authenticates the incom
 
 If there is a extreme level of Internet censorship in your region, we advise you to use only OpenVPN over Cloak from the first connection
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * High power consumption on mobile devices
 * Flexible settings
 * Not recognised by DPI analysis systems
@@ -4472,7 +4472,7 @@ Cloak може змінювати метадані пакетів так, що �
 
 Якщо у вашому регіоні екстремальний рівень інтернет-цензури, ми радимо використовувати тільки OpenVPN через Cloak з самого початку роботи з додатком.
 
-    Доступний в AmneziaVPN на всіх платформах
+    Доступний в Fresh VPN на всіх платформах
     Високе споживання енергії на мобільних пристроях
     Гнучкі налаштування
     Не розпізнається системами аналізу DPI
@@ -4484,7 +4484,7 @@ Cloak може змінювати метадані пакетів так, що �
 WireGuard provides stable VPN connection and high performance on all devices. It uses hard-coded encryption settings. WireGuard compared to OpenVPN has lower latency and better data transfer throughput.
 WireGuard is very susceptible to blocking due to its distinct packet signatures. Unlike some other VPN protocols that employ obfuscation techniques, the consistent signature patterns of WireGuard packets can be more easily identified and thus blocked by advanced Deep Packet Inspection (DPI) systems and other network monitoring tools.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * Low power consumption
 * Minimum number of settings
 * Easily recognised by DPI analysis systems, susceptible to blocking
@@ -4494,7 +4494,7 @@ WireGuard забезпечує стабільне VPN-підключення т�
 
 WireGuard дуже чутливий до блокувань через свої чіткі підписи пакетів. На відміну від деяких інших VPN-протоколів, які використовують техніки обфускації, постійні шаблони підписів пакетів WireGuard легше ідентифікуються та можуть бути заблоковані просунутими системами глибокого аналізу пакетів (DPI) та іншими інструментами моніторингу мережі.
 
-* Доступний в AmneziaVPN на всіх платформах
+* Доступний в Fresh VPN на всіх платформах
 * Низьке споживання енергії
 * Мінімальна кількість налаштувань
 * Легко розпізнається системами аналізу DPI, схильний до блокування
@@ -4516,7 +4516,7 @@ REALITY унікально ідентифікує цензорів під час
 One of its distinguishing features is its ability to swiftly switch between networks and devices, making it particularly adaptive in dynamic network environments. 
 While it offers a blend of security, stability, and speed, it&apos;s essential to note that IKEv2 can be easily detected and is susceptible to blocking.
 
-* Available in the AmneziaVPN only on Windows
+* Available in the Fresh VPN only on Windows
 * Low power consumption, on mobile devices
 * Minimal configuration
 * Recognised by DPI analysis systems
@@ -4525,7 +4525,7 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
 Він може швидко переключись між мережами та пристроями, що робить його осболиво адаптованим під динамічні мережеві середовища.
 Потрібно зазначити, що незважаючи на стабільність та швидкість, IKEv2 легко розпізнається та вразливий до блокувань. 
 
-* IKEv2/IPsec в AmneziaVPN тільки для Windows.
+* IKEv2/IPsec в Fresh VPN тільки для Windows.
 * Низьке енергоспоживання, на мобільних пристроях
 * Мінімальна конфігурація
 * Розпізнається системами DPI-анализу
@@ -4549,8 +4549,8 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="102"/>
-        <source>AmneziaDNS</source>
-        <translation>AmneziaDNS</translation>
+        <source>Fresh VPN DNS</source>
+        <translation>Fresh VPN DNS</translation>
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="110"/>
@@ -4574,7 +4574,7 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="121"/>
-        <source>AmneziaWG is a special protocol from Amnezia based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
+        <source>AmneziaWG is a special protocol from Fresh VPN based on WireGuard. It provides high connection speed and ensures stable operation even in the most challenging network conditions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4587,7 +4587,7 @@ While it offers a blend of security, stability, and speed, it&apos;s essential t
         <source>OpenVPN stands as one of the most popular and time-tested VPN protocols available.
 It employs its unique security protocol, leveraging the strength of SSL/TLS for encryption and key exchange. Furthermore, OpenVPN&apos;s support for a multitude of authentication methods makes it versatile and adaptable, catering to a wide range of devices and operating systems. Due to its open-source nature, OpenVPN benefits from extensive scrutiny by the global community, which continually reinforces its security. With a strong balance of performance, security, and compatibility, OpenVPN remains a top choice for privacy-conscious individuals and businesses alike.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * Normal power consumption on mobile devices
 * Flexible customisation to suit user needs to work with different operating systems and devices
 * Recognised by DPI systems and therefore susceptible to blocking
@@ -4599,8 +4599,8 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
         <translation type="vanished">WireGuard - новий популярний VPN-протокол, з високою швидістю та низьким енергоспоживанням. Для регіонів з низьким рівнем цензури.</translation>
     </message>
     <message>
-        <source>AmneziaWG - Special protocol from Amnezia, based on WireGuard. It&apos;s fast like WireGuard, but very resistant to blockages. Recommended for regions with high levels of censorship.</source>
-        <translation type="vanished">AmneziaWG - фірмовий протокол Amnezia, оснований на протоколі WireGuard. Такий же швидкий, як і WireGuard, але стійкий до блокувань. Рекомендується для регіонів з високим рівнем цензури.</translation>
+        <source>AmneziaWG - Special protocol from Fresh VPN, based on WireGuard. It&apos;s fast like WireGuard, but very resistant to blockages. Recommended for regions with high levels of censorship.</source>
+        <translation type="vanished">AmneziaWG - фірмовий протокол Fresh VPN, оснований на протоколі WireGuard. Такий же швидкий, як і WireGuard, але стійкий до блокувань. Рекомендується для регіонів з високим рівнем цензури.</translation>
     </message>
     <message>
         <source>XRay with REALITY - Suitable for countries with the highest level of internet censorship. Traffic masking as web traffic at the TLS level, and protection against detection by active probing methods.</source>
@@ -4618,13 +4618,13 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
     <message>
         <location filename="../containers/containers_defs.cpp" line="132"/>
         <source>Replace the current DNS server with your own. This will increase your privacy level.</source>
-        <translation>Замініть DNS-сервер на AmneziaDNS. Це підвищить вашу рівень захищеності в інтернеті.</translation>
+        <translation>Замініть DNS-сервер на Fresh VPN DNS. Це підвищить вашу рівень захищеності в інтернеті.</translation>
     </message>
     <message>
         <source>OpenVPN stands as one of the most popular and time-tested VPN protocols available.
 It employs its unique security protocol, leveraging the strength of SSL/TLS for encryption and key exchange. Furthermore, OpenVPN&apos;s support for a multitude of authentication methods makes it versatile and adaptable, catering to a wide range of devices and operating systems. Due to its open-source nature, OpenVPN benefits from extensive scrutiny by the global community, which continually reinforces its security. With a strong balance of performance, security, and compatibility, OpenVPN remains a top choice for privacy-conscious individuals and businesses alike.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * Normal power consumption on mobile devices
 * Flexible customisation to suit user needs to work with different operating systems and devices
 * Recognised by DPI analysis systems and therefore susceptible to blocking
@@ -4632,7 +4632,7 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
         <translation type="vanished">OpenVPN один із самих популярних і перевірених часом протоколів VPN.
 Він використовує власний протокол, який опирається на протокол SSL/TLS для шифрування та обміну ключами. Крім того, підтримка OpenVPN багатьох методів аутентифікації робить його універсальним і адаптованим до широкого спектру пристроїв і операційних систем. Завдяки відкритому коду, OpenVPN піддається ретельному аналізу зі сторони світової спільноти, що постійно підвищує його безпеку. Завдяки оптимальному співвідношенню продуктивності, безпеки та сумісності OpenVPN залишається найкращим вибором як для приватних осіб, так і для компаній.
 
-* Доступний в AmneziaVPN для всіх платформ
+* Доступний в Fresh VPN для всіх платформ
 * Нормальне енергоспоживання на мобільних пристроях
 * Гнучка настройка під користувача для роботи з різними пристроями та оперційними системами
 * Розпізнається системами DPI-анализу і тому вразливий до блокувань
@@ -4640,15 +4640,15 @@ It employs its unique security protocol, leveraging the strength of SSL/TLS for 
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="159"/>
-        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Amnezia, it&apos;s recommended to use AmneziaWG protocol.
+        <source>Shadowsocks, inspired by the SOCKS5 protocol, safeguards the connection using the AEAD cipher. Although Shadowsocks is designed to be discreet and challenging to identify, it isn&apos;t identical to a standard HTTPS connection.However, certain traffic analysis systems might still detect a Shadowsocks connection. Due to limited support in Fresh VPN, it&apos;s recommended to use AmneziaWG protocol.
 
-* Available in the AmneziaVPN only on desktop platforms
+* Available in the Fresh VPN only on desktop platforms
 * Configurable encryption protocol
 * Detectable by some DPI systems
 * Works over TCP network protocol.</source>
-        <translation>Shadowsocks, створений на основі протоколу SOCKS5, захищає з&apos;єднання AEAD шифруванням. Незважаючи на те, що протокол Shadowsocks розроблений таким чином, щоб бути незаметним і складним для ідентифікації, він не ідентичний стандартному HTTPS-з&apos;єднанню. Однак деякі системи аналізу трафіку все-таки можуть знайти підключення Shadowsocks. У зв’язку з обмеженою підтримкою в Amnezia рекомендується використовувати протокол AmneziaWG або OpenVPN через Cloak.
+        <translation>Shadowsocks, створений на основі протоколу SOCKS5, захищає з&apos;єднання AEAD шифруванням. Незважаючи на те, що протокол Shadowsocks розроблений таким чином, щоб бути незаметним і складним для ідентифікації, він не ідентичний стандартному HTTPS-з&apos;єднанню. Однак деякі системи аналізу трафіку все-таки можуть знайти підключення Shadowsocks. У зв’язку з обмеженою підтримкою в Fresh VPN рекомендується використовувати протокол AmneziaWG або OpenVPN через Cloak.
 
-* Доступний в AmneziaVPN тільки на ПК.
+* Доступний в Fresh VPN тільки на ПК.
 * Гнучке налаштування протоколу шифрування
 * Розпізнається деякими DPI-системами
 * Працює по мережевому протоколу TCP.</translation>
@@ -4665,7 +4665,7 @@ Cloak can modify packet metadata so that it completely masks VPN traffic as norm
 
 Immediately after receiving the first data packet, Cloak authenticates the incoming connection. If authentication fails, the plugin masks the server as a fake website and your VPN becomes invisible to analysis systems.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * High power consumption on mobile devices
 * Flexible settings
 * Not recognised by detection systems
@@ -4679,7 +4679,7 @@ Immediately after receiving the first data packet, Cloak authenticates the incom
 WireGuard provides stable VPN connection and high performance on all devices. It uses hard-coded encryption settings. WireGuard compared to OpenVPN has lower latency and better data transfer throughput.
 WireGuard is very susceptible to detection and blocking due to its distinct packet signatures. Unlike some other VPN protocols that employ obfuscation techniques, the consistent signature patterns of WireGuard packets can be more easily identified and thus blocked by advanced Deep Packet Inspection (DPI) systems and other network monitoring tools.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * Low power consumption
 * Minimum number of settings
 * Easily recognised by DPI analysis systems, susceptible to blocking
@@ -4692,7 +4692,7 @@ WireGuard is very susceptible to detection and blocking due to its distinct pack
 While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AmneziaWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
 This means that AmneziaWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * Low power consumption
 * Minimum number of settings
 * Not recognised by traffic analysis systems
@@ -4709,7 +4709,7 @@ Unlike older protocols such as VMess, VLESS, and the XTLS-Vision transport, REAL
     </message>
     <message>
         <location filename="../containers/containers_defs.cpp" line="239"/>
-        <source>After installation, Amnezia will create a
+        <source>After installation, Fresh VPN will create a
 
  file storage on your server. You will be able to access it using
  FileZilla or other SFTP clients, as well as mount the disk on your device to access
@@ -4717,7 +4717,7 @@ Unlike older protocols such as VMess, VLESS, and the XTLS-Vision transport, REAL
 
 For more detailed information, you can
  find it in the support section under &quot;Create SFTP file storage.&quot; </source>
-        <translation>Після встановлення Amnezia створить 
+        <translation>Після встановлення Fresh VPN створить 
 
  файл-сховище на вашому сервері. Ви зможете отримати
  доступ до нього за допомогою FileZilla та інших SFTP-клієнтів, 
@@ -4739,7 +4739,7 @@ Immediately after receiving the first data packet, Cloak authenticates the incom
 
 If there is a extreme level of Internet censorship in your region, we advise you to use only OpenVPN over Cloak from the first connection
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * High power consumption on mobile devices
 * Flexible settings
 * Not recognised by DPI analysis systems
@@ -4757,7 +4757,7 @@ Cloak може замінити метаданні пакетів. Він пов
 
 Якщо в вашому регіоні екстремальний рівень цензури в Інтернеті, ми рекомендуємо відразу використовувати OpenVPN over Cloak.
 
-* Доступний в AmneziaVPN на всіх платформах
+* Доступний в Fresh VPN на всіх платформах
 * Високе енергоспоживання на мобільних пристроях
 * Гнучке налаштування
 * Не розпізнається системами DPI-анализу
@@ -4769,7 +4769,7 @@ Cloak може замінити метаданні пакетів. Він пов
 Provides stable VPN connection, high performance on all devices. Uses hard-coded encryption settings. WireGuard compared to OpenVPN has lower latency and better data transfer throughput.
 WireGuard is very susceptible to blocking due to its distinct packet signatures. Unlike some other VPN protocols that employ obfuscation techniques, the consistent signature patterns of WireGuard packets can be more easily identified and thus blocked by advanced Deep Packet Inspection (DPI) systems and other network monitoring tools.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * Low power consumption
 * Minimum number of settings
 * Easily recognised by DPI analysis systems, susceptible to blocking
@@ -4777,7 +4777,7 @@ WireGuard is very susceptible to blocking due to its distinct packet signatures.
         <translation type="vanished">WireGuard - відносно новий та популярний VPN-протокол з простою архітектурою.
 Забезпечує стабільне VPN-з&apos;єднання, високу продуктивність на всіх пристроях. Використовує жорстко закодовані параметри шифрування. WireGuard порівняно з OpenVPN має нижчу затримку та кращу пропускну здатність передачі даних.
 WireGuard дуже вразливий до блокування. На відміну від деяких інших протоколів VPN, які використовують методи обфускації, узгоджені шаблони пакетів WireGuard можна легше ідентифікувати та, таким чином, заблокувати вдосконаленими системами Deep Packet Inspection (DPI) та іншими інструментами моніторингу мережі.
-* Доступний в AmneziaVPN для всіх платформ
+* Доступний в Fresh VPN для всіх платформ
 * Низьке енергоспоживання
 * Мінімальна кількість налаштувань
 * Легко розпізнається системами DPI-анализу, вразливий до блокувань
@@ -4788,7 +4788,7 @@ WireGuard дуже вразливий до блокування. На відмі
 While WireGuard is known for its efficiency, it had issues with being easily detected due to its distinct packet signatures. AmneziaWG solves this problem by using better obfuscation methods, making its traffic blend in with regular internet traffic.
 This means that AmneziaWG keeps the fast performance of the original while adding an extra layer of stealth, making it a great choice for those wanting a fast and discreet VPN connection.
 
-* Available in the AmneziaVPN across all platforms
+* Available in the Fresh VPN across all platforms
 * Low power consumption
 * Minimum number of settings
 * Not recognised by DPI analysis systems, resistant to blocking
@@ -4797,7 +4797,7 @@ This means that AmneziaWG keeps the fast performance of the original while addin
 Незважаючи на те, що WireGuard відомий своєю ефективністю, він має проблеми з легким виявленням через чіткі підписи пакетів. AmneziaWG вирішує цю проблему, використовуючи кращі методи обфускації, завдяки чому її трафік змішується зі звичайним інтернет-трафіком.
 Це означає, що AmneziaWG зберігає швидку роботу оригінального протоколу WireGuard, додаючи додатковий рівень скритності, що робить його чудовим вибором для тих, хто бажає швидкого та непомітного VPN-з’єднання.
 
-* Доступно в AmneziaVPN на всіх платформах
+* Доступно в Fresh VPN на всіх платформах
 * Низьке енергоспоживання
 * Мінімальна кількість налаштувань
 * Не розпізнається системами аналізу DPI, стійкий до блокування
@@ -5075,8 +5075,8 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     <message>
         <location filename="../ui/qml/Components/ShareConnectionDrawer.qml" line="30"/>
         <location filename="../ui/qml/Components/ShareConnectionDrawer.qml" line="37"/>
-        <source>Save AmneziaVPN config</source>
-        <translation>Зберегти config AmneziaVPN</translation>
+        <source>Save Fresh VPN config</source>
+        <translation>Зберегти config Fresh VPN</translation>
     </message>
     <message>
         <location filename="../ui/qml/Components/ShareConnectionDrawer.qml" line="25"/>
@@ -5106,8 +5106,8 @@ This means that AmneziaWG keeps the fast performance of the original while addin
     </message>
     <message>
         <location filename="../ui/qml/Components/ShareConnectionDrawer.qml" line="370"/>
-        <source>To read the QR code in the Amnezia app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
-        <translation>Для зчитування QR-коду в застосунку Amnezia виберіть &quot;Додати сервер&quot; → &quot;У мене є дані підключенн&quot; → &quot;QR-код, ключ чи файл налаштувань&quot;</translation>
+        <source>To read the QR code in the Fresh VPN app, select &quot;Add server&quot; → &quot;I have data to connect&quot; → &quot;QR code, key or settings file&quot;</source>
+        <translation>Для зчитування QR-коду в застосунку Fresh VPN виберіть &quot;Додати сервер&quot; → &quot;У мене є дані підключенн&quot; → &quot;QR-код, ключ чи файл налаштувань&quot;</translation>
     </message>
 </context>
 <context>
