@@ -11,13 +11,16 @@ import Style 1.0
 Button {
     id: root
 
-    property string defaultButtonColor: AmneziaStyle.color.paleGray
+    // Fresh VPN: лайм-орб. Кольцо-индикатор состояния сохранено (idle / progress / connected),
+    // добавлены — заполненный тёмный орб, мягкое лайм-свечение, «дыхание» в покое,
+    // лайм-подсветка изнутри при подключении. Логика клика/состояния НЕ изменена.
+    property string defaultButtonColor: AmneziaStyle.color.goldenApricot
     property string progressButtonColor: AmneziaStyle.color.paleGray
     property string connectedButtonColor: AmneziaStyle.color.goldenApricot
     property bool buttonActiveFocus: activeFocus && (Qt.platform.os !== "android" || SettingsController.isOnTv())
 
     property bool isFocusable: true
-    
+
     Keys.onTabPressed: {
         FocusController.nextKeyTabItem()
     }
@@ -29,11 +32,11 @@ Button {
     Keys.onUpPressed: {
         FocusController.nextKeyUpItem()
     }
-    
+
     Keys.onDownPressed: {
         FocusController.nextKeyDownItem()
     }
-    
+
     Keys.onLeftPressed: {
         FocusController.nextKeyLeftItem()
     }
@@ -41,7 +44,7 @@ Button {
     Keys.onRightPressed: {
         FocusController.nextKeyRightItem()
     }
-        
+
     implicitWidth: 190
     implicitHeight: 190
 
@@ -58,9 +61,40 @@ Button {
 //    enabled: !ConnectionController.isConnectionInProgress
 
     background: Item {
+        id: orbBackground
         implicitWidth: parent.width
         implicitHeight: parent.height
         transformOrigin: Item.Center
+
+        // «Дыхание» орба в покое (как в мини-аппе/превью); останавливается при подключении,
+        // чтобы не мешать вращающейся дуге прогресса.
+        SequentialAnimation on scale {
+            running: !ConnectionController.isConnectionInProgress
+            loops: Animation.Infinite
+            NumberAnimation { from: 1.0; to: 1.035; duration: 1500; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 1.035; to: 1.0; duration: 1500; easing.type: Easing.InOutQuad }
+        }
+
+        // Заполненный тёмный орб (читается как объёмная кнопка поверх матрицы)
+        Rectangle {
+            id: orbFill
+            anchors.centerIn: parent
+            width: 178
+            height: 178
+            radius: width / 2
+            color: AmneziaStyle.color.midnightBlack
+
+            // Лайм-подсветка изнутри при активном подключении
+            Rectangle {
+                anchors.fill: parent
+                radius: parent.radius
+                color: AmneziaStyle.color.softGoldenApricot
+                opacity: ConnectionController.isConnected ? 1 : 0
+                Behavior on opacity {
+                    PropertyAnimation { duration: 400 }
+                }
+            }
+        }
 
         Shape {
             id: backgroundCircle
@@ -75,7 +109,7 @@ Button {
                 anchors.fill: backgroundCircle
                 horizontalOffset: 0
                 verticalOffset: 0
-                radius: 10
+                radius: 16
                 samples: 25
                 color: root.buttonActiveFocus ? AmneziaStyle.color.paleGray : AmneziaStyle.color.goldenApricot
                 source: backgroundCircle
