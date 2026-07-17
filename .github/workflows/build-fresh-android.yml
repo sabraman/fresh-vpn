@@ -12,6 +12,9 @@ jobs:
   Build-Android:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     env:
       QT_VERSION: 6.10.1
       NDK_VERSION: 27.2.12479018
@@ -72,22 +75,53 @@ jobs:
     - name: 'Install system packages'
       run: sudo apt-get update && sudo apt-get install -y ninja-build libsecret-1-dev
 
+    # A release APK is unsigned by default and Android refuses to install it.
+    # This key is generated per run and is for testing only: it is NOT a
+    # release key, and every build produces a different signature, so an
+    # update needs an uninstall first. Swap for a keystore held in secrets
+    # before shipping to anyone.
+    - name: 'Create a throwaway signing key'
+      run: |
+        keytool -genkeypair -v \
+          -keystore "$RUNNER_TEMP/fresh-test.keystore" \
+          -alias freshtest -keyalg RSA -keysize 2048 -validity 10000 \
+          -storepass freshtest -keypass freshtest \
+          -dname "CN=Fresh VPN Test Build, O=Fresh, C=NL"
+
     - name: 'Build APK'
       shell: bash
       env:
         QT_INSTALL_DIR: ${{ runner.temp }}
-      run: deploy/build.sh --target android --abi arm64-v8a
+        QT_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/fresh-test.keystore
+        QT_ANDROID_KEYSTORE_ALIAS: freshtest
+        QT_ANDROID_KEYSTORE_STORE_PASS: freshtest
+        QT_ANDROID_KEYSTORE_KEY_PASS: freshtest
+      run: deploy/build.sh --target android --abi arm64-v8a --sign
 
     - name: 'Show what was produced'
       if: ${{ always() }}
       shell: bash
       run: find . -name '*.apk' -o -name '*.aab' | head -20
 
-    - name: 'Upload APK'
-      if: ${{ always() }}
-      uses: actions/upload-artifact@v4
+    - name: 'Verify the APK is signed'
+      shell: bash
+      run: |
+        set -e
+        APK=$(find . -name 'FreshVPN.apk' | head -1)
+        echo "apk: $APK"
+        ls -lh "$APK"
+        BT=$(ls -d "$ANDROID_SDK_ROOT"/build-tools/* | sort -V | tail -1)
+        "$BT/apksigner" verify --print-certs "$APK"
+        echo "APK_PATH=$APK" >> $GITHUB_ENV
+
+    - name: 'Publish APK to a release'
+      uses: softprops/action-gh-release@v2
       with:
-        name: FreshVPN-android-arm64
-        path: '**/*.apk'
-        retention-days: 14
-        if-no-files-found: warn
+        tag_name: android-test-latest
+        name: Fresh VPN Android (test build)
+        body: |
+          Test build from `${{ github.sha }}`.
+          Signed with a throwaway key generated in CI - install fresh, do not
+          expect in-place updates between builds.
+        files: ${{ env.APK_PATH }}
+        prerelease: true
