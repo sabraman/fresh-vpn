@@ -1,7 +1,7 @@
 from conan import ConanFile
-from conan.tools.files import get, copy
+from conan.tools.files import get, copy, replace_in_file
 from conan.tools.layout import basic_layout
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.env import Environment
 
 import os
@@ -58,9 +58,28 @@ class AmneziaLibxray(ConanFile):
         build_stat = os.stat(build_path)
         os.chmod(build_path, build_stat.st_mode | stat.S_IEXEC)
 
+        # build.sh deletes go.mod and regenerates it. That drops the pinned
+        # amnezia-xray-core v1.260206.0 and resolves to v1.260710.0, which
+        # declares its module path as github.com/xtls/xray-core - so "go mod
+        # tidy" fails, and since build.sh has no "set -e" it still exits 0
+        # leaving no .aar behind. Keep the go.mod/go.sum from the release.
+        replace_in_file(
+            self, build_path,
+            "    rm -f go.mod\n    rm -f go.sum\n    go mod init github.com/amnezia-vpn/amnezia-libxray\n    go mod tidy\n",
+            "    go mod download\n",
+        )
+
     def build(self):
         self._patch_sources()
         self.run("./build.sh android")
+        # build.sh has no "set -e": a failed step still returns success and
+        # leaves nothing behind, which only surfaces much later as a confusing
+        # "file COPY cannot find libxray.aar" from CMake. Fail here instead.
+        aar = os.path.join(self.build_folder, "libxray.aar")
+        if not os.path.exists(aar):
+            raise ConanException(
+                "build.sh reported success but produced no libxray.aar"
+            )
 
     def package(self):
         copy(self, "libxray.aar", src=self.build_folder, dst=os.path.join(self.package_folder, "aar"))
