@@ -88,27 +88,28 @@ jobs:
     - name: 'Install system packages'
       run: sudo apt-get update && sudo apt-get install -y ninja-build libsecret-1-dev
 
-    # A release APK is unsigned by default and Android refuses to install it.
-    # This key is generated per run and is for testing only: it is NOT a
-    # release key, and every build produces a different signature, so an
-    # update needs an uninstall first. Swap for a keystore held in secrets
-    # before shipping to anyone.
-    - name: 'Create a throwaway signing key'
+    # The persistent release key lives in repo secrets (ANDROID_KEYSTORE_BASE64,
+    # ANDROID_KEYSTORE_PASSWORD). Decode it to a file for androiddeployqt to sign
+    # with. Fail loudly if the secret is missing rather than silently shipping an
+    # unsigned or throwaway-signed APK.
+    - name: 'Restore release signing key'
+      env:
+        KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       run: |
-        keytool -genkeypair -v \
-          -keystore "$RUNNER_TEMP/fresh-test.keystore" \
-          -alias freshtest -keyalg RSA -keysize 2048 -validity 10000 \
-          -storepass freshtest -keypass freshtest \
-          -dname "CN=Fresh VPN Test Build, O=Fresh, C=NL"
+        if [ -z "$KS_B64" ]; then
+          echo "ANDROID_KEYSTORE_BASE64 secret is empty - cannot sign"; exit 1
+        fi
+        echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/fresh-release.jks"
+        ls -l "$RUNNER_TEMP/fresh-release.jks"
 
     - name: 'Build APK'
       shell: bash
       env:
         QT_INSTALL_DIR: ${{ runner.temp }}
-        QT_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/fresh-test.keystore
-        QT_ANDROID_KEYSTORE_ALIAS: freshtest
-        QT_ANDROID_KEYSTORE_STORE_PASS: freshtest
-        QT_ANDROID_KEYSTORE_KEY_PASS: freshtest
+        QT_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/fresh-release.jks
+        QT_ANDROID_KEYSTORE_ALIAS: fresh
+        QT_ANDROID_KEYSTORE_STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        QT_ANDROID_KEYSTORE_KEY_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       run: deploy/build.sh --target android --abi arm64-v8a --abi x86_64 --sign
 
     - name: 'Show what was produced'
