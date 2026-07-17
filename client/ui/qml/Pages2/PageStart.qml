@@ -340,6 +340,17 @@ PageType {
         property int currentIndex: 0
         function setCurrentIndex(i) { currentIndex = i }
 
+        // ONE model for both bars. They used to be two separate literals and drifted:
+        // Guide and Settings got added to the desktop rail only, which left those
+        // pages unreachable on a phone. Every nav item belongs here, nowhere else.
+        property var navItems: [
+            { lbl: qsTr("Home"),       t: "house", nav: 0 },
+            { lbl: qsTr("Statistics"), t: "chart", nav: 2 },
+            { lbl: qsTr("Profile"),    t: "user",  nav: 3 },
+            { lbl: qsTr("Guide"),      t: "book",  nav: 5 },
+            { lbl: qsTr("Settings"),   t: "gear",  nav: 4 }
+        ]
+
         enabled: !root.isControlsDisabled && !root.isTabBarDisabled
         width: isDesktop ? (visible ? 84 : 0) : parent.width
         height: isDesktop ? parent.height : (visible ? 60 + PageController.safeAreaBottomMargin : 0)
@@ -376,7 +387,7 @@ PageType {
             }
         }
 
-        // ===== Desktop: left rail (vertical, 5 items incl. Settings) =====
+        // ===== Desktop: left rail (vertical) =====
         Column {
             visible: tabBar.isDesktop
             anchors.top: parent.top
@@ -386,13 +397,7 @@ PageType {
             spacing: 4
 
             Repeater {
-                model: [
-                    { lbl: qsTr("Home"),    t: "house", nav: 0 },
-                    { lbl: qsTr("Statistics"), t: "chart", nav: 2 },
-                    { lbl: qsTr("Profile"),    t: "user", nav: 3 },
-                    { lbl: qsTr("Guide"),     t: "book", nav: 5 },
-                    { lbl: qsTr("Settings"),  t: "gear", nav: 4 }
-                ]
+                model: tabBar.navItems
                 delegate: Item {
                     id: rnav
                     width: tabBar.width
@@ -445,7 +450,7 @@ PageType {
             }
         }
 
-        // ===== Mobile: bottom bar (horizontal, 4 items) =====
+        // ===== Mobile: bottom bar (horizontal) =====
         Row {
             visible: !tabBar.isDesktop
             anchors.top: parent.top
@@ -455,13 +460,9 @@ PageType {
             height: 52
 
             Repeater {
-                model: [
-                    { lbl: qsTr("Home"),    t: "house", nav: 0 },
-                    { lbl: qsTr("Statistics"), t: "chart", nav: 2 },
-                    { lbl: qsTr("Profile"),    t: "user", nav: 3 }
-                ]
+                model: tabBar.navItems
                 delegate: Item {
-                    width: tabBar.width / 3
+                    width: tabBar.width / tabBar.navItems.length
                     height: 52
                     property bool sel: tabBar.currentIndex === modelData.nav
                     property color c: sel ? AmneziaStyle.color.goldenApricotStrong : AmneziaStyle.color.mutedGray

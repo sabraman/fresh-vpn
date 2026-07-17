@@ -1061,8 +1061,8 @@ Thank you for staying with us!</source>
       <translation>УСТРОЙСТВА</translation>
     </message>
     <message>
-      <source>This device · Windows</source>
-      <translation>Это устройство · Windows</translation>
+      <source>This device · %1</source>
+      <translation>Это устройство · %1</translation>
     </message>
     <message>
       <source>connected now</source>

@@ -22,6 +22,19 @@ PageType {
     ]
     property var history: []
 
+    // The OS used to be hardcoded to "Windows", which reads as a plain lie on
+    // a phone. Qt.platform.os is the real thing.
+    property string thisOsName: {
+        switch (Qt.platform.os) {
+        case "windows": return "Windows"
+        case "android": return "Android"
+        case "ios":     return "iOS"
+        case "osx":     return "macOS"
+        case "linux":   return "Linux"
+        default:         return Qt.platform.os
+        }
+    }
+
     function goP(p){ PageController.goToPage(p) }
     function stub(){ PageController.showNotificationMessage(qsTr("Payment will be connected on the next step")) }
     function payText(){ return qsTr("Pay · ") + root.plans[root.selectedPlan].price }
@@ -205,7 +218,7 @@ PageType {
                 Column {
                     width: parent.width; spacing: 10
                     Text { text: qsTr("DEVICES"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
-                    RowCard { nm: qsTr("This device · Windows"); ds: qsTr("connected now"); icon: "monitor"; clickable: false }
+                    RowCard { nm: qsTr("This device · %1").arg(root.thisOsName); ds: qsTr("connected now"); icon: "monitor"; clickable: false }
                     RowCard { nm: qsTr("Add device"); ds: qsTr("via QR or subscription key"); icon: "qr"; onActivated: root.goP(PageEnum.PageSetupWizardConfigSource) }
                     RowCard { nm: qsTr("Manage servers"); ds: qsTr("node list and settings"); icon: "monitor"; onActivated: root.goP(PageEnum.PageSettingsServersList) }
                     RowCard { nm: qsTr("Support"); ds: qsTr("we will reply in Telegram"); icon: "help"; onActivated: root.goP(PageEnum.PageSettingsApiSupport) }
