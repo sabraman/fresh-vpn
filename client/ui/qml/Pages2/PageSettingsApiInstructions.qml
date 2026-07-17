@@ -16,7 +16,17 @@ PageType {
     property color fg: AmneziaStyle.fresh.fg; property color mute: AmneziaStyle.fresh.mute; property color dim: AmneziaStyle.fresh.dim
     property color limeStrong: AmneziaStyle.fresh.limeStrong; property color limeSoft: AmneziaStyle.fresh.limeSoft; property color limeLine: AmneziaStyle.fresh.limeLine
 
-    property string sel: "win"
+    // Was hardcoded to "win": an Android phone opened this page and was told to
+    // set up Windows. Start on whatever the app is actually running on.
+    property string sel: {
+        switch (Qt.platform.os) {
+        case "android": return "android"
+        case "ios":     return "ios"
+        case "osx":     return "mac"
+        case "linux":   return "linux"
+        default:         return "win"
+        }
+    }
     property var order: ["ios", "android", "mac", "win", "tv", "router", "linux"]
 
     // #8 Happ deep-link: on click, copy the link AND open Happ with it imported (if installed).
