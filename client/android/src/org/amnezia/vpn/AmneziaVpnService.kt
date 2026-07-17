@@ -623,9 +623,14 @@ open class AmneziaVpnService : VpnService() {
         }
 
     companion object {
-        fun isRunning(context: Context, processName: String): Boolean =
-            context.getSystemService<ActivityManager>()!!.runningAppProcesses.any {
+        // Ask the OS what we are actually called instead of trusting a literal: a private
+        // service process is named "<applicationId>:<suffix>", so a hardcoded full name
+        // stops matching after a rename and this returns false while the tunnel is up.
+        fun isRunning(context: Context, processSuffix: String): Boolean {
+            val processName = context.packageName + processSuffix
+            return context.getSystemService<ActivityManager>()!!.runningAppProcesses.any {
                 it.processName == processName && it.importance <= IMPORTANCE_FOREGROUND_SERVICE
             }
+        }
     }
 }

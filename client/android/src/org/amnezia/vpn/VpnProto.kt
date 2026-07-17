@@ -8,12 +8,15 @@ import org.amnezia.vpn.protocol.xray.Xray
 
 enum class VpnProto(
     val label: String,
-    val processName: String,
+    // Suffix only. The OS builds the real name as "<applicationId>:<suffix>" (see the
+    // android:process="::"-style entries in AndroidManifest.xml), so hardcoding the full
+    // name here silently breaks isRunning() the moment applicationId changes.
+    val processSuffix: String,
     val serviceClass: Class<out AmneziaVpnService>
 ) {
     WIREGUARD(
         "WireGuard",
-        "org.amnezia.vpn:amneziaAwgService",
+        ":amneziaAwgService",
         AwgService::class.java
     ) {
         override fun createProtocol(): Protocol = Wireguard()
@@ -21,7 +24,7 @@ enum class VpnProto(
 
     AWG(
         "AmneziaWG",
-        "org.amnezia.vpn:amneziaAwgService",
+        ":amneziaAwgService",
         AwgService::class.java
     ) {
         override fun createProtocol(): Protocol = Awg()
@@ -29,7 +32,7 @@ enum class VpnProto(
 
     OPENVPN(
         "OpenVPN",
-        "org.amnezia.vpn:amneziaOpenVpnService",
+        ":amneziaOpenVpnService",
         OpenVpnService::class.java
     ) {
         override fun createProtocol(): Protocol = OpenVpn()
@@ -37,7 +40,7 @@ enum class VpnProto(
 
     XRAY(
         "XRay",
-        "org.amnezia.vpn:amneziaXrayService",
+        ":amneziaXrayService",
         XrayService::class.java
     ) {
         override fun createProtocol(): Protocol = Xray.instance
@@ -45,7 +48,7 @@ enum class VpnProto(
 
     SSXRAY(
         "SSXRay",
-        "org.amnezia.vpn:amneziaXrayService",
+        ":amneziaXrayService",
         XrayService::class.java
     ) {
         override fun createProtocol(): Protocol = Xray.instance

@@ -266,7 +266,7 @@ class AmneziaActivity : QtActivity() {
         mainScope.launch {
             qtInitialized.await()
             vpnProto?.let { proto ->
-                if (AmneziaVpnService.isRunning(applicationContext, proto.processName)) {
+                if (AmneziaVpnService.isRunning(applicationContext, proto.processSuffix)) {
                     doBindService()
                 }
             }

@@ -34,7 +34,9 @@ android {
     }
 
     defaultConfig {
-        applicationId = "org.amnezia.vpn"
+        // The Kotlin package (namespace, above) stays org.amnezia.vpn so the JNI class
+        // lookups in android_controller.cpp keep resolving. Only the installed identity moves.
+        applicationId = "online.fr3sh.vpn"
         targetSdk = qtTargetSdkVersion.toInt()
 
         // keeps language resources for only the locales specified below
