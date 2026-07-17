@@ -51,14 +51,17 @@ PageType {
 
         Text {
             Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
             Layout.topMargin: 26
             text: qsTr("Connect in a minute")
             color: root.fg; font.pixelSize: 26; font.weight: 800
             horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
         }
 
         Text {
             Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
             Layout.topMargin: 10
             Layout.maximumWidth: 420
             text: qsTr("Paste your subscription key or scan a QR code — Fresh VPN will do the rest.")
