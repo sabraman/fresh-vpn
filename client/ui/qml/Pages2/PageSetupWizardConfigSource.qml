@@ -47,7 +47,7 @@ PageType {
 
                 headerText: qsTr("Connection")
 
-                actionButtonImage: isVisible ? "qrc:/images/controls/more-vertical.svg" : ""
+                actionButtonImage: ""  // Fresh: removed 3-dots/Support-tag menu (useless on this screen)
                 actionButtonFunction: function() {
                     moreActionsDrawer.openTriggered()
                 }
@@ -159,44 +159,89 @@ PageType {
                 text: qsTr("Insert the key, add a configuration file or scan the QR-code")
             }
 
-            TextFieldWithHeaderType {
-                id: textKey
-
+            Item {
+                id: keyField
                 Layout.fillWidth: true
                 Layout.rightMargin: 16
                 Layout.leftMargin: 16
+                Layout.preferredHeight: 56
+                property alias text: keyInput.text
 
-                headerText: qsTr("Insert key")
-                buttonText: qsTr("Insert")
-
-                clickedFunc: function() {
-                    textField.text = ""
-                    textField.paste()
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 14
+                    color: AmneziaStyle.fresh.card
+                    border.width: 1
+                    border.color: keyInput.activeFocus ? AmneziaStyle.fresh.limeStrong : AmneziaStyle.fresh.line
+                    Behavior on border.color { ColorAnimation { duration: 150 } }
                 }
-            }
 
-            BasicButtonType {
-                id: continueButton
+                TextField {
+                    id: keyInput
+                    anchors.left: parent.left; anchors.leftMargin: 16
+                    anchors.right: pasteBtn.left; anchors.rightMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    placeholderText: qsTr("Paste the key")
+                    placeholderTextColor: AmneziaStyle.fresh.dim
+                    color: AmneziaStyle.fresh.fg
+                    font.pixelSize: 15
+                    font.family: "Inter"
+                    selectionColor: AmneziaStyle.fresh.limeStrong
+                    selectedTextColor: "#0E0E11"
+                    inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                    background: Item {}
+                }
 
-                Layout.fillWidth: true
-                Layout.topMargin: 16
-                Layout.rightMargin: 16
-                Layout.leftMargin: 16
-
-                visible: textKey.textField.text !== ""
-
-                text: qsTr("Continue")
-
-                clickedFunc: function() {
-                    PageController.showBusyIndicator(true)
-                    var ok = ImportController.extractConfigFromData(textKey.textField.text)
-                    PageController.showBusyIndicator(false)
-                    if (ok) {
-                        PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+                Text {
+                    id: pasteBtn
+                    anchors.right: parent.right; anchors.rightMargin: 16
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: keyInput.text.length > 0 ? qsTr("Clear") : qsTr("Paste")
+                    color: AmneziaStyle.fresh.limeStrong
+                    font.pixelSize: 14; font.weight: 700
+                    MouseArea {
+                        anchors.fill: parent; anchors.margins: -10
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (keyInput.text.length > 0) {
+                                keyInput.text = ""
+                            } else {
+                                keyInput.text = ""
+                                keyInput.paste()
+                            }
+                            keyInput.forceActiveFocus()
+                        }
                     }
                 }
             }
 
+            Rectangle {
+                id: continueButton
+                Layout.fillWidth: true
+                Layout.topMargin: 12
+                Layout.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.preferredHeight: 48
+                radius: 13
+                visible: keyField.text !== ""
+                color: AmneziaStyle.fresh.limeStrong
+                scale: contMouse.pressed ? 0.98 : 1.0
+                Behavior on scale { NumberAnimation { duration: 90 } }
+                Text { anchors.centerIn: parent; text: qsTr("Continue"); color: "#0E0E11"; font.pixelSize: 15; font.weight: 800 }
+                MouseArea {
+                    id: contMouse
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        PageController.showBusyIndicator(true)
+                        var ok = ImportController.extractConfigFromData(keyField.text)
+                        PageController.showBusyIndicator(false)
+                        if (ok) {
+                            PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+                        }
+                    }
+                }
+            }
             ParagraphTextType {
                 Layout.fillWidth: true
                 Layout.topMargin: 32
@@ -273,6 +318,7 @@ PageType {
         backupRestore,
         fileOpen,
         qrScan,
+        qrImageOpen,
         restorePurchases,
         siteLink
     ]
@@ -282,9 +328,9 @@ PageType {
 
         property string title: qsTr("Fresh VPN")
         property string description: qsTr("The easiest way to connect to the VPN")
-        property string imageSource: "qrc:/images/controls/amnezia.svg"
+        property string imageSource: "qrc:/images/controls/fresh-leaf.svg"
         property bool featuredAmneziaConnection: true
-        property bool isVisible: true
+        property bool isVisible: false  // Fresh: gateway auto-provision not wired for self-hosted seed -> hide (was ErrorCode 1100); key-paste above is the working path
         property var handler: function() {
             PageController.showBusyIndicator(true)
             var result = SubscriptionUiController.fillAvailableServices()
@@ -302,7 +348,7 @@ PageType {
         property string title: qsTr("Self-hosted VPN")
         property string description: qsTr("Configure Fresh VPN on your own server")
         property string imageSource: "qrc:/images/controls/server.svg"
-        property bool isVisible: true
+        property bool isVisible: false
         property var handler: function() {
             PageController.goToPage(PageEnum.PageSetupWizardCredentials)
         }
@@ -362,6 +408,27 @@ PageType {
         }
     }
 
+    QtObject {
+        id: qrImageOpen
+
+        property bool featuredAmneziaConnection: false
+        property string title: qsTr("QR code from image")
+        property string description: qsTr("Load a QR code from an image file")
+        property string imageSource: "qrc:/images/controls/scan-line.svg"
+        property bool isVisible: !GC.isMobile()
+        property var handler: function() {
+            var nameFilter = "Images (*.png *.jpg *.jpeg *.bmp *.gif *.webp)"
+            var fileName = SystemController.getFileName(qsTr("Open image with QR code"), nameFilter)
+            if (fileName !== "") {
+                PageController.showBusyIndicator(true)
+                var ok = ImportController.extractConfigFromQrImage(fileName)
+                PageController.showBusyIndicator(false)
+                if (ok) {
+                    PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+                }
+            }
+        }
+    }
     QtObject {
         id: restorePurchases
 

@@ -127,9 +127,9 @@ PageType {
                     var noButtonText = qsTr("Cancel")
 
                     var yesButtonFunction = function() {
-                        SettingsController.primaryDns = "1.1.1.1"
+                        SettingsController.primaryDns = "94.140.14.14"
                         primaryDns.textField.text = SettingsController.primaryDns
-                        SettingsController.secondaryDns = "1.0.0.1"
+                        SettingsController.secondaryDns = "94.140.15.15"
                         secondaryDns.textField.text = SettingsController.secondaryDns
                         PageController.showNotificationMessage(qsTr("Settings have been reset"))
                     }
@@ -137,6 +137,32 @@ PageType {
                     }
 
                     showQuestionDrawer(headerText, "", yesButtonText, noButtonText, yesButtonFunction, noButtonFunction)
+                }
+            }
+
+            BasicButtonType {
+                id: plainDnsButton
+
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                defaultColor: AmneziaStyle.color.transparent
+                hoveredColor: AmneziaStyle.color.translucentWhite
+                pressedColor: AmneziaStyle.color.sheerWhite
+                disabledColor: AmneziaStyle.color.mutedGray
+                textColor: AmneziaStyle.color.paleGray
+                borderWidth: 1
+
+                text: qsTr("Plain DNS (no ad blocking)")
+
+                clickedFunc: function() {
+                    SettingsController.primaryDns = "1.1.1.1"
+                    primaryDns.textField.text = SettingsController.primaryDns
+                    SettingsController.secondaryDns = "1.0.0.1"
+                    secondaryDns.textField.text = SettingsController.secondaryDns
+                    PageController.showNotificationMessage(qsTr("Ad blocking disabled"))
                 }
             }
 

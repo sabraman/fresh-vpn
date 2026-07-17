@@ -15,6 +15,7 @@ import "../Controls2"
 import "../Controls2/TextTypes"
 import "../Config"
 import "../Components"
+import "../Components/countrynames.js" as CN
 
 PageType {
     id: root
@@ -69,7 +70,7 @@ PageType {
                 Layout.fillWidth: true
                 Layout.topMargin: 6
 
-                text: countryName
+                text: CN.localName(countryCode, countryName, LanguageUiController.currentLanguageName === "English")
                 descriptionText: isWorkerExpired ? qsTr("The configuration needs to be reissued") : ""
                 hideDescription: isWorkerExpired ? false : true
                 descriptionColor: AmneziaStyle.color.vibrantRed
@@ -79,7 +80,7 @@ PageType {
 
                 clickedFunction: function() {
                     if (isIssued) {
-                        moreOptionsDrawer.countryName = countryName
+                        moreOptionsDrawer.countryName = CN.localName(countryCode, countryName, LanguageUiController.currentLanguageName === "English")
                         moreOptionsDrawer.countryCode = countryCode
                         moreOptionsDrawer.openTriggered()
                     } else {

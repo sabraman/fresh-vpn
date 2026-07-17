@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gw.fr3sh.online/updates/manifest.schema.json",
+  "title": "Fresh VPN signed update manifest",
+  "description": "FROZEN v1 (2026-06-30). Signed payload for service-mediated silent self-update. Ed25519 signature (manifest.sig) is computed over the RAW UTF-8 bytes of the canonical/minified manifest.json BEFORE any JSON parse (auditor H2). Any new field without bumping schema_version => service MUST reject (CISO #6).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "product", "platform", "version",
+    "min_installed_version", "released_at",
+    "signature_algo", "signature_keyid", "files"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "product":  { "const": "fresh-vpn-amnezia" },
+    "platform": { "const": "windows-x64" },
+    "version":               { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "min_installed_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "released_at":           { "type": "string", "format": "date-time" },
+    "signature_algo":        { "const": "ed25519" },
+    "signature_keyid":       { "type": "string", "pattern": "^[0-9a-f]{16}$",
+                               "description": "lowercase hex of first 8 bytes of SHA-256(pinned SPKI DER). Selects which pinned pubkey (current/next) the service verifies against (auditor C2)." },
+    "files": {
+      "type": "array", "minItems": 1, "maxItems": 4096,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["path", "sha256", "size"],
+        "properties": {
+          "path":   { "type": "string", "pattern": "^[A-Za-z0-9._/-]+$", "maxLength": 260,
+                      "description": "relative POSIX path under installDir. No '..', no leading '/', no drive, no UNC, no backslash. Whitelist ext only: exe dll qml qmlc qm ts json ico (CISO #3). MUST NOT include FreshVPN-service.exe in v1 (CISO #10 / auditor H4) - service SKIPs it." },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "size":   { "type": "integer", "minimum": 0, "maximum": 52428800 }
+        }
+      }
+    }
+  }
+}

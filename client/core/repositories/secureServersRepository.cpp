@@ -147,6 +147,7 @@ void SecureServersRepository::loadFromStorage()
             QJsonDocument::fromJson(value(QStringLiteral("Servers/serversList"), QByteArray()).toByteArray())
                     .array();
 
+    QSet<QString> seenHostKeys;
     for (int i = 0; i < serversArray.size(); ++i) {
         const QJsonObject json = serversArray.at(i).toObject();
         const QString candidateId = readStorageServerId(json);
@@ -157,6 +158,18 @@ void SecureServersRepository::loadFromStorage()
         if (m_serverJsonById.contains(serverId) || kind == serverConfigUtils::ConfigType::Invalid) {
             continue;
         }
+
+        // Drop duplicate servers that point at the same host (e.g. the same node imported twice via
+        // subscription + combo link), keeping the first occurrence so the list never shows doubles.
+        const QString host = strippedJson.value(QString(configKey::hostName)).toString().trimmed();
+        if (!host.isEmpty()) {
+            const QString hostKey = QString::number(static_cast<int>(kind)) + QLatin1Char('|') + host;
+            if (seenHostKeys.contains(hostKey)) {
+                continue;
+            }
+            seenHostKeys.insert(hostKey);
+        }
+
         m_serverJsonById.insert(serverId, embedStorageServerId(serverId, strippedJson));
         m_orderedServerIds.append(serverId);
     }

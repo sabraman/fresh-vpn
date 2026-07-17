@@ -30,6 +30,7 @@ public:
     void removeSites();
     void setRouteMode(RouteMode routeMode);
     void toggleSplitTunneling(bool enabled);
+    void applyRussianDirectPreset();
 
     RouteMode getRouteMode() const;
     bool isSplitTunnelingEnabled() const;
@@ -48,6 +49,7 @@ private:
     bool validateHostname(const QString &hostname) const;
     void processSiteAfterResolve(const QString &hostname, const QString &ip);
     void processSite(const QString &hostname, const QString &ip);
+    static QStringList russianDirectSites();
 
     SecureAppSettingsRepository* m_appSettingsRepository;
     RouteMode m_currentRouteMode;

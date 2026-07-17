@@ -1,8 +1,10 @@
 pragma Singleton
 
 import QtQuick
+import QtCore
 
 QtObject {
+    id: rootStyle
     property QtObject color: QtObject {
         readonly property color transparent: 'transparent'
         readonly property color paleGray: '#F5F4EF'
@@ -37,5 +39,29 @@ QtObject {
         readonly property color translucentOnyxBlack: Qt.rgba(28/255, 29/255, 33/255, 0.13)
 
         readonly property string goldenApricotString: '#B8E641'
+    }
+    property bool isDark: true
+    readonly property QtObject fresh: QtObject {
+        readonly property color bg:         rootStyle.isDark ? "#0E0E11" : "#F4F4F2"
+        readonly property color card:       rootStyle.isDark ? "#16171A" : "#FFFFFF"
+        readonly property color bg2:        rootStyle.isDark ? "#1C1D21" : "#ECECEE"
+        readonly property color bg3:        rootStyle.isDark ? "#25262B" : "#E0E0E4"
+        readonly property color line:       rootStyle.isDark ? Qt.rgba(1,1,1,0.08) : Qt.rgba(0,0,0,0.10)
+        readonly property color fg:         rootStyle.isDark ? "#F5F4EF" : "#17181B"
+        readonly property color mute:       rootStyle.isDark ? "#878B91" : "#6B6F76"
+        readonly property color dim:        rootStyle.isDark ? "#5A5D63" : "#9CA0A6"
+        readonly property color lime:       "#B8E641"
+        readonly property color limeStrong: "#C8F050"
+        readonly property color limeSoft:   rootStyle.isDark ? Qt.rgba(184/255,230/255,65/255,0.10) : Qt.rgba(116/255,182/255,43/255,0.12)
+        readonly property color limeLine:   rootStyle.isDark ? Qt.rgba(184/255,230/255,65/255,0.30) : Qt.rgba(116/255,182/255,43/255,0.40)
+        readonly property color warn:       "#FBB26A"
+        readonly property color bad:        "#E5484D"
+        readonly property color ok:         "#5FD08A"
+        readonly property color danger:     "#E5715A"
+    }
+
+    property Settings _themePersist: Settings {
+        category: "FreshUI"
+        property alias isDark: rootStyle.isDark
     }
 }

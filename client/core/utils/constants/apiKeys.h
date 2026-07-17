@@ -32,6 +32,8 @@ namespace apiDefs
         constexpr QLatin1String aesKey("aes_key");
         constexpr QLatin1String aesIv("aes_iv");
         constexpr QLatin1String aesSalt("aes_salt");
+        constexpr QLatin1String nonce("nonce");      // beta: request GCM nonce (b64 12B)
+        constexpr QLatin1String ts("ts");            // beta: unix ms timestamp (anti-replay)
         constexpr QLatin1String apiPayload("api_payload");
         constexpr QLatin1String keyPayload("key_payload");
 

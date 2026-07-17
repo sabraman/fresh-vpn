@@ -255,6 +255,31 @@ ImportController::ImportResult ImportController::extractConfigFromData(const QSt
     return result;
 }
 
+QList<ImportController::ImportResult> ImportController::extractAllConfigsFromData(const QString &data, const QString &configFileName)
+{
+    QList<ImportResult> results;
+
+    // A subscription body is a newline list (or base64 blob) of share-URIs. Import EVERY
+    // server it lists, not just the first, so a trial/paid user gets the whole country list
+    // in a single import (parity with Happ and other standard clients).
+    const QStringList uris = allUrisFromSubscription(data);
+    if (uris.size() >= 2) {
+        for (const QString &uri : uris) {
+            ImportResult r = extractConfigFromData(uri, configFileName);
+            if (r.errorCode == ErrorCode::NoError && !r.config.isEmpty()) {
+                results.append(r);
+            }
+        }
+        if (!results.isEmpty()) {
+            return results;
+        }
+    }
+
+    // Fallback: a single config (plain link, amnezia/vpn:// bundle, wireguard, backup, etc.).
+    results.append(extractConfigFromData(data, configFileName));
+    return results;
+}
+
 ImportController::ImportResult ImportController::extractConfigFromQr(const QByteArray &data)
 {
     ImportResult result;
@@ -399,7 +424,16 @@ void ImportController::importConfig(const QJsonObject &config)
     credentials.secretData = config.value(configKey::password).toString();
 
     if (credentials.isValid() || config.contains(configKey::containers)) {
-        m_serversRepository->addServer(QString(), config, serverConfigUtils::configTypeFromJson(config));
+        QJsonObject configToAdd = config;
+        // #6 Fresh: prefer AmneziaWG by default when the bundle provides an AWG container.
+        const QJsonArray awgCheckContainers = config.value(configKey::containers).toArray();
+        for (const QJsonValue &cv : awgCheckContainers) {
+            if (ContainerUtils::isAwgContainer(ContainerUtils::containerFromString(cv.toObject().value(configKey::container).toString()))) {
+                configToAdd[configKey::defaultContainer] = configKey::amneziaAwg;
+                break;
+            }
+        }
+        m_serversRepository->addServer(QString(), configToAdd, serverConfigUtils::configTypeFromJson(configToAdd));
         emit importFinished();
     } else if (config.contains(configKey::configVersion)) {
         quint16 crc = qChecksum(QJsonDocument(config).toJson());
@@ -431,6 +465,74 @@ void ImportController::importConfig(const QJsonObject &config)
         qDebug().noquote() << "Config rejected (contents omitted to avoid logging secrets); fields:" << config.keys();
         emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
     }
+}
+
+void ImportController::importConfigs(const QList<QJsonObject> &configs)
+{
+    int added = 0;
+    for (const QJsonObject &config : configs) {
+        if (addServerFromConfig(config)) {
+            ++added;
+        }
+    }
+
+    if (added > 0) {
+        emit importFinished();
+    } else {
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+    }
+}
+
+bool ImportController::addServerFromConfig(const QJsonObject &config)
+{
+    ServerCredentials credentials;
+    credentials.hostName = config.value(configKey::hostName).toString();
+    credentials.port = config.value(configKey::port).toInt();
+    credentials.userName = config.value(configKey::userName).toString();
+    credentials.secretData = config.value(configKey::password).toString();
+
+    if (credentials.isValid() || config.contains(configKey::containers)) {
+        // Dedup by hostName: on subscription re-import, do not create duplicate servers.
+        const QString newHost = config.value(configKey::hostName).toString();
+        if (!newHost.isEmpty()) {
+            const QVector<QString> existingIds = m_serversRepository->orderedServerIds();
+            for (const QString &id : existingIds) {
+                const auto nc = m_serversRepository->nativeConfig(id);
+                if (nc.has_value() && nc->hostName == newHost) {
+                    qDebug() << "Skipping duplicate subscription server (host already present)";
+                    return true;
+                }
+            }
+        }
+        QJsonObject configToAdd = config;
+        // #6 Fresh: prefer AmneziaWG by default when the bundle provides an AWG container.
+        const QJsonArray awgCheckContainers = config.value(configKey::containers).toArray();
+        for (const QJsonValue &cv : awgCheckContainers) {
+            if (ContainerUtils::isAwgContainer(ContainerUtils::containerFromString(cv.toObject().value(configKey::container).toString()))) {
+                configToAdd[configKey::defaultContainer] = configKey::amneziaAwg;
+                break;
+            }
+        }
+        m_serversRepository->addServer(QString(), configToAdd, serverConfigUtils::configTypeFromJson(configToAdd));
+        return true;
+    } else if (config.contains(configKey::configVersion)) {
+        quint16 crc = qChecksum(QJsonDocument(config).toJson());
+        const QVector<QString> ids = m_serversRepository->orderedServerIds();
+        for (const QString &id : ids) {
+            const auto apiV2 = m_serversRepository->apiV2Config(id);
+            if (apiV2.has_value() && static_cast<quint16>(apiV2->crc) == crc) {
+                return false;
+            }
+        }
+        QJsonObject configWithCrc = config;
+        configWithCrc.insert(configKey::crc, crc);
+        m_serversRepository->addServer(QString(), configWithCrc, serverConfigUtils::configTypeFromJson(configWithCrc));
+        return true;
+    }
+
+    qDebug() << "Failed to import profile (subscription entry)";
+    qDebug().noquote() << "Config rejected (contents omitted to avoid logging secrets); fields:" << config.keys();
+    return false;
 }
 
 QJsonObject ImportController::processNativeWireGuardConfig(const QJsonObject &config)
@@ -472,7 +574,7 @@ QJsonObject ImportController::processNativeWireGuardConfig(const QJsonObject &co
 
 QString ImportController::firstUriFromSubscription(const QString &data) const
 {
-    static const QStringList schemes = { "vless://", "vmess://", "trojan://", "ss://", "ssd://" };
+    static const QStringList schemes = { "vless://", "vmess://", "trojan://", "ss://", "ssd://", "vpn://" };
 
     auto pickFirstUri = [](const QString &text) -> QString {
         const QStringList lines = text.split(QRegularExpression("[\\r\\n]+"), Qt::SkipEmptyParts);
@@ -511,6 +613,51 @@ QString ImportController::firstUriFromSubscription(const QString &data) const
     }
 
     return QString();
+}
+
+QStringList ImportController::allUrisFromSubscription(const QString &data) const
+{
+    static const QStringList schemes = { "vless://", "vmess://", "trojan://", "ss://", "ssd://", "vpn://" };
+
+    auto pickAllUris = [](const QString &text) -> QStringList {
+        QStringList out;
+        const QStringList lines = text.split(QRegularExpression("[\\r\\n]+"), Qt::SkipEmptyParts);
+        for (const QString &rawLine : lines) {
+            const QString line = rawLine.trimmed();
+            for (const QString &scheme : schemes) {
+                if (line.startsWith(scheme)) {
+                    out.append(line);
+                    break;
+                }
+            }
+        }
+        return out;
+    };
+
+    // 1) Plain text: one share-URI per line.
+    const QStringList direct = pickAllUris(data);
+    if (!direct.isEmpty()) {
+        return direct;
+    }
+
+    // 2) Base64-encoded subscription blob (the v2ray/xray standard).
+    QString compact = data;
+    compact.remove(QRegularExpression("\\s"));
+    if (compact.isEmpty()) {
+        return {};
+    }
+
+    QByteArray decoded = QByteArray::fromBase64(compact.toUtf8(),
+                                                QByteArray::Base64Encoding | QByteArray::AbortOnBase64DecodingErrors);
+    if (decoded.isEmpty()) {
+        decoded = QByteArray::fromBase64(compact.toUtf8(),
+                                         QByteArray::Base64UrlEncoding | QByteArray::AbortOnBase64DecodingErrors);
+    }
+    if (!decoded.isEmpty()) {
+        return pickAllUris(QString::fromUtf8(decoded));
+    }
+
+    return {};
 }
 
 ConfigTypes ImportController::checkConfigFormat(const QString &config) const

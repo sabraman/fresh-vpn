@@ -1,4 +1,5 @@
 #include "connectionUiController.h"
+#include <QTimer>
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS) || defined(MACOS_NE)
     #include <QGuiApplication>
@@ -46,6 +47,16 @@ void ConnectionUiController::closeConnection()
     m_connectionController->closeConnection();
 }
 
+void ConnectionUiController::reconnect()
+{
+    if (isConnected() || isConnectionInProgress()) {
+        m_pendingReconnect = true;
+        closeConnection();
+    } else {
+        openConnection();
+    }
+}
+
 ErrorCode ConnectionUiController::getLastConnectionError()
 {
     return m_connectionController->lastConnectionError();
@@ -83,6 +94,10 @@ void ConnectionUiController::onConnectionStateChanged(Vpn::ConnectionState state
         emit trafficChanged();
         m_isConnectionInProgress = false;
         m_connectionStateText = tr("Connect");
+        if (m_pendingReconnect) {
+            m_pendingReconnect = false;
+            QMetaObject::invokeMethod(this, "openConnection", Qt::QueuedConnection);
+        }
         break;
     }
     case Vpn::ConnectionState::Disconnecting: {

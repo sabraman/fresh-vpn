@@ -72,6 +72,16 @@ void SettingsUiController::setSecondaryDns(const QString &dns)
     emit secondaryDnsChanged();
 }
 
+bool SettingsUiController::isAutoUpdateEnabled()
+{
+    return m_settingsController->isAutoUpdateEnabled();
+}
+
+void SettingsUiController::setAutoUpdateEnabled(bool enable)
+{
+    m_settingsController->setAutoUpdateEnabled(enable);
+}
+
 bool SettingsUiController::isLoggingEnabled()
 {
     return m_settingsController->isLoggingEnabled();

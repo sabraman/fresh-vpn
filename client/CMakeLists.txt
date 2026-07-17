@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25.0 FATAL_ERROR)
 
-set(PROJECT AmneziaVPN)
+set(PROJECT FreshVPN)
 project(${PROJECT})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -73,13 +73,6 @@ qt6_add_resources(QRC ${QRC}
 # -- i18n begin
 set(AMNEZIAVPN_TS_FILES
     ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_ru_RU.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_zh_CN.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_fa_IR.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_ar_EG.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_my_MM.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_uk_UA.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_ur_PK.ts
-    ${CMAKE_CURRENT_LIST_DIR}/translations/amneziavpn_hi_IN.ts
 )
 
 qt6_add_translations(${PROJECT}
@@ -214,7 +207,7 @@ endif()
 install(TARGETS ${PROJECT}
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     RUNTIME_DEPENDENCY_SET client_deps
-    COMPONENT AmneziaVPN
+    COMPONENT FreshVPN
 )
 
 if(APPLE)
@@ -237,7 +230,7 @@ install(RUNTIME_DEPENDENCY_SET client_deps
         [[^/lib.*]]
         [[^/usr/lib.*]]
     DIRECTORIES ${CONAN_RUNTIME_LIB_DIRS}
-    COMPONENT AmneziaVPN
+    COMPONENT FreshVPN
     DESTINATION "${RUNTIME_DEPS_DIR}"
 )
 
@@ -253,7 +246,7 @@ qt_generate_deploy_qml_app_script(
     DEPLOY_TOOL_OPTIONS ${deploy_tool_options}
 )
 install(SCRIPT ${QT_DEPLOY_SCRIPT}
-    COMPONENT AmneziaVPN
+    COMPONENT FreshVPN
 )
 
 if (APPLE AND NOT IOS AND NOT MACOS_NE)
@@ -272,10 +265,18 @@ if(OVPN_SCRIPTS)
 
     install(FILES ${OVPN_SCRIPTS}
         DESTINATION ${CMAKE_INSTALL_BINDIR}
-        COMPONENT AmneziaVPN
+        COMPONENT FreshVPN
         PERMISSIONS
             OWNER_READ OWNER_EXECUTE
             GROUP_READ GROUP_EXECUTE
             WORLD_READ WORLD_EXECUTE
+    )
+endif()
+
+# Fresh VPN: bundle VC++ x64 runtime so the installer can install it on machines that lack it.
+if(WIN32)
+    install(FILES ${CMAKE_SOURCE_DIR}/deploy/data/windows/vc_redist.x64.exe
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT FreshVPN
     )
 endif()

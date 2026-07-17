@@ -239,8 +239,8 @@ PageType {
                 textColor: AmneziaStyle.color.vibrantRed
 
                 clickedFunction: function() {
-                    var headerText = qsTr("Reset settings and remove all data from the application?")
-                    var descriptionText = qsTr("All settings will be reset to default. All installed Fresh VPN services will still remain on the server.")
+                    var headerText = qsTr("Reset all settings to default?")
+                    var descriptionText = qsTr("All settings will return to their default values. Your subscription and connected servers will be kept.")
                     var yesButtonText = qsTr("Continue")
                     var noButtonText = qsTr("Cancel")
 
@@ -249,7 +249,7 @@ PageType {
                             PageController.showNotificationMessage(qsTr("Cannot reset settings during active connection"))
                         } else
                         {
-                            SettingsController.clearSettings()
+                            SettingsController.resetSettingsKeepServers()
                             PageController.goToPageHome()
                         }
                     }

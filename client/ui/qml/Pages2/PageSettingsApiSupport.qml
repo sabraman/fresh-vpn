@@ -123,6 +123,70 @@ PageType {
                     }
                 }
             }
+
+            Item { Layout.fillWidth: true; implicitHeight: 20 }
+
+            Text {
+                Layout.leftMargin: 16; Layout.rightMargin: 16; Layout.fillWidth: true
+                text: qsTr("FAQ")
+                color: AmneziaStyle.fresh.dim
+                font.pixelSize: 12; font.weight: 800
+            }
+
+            Repeater {
+                model: [
+                    { q: qsTr("How do I connect?"), a: qsTr("Open the app, choose a country and tap 'Connect'. AmneziaWG is used by default; if the network blocks it, switch the protocol to VLESS on the Home screen.") },
+                    { q: qsTr("Speed or ping show a dash"), a: qsTr("These values appear only during an active connection. Ping is measured to the server, while speed and traffic count the live tunnel data.") },
+                    { q: qsTr("Russian sites open slowly through the VPN"), a: qsTr("Open Settings, enable split tunneling and add Russian sites or apps to the exceptions list — they will open directly, without the VPN.") },
+                    { q: qsTr("How do I use Fresh VPN on another device?"), a: qsTr("Copy the subscription key on the server screen and import it into Fresh VPN (or a compatible client) on the other device.") },
+                    { q: qsTr("How do I reset the app?"), a: qsTr("Settings → 'Reset all settings to default'. Your subscription and servers will be kept.") },
+                    { q: qsTr("My subscription has expired"), a: qsTr("Renew it and open the app again — the subscription will update automatically on launch.") }
+                ]
+                delegate: ColumnLayout {
+                    id: faqItem
+                    Layout.fillWidth: true
+                    spacing: 0
+                    property bool expanded: false
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 16; Layout.rightMargin: 16
+                        implicitHeight: faqQ.implicitHeight + 22
+                        color: "transparent"
+                        Text {
+                            id: faqQ
+                            anchors.left: parent.left; anchors.right: faqPlus.left; anchors.rightMargin: 10
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: modelData.q
+                            color: AmneziaStyle.fresh.fg
+                            font.pixelSize: 14; font.weight: 600
+                            wrapMode: Text.WordWrap
+                        }
+                        Text {
+                            id: faqPlus
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: faqItem.expanded ? "−" : "+"
+                            color: AmneziaStyle.fresh.mute
+                            font.pixelSize: 18; font.weight: 700
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: faqItem.expanded = !faqItem.expanded
+                        }
+                    }
+                    Text {
+                        visible: faqItem.expanded
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 16; Layout.rightMargin: 16; Layout.bottomMargin: 12
+                        text: modelData.a
+                        color: AmneziaStyle.fresh.mute
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    DividerType {}
+                }
+            }
         }
     }
 }

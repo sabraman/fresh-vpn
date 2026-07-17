@@ -45,6 +45,9 @@ public slots:
     bool isLoggingEnabled();
     void toggleLogging(bool enable);
 
+    bool isAutoUpdateEnabled();
+    void setAutoUpdateEnabled(bool enable);
+
     void openLogsFolder();
     void openServiceLogsFolder();
     void exportLogsFile(const QString &fileName);

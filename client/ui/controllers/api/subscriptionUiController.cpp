@@ -14,7 +14,7 @@
 #include <QSet>
 #include <QEventLoop>
 #include <QFutureWatcher>
-#include <QTimer>
+#include <QTimer>
 
 namespace
 {

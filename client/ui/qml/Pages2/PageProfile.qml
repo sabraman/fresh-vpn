@@ -1,33 +1,30 @@
 import QtQuick
 import PageEnum 1.0
+import Style 1.0
 import "../Controls2"
 
 PageType {
     id: root
 
-    property color bg: "#0E0E11"; property color card: "#16171A"; property color bg3: "#25262B"
-    property color line: Qt.rgba(1,1,1,0.08); property color fg: "#F5F4EF"; property color mute: "#878B91"; property color dim: "#5A5D63"
-    property color lime: "#B8E641"; property color limeStrong: "#C8F050"
-    property color limeSoft: Qt.rgba(184/255,230/255,65/255,0.10); property color limeLine: Qt.rgba(184/255,230/255,65/255,0.30)
-    property color ok: "#5FD08A"
+    property color bg: AmneziaStyle.fresh.bg; property color card: AmneziaStyle.fresh.card; property color bg3: AmneziaStyle.fresh.bg3
+    property color line: AmneziaStyle.fresh.line; property color fg: AmneziaStyle.fresh.fg; property color mute: AmneziaStyle.fresh.mute; property color dim: AmneziaStyle.fresh.dim
+    property color lime: AmneziaStyle.fresh.lime; property color limeStrong: AmneziaStyle.fresh.limeStrong
+    property color limeSoft: AmneziaStyle.fresh.limeSoft; property color limeLine: AmneziaStyle.fresh.limeLine
+    property color ok: AmneziaStyle.fresh.ok
 
     // ---- visual mockup state (UI only, no billing backend wired yet) ----
     property int selectedPlan: 1
     property bool autopayOn: true
     property var plans: [
-        { id: 0, nm: "1 месяц",    price: "299 ₽",   per: "299 ₽/мес", save: "" },
-        { id: 1, nm: "12 месяцев", price: "1 990 ₽", per: "166 ₽/мес", save: "−44%" },
-        { id: 2, nm: "24 месяца",  price: "2 990 ₽", per: "125 ₽/мес", save: "−58%" }
+        { id: 0, nm: qsTr("1 month"),    price: "299 ₽",   per: qsTr("299 ₽/mo"), save: "" },
+        { id: 1, nm: qsTr("12 months"), price: "1 990 ₽", per: qsTr("166 ₽/mo"), save: "−44%" },
+        { id: 2, nm: qsTr("24 months"),  price: "2 990 ₽", per: qsTr("125 ₽/mo"), save: "−58%" }
     ]
-    property var history: [
-        { d: "23 мая 2026", nm: "Fresh Premium · 12 мес", a: "1 990 ₽" },
-        { d: "19 мая 2025", nm: "Fresh Premium · 12 мес", a: "1 790 ₽" },
-        { d: "02 фев 2025", nm: "Fresh Premium · 1 мес",  a: "299 ₽" }
-    ]
+    property var history: []
 
     function goP(p){ PageController.goToPage(p) }
-    function stub(){ PageController.showNotificationMessage("Оплата подключится на следующем шаге") }
-    function payText(){ return "Оплатить · " + root.plans[root.selectedPlan].price }
+    function stub(){ PageController.showNotificationMessage(qsTr("Payment will be connected on the next step")) }
+    function payText(){ return qsTr("Pay · ") + root.plans[root.selectedPlan].price }
 
     Rectangle { anchors.fill: parent; color: root.bg }
 
@@ -87,45 +84,32 @@ PageType {
 
                 Column {
                     width: parent.width; spacing: 4
-                    Text { text: "Профиль"; color: root.fg; font.pixelSize: 26; font.weight: 800 }
-                    Text { text: "Подписка, оплата и устройства"; color: root.mute; font.pixelSize: 13 }
+                    Text { text: qsTr("Profile"); color: root.fg; font.pixelSize: 26; font.weight: 800 }
+                    Text { text: qsTr("Subscription, payment and devices"); color: root.mute; font.pixelSize: 13 }
                 }
 
                 // ===== Subscription hero =====
                 Rectangle {
-                    width: parent.width; height: 190; radius: 18; color: root.card; border.color: root.line; border.width: 1
+                    width: parent.width; radius: 18; color: root.card; border.color: root.line; border.width: 1
+                    height: heroCol.implicitHeight + 40
                     Column {
+                        id: heroCol
                         anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
-                        anchors.leftMargin: 20; anchors.rightMargin: 20; anchors.topMargin: 18
-                        spacing: 9
-                        Row {
-                            spacing: 8
-                            Rectangle { height: 20; radius: 10; width: badgeT.implicitWidth + 18; anchors.verticalCenter: parent.verticalCenter; color: root.limeStrong
-                                Text { id: badgeT; anchors.centerIn: parent; text: "PREMIUM"; color: "#0E0E11"; font.pixelSize: 10; font.weight: 800 } }
-                            Text { anchors.verticalCenter: parent.verticalCenter; text: "Активна"; color: root.ok; font.pixelSize: 12; font.weight: 700 }
-                        }
-                        Text { text: "Fresh Premium"; color: root.fg; font.pixelSize: 22; font.weight: 800 }
-                        Text { text: "Действует до 23 июля 2026 · осталось 30 дней"; color: root.mute; font.pixelSize: 13 }
-                        Rectangle {
-                            width: parent.width; height: 6; radius: 3; color: root.bg3
-                            Rectangle { width: parent.width * 0.7; height: parent.height; radius: 3; color: root.limeStrong }
-                        }
-                        Row {
-                            spacing: 10
-                            Rectangle { height: 38; radius: 11; width: renT.implicitWidth + 32; color: root.limeStrong
-                                Text { id: renT; anchors.centerIn: parent; text: "Продлить"; color: "#0E0E11"; font.pixelSize: 13; font.weight: 800 }
-                                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.stub() } }
-                            Rectangle { height: 38; radius: 11; width: chgT.implicitWidth + 32; color: "transparent"; border.width: 1; border.color: root.line
-                                Text { id: chgT; anchors.centerIn: parent; text: "Сменить тариф"; color: root.fg; font.pixelSize: 13; font.weight: 600 }
-                                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.stub() } }
-                        }
+                        anchors.leftMargin: 20; anchors.rightMargin: 20; anchors.topMargin: 20
+                        spacing: 10
+                        Text { text: "Fresh VPN"; color: root.fg; font.pixelSize: 22; font.weight: 800 }
+                        Text { width: parent.width; wrapMode: Text.WordWrap
+                               text: qsTr("Choose a plan below to activate or extend your subscription"); color: root.mute; font.pixelSize: 13 }
+                        Rectangle { height: 42; radius: 11; width: renT.implicitWidth + 34; color: root.limeStrong
+                            Text { id: renT; anchors.centerIn: parent; text: qsTr("Renew"); color: "#0E0E11"; font.pixelSize: 13; font.weight: 800 }
+                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.stub() } }
                     }
                 }
 
                 // ===== Tariffs =====
                 Column {
                     width: parent.width; spacing: 10
-                    Text { text: "ТАРИФ"; color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    Text { text: qsTr("PLAN"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
                     Grid {
                         id: plansGrid
                         width: parent.width; columns: 3; rowSpacing: 12; columnSpacing: 12
@@ -173,8 +157,8 @@ PageType {
                         anchors.verticalCenter: parent.verticalCenter; spacing: 12
                         Column {
                             width: parent.width - 46 - 12; anchors.verticalCenter: parent.verticalCenter; spacing: 3
-                            Text { text: "Автопродление"; color: root.fg; font.pixelSize: 14; font.weight: 700 }
-                            Text { width: parent.width; wrapMode: Text.WordWrap; text: "Продлевать подписку автоматически перед окончанием срока"; color: root.mute; font.pixelSize: 12 }
+                            Text { text: qsTr("Auto-renewal"); color: root.fg; font.pixelSize: 14; font.weight: 700 }
+                            Text { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("Renew the subscription automatically before it expires"); color: root.mute; font.pixelSize: 12 }
                         }
                         Rectangle {
                             width: 46; height: 26; radius: 13; anchors.verticalCenter: parent.verticalCenter
@@ -189,8 +173,9 @@ PageType {
 
                 // ===== Payment history =====
                 Column {
+                    visible: root.history.length > 0
                     width: parent.width; spacing: 10
-                    Text { text: "ИСТОРИЯ ОПЛАТ"; color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    Text { text: qsTr("PAYMENT HISTORY"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
                     Column {
                         width: parent.width; spacing: 8
                         Repeater {
@@ -208,7 +193,7 @@ PageType {
                                     Column {
                                         width: 96; anchors.verticalCenter: parent.verticalCenter; spacing: 2
                                         Text { width: parent.width; horizontalAlignment: Text.AlignRight; text: modelData.a; color: root.fg; font.pixelSize: 13; font.weight: 700 }
-                                        Text { width: parent.width; horizontalAlignment: Text.AlignRight; text: "Оплачено"; color: root.ok; font.pixelSize: 10; font.weight: 700 }
+                                        Text { width: parent.width; horizontalAlignment: Text.AlignRight; text: qsTr("Paid"); color: root.ok; font.pixelSize: 10; font.weight: 700 }
                                     }
                                 }
                             }
@@ -219,15 +204,58 @@ PageType {
                 // ===== Devices =====
                 Column {
                     width: parent.width; spacing: 10
-                    Text { text: "УСТРОЙСТВА"; color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
-                    RowCard { nm: "Это устройство · Windows"; ds: "подключено сейчас"; icon: "monitor"; clickable: false }
-                    RowCard { nm: "Добавить устройство"; ds: "по QR или ключу подписки"; icon: "qr"; onActivated: root.goP(PageEnum.PageSetupWizardConfigSource) }
-                    RowCard { nm: "Управлять серверами"; ds: "список и настройки узлов"; icon: "monitor"; onActivated: root.goP(PageEnum.PageSettingsServersList) }
-                    RowCard { nm: "Поддержка"; ds: "ответим в Telegram"; icon: "help"; onActivated: root.goP(PageEnum.PageSettingsAbout) }
+                    Text { text: qsTr("DEVICES"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    RowCard { nm: qsTr("This device · Windows"); ds: qsTr("connected now"); icon: "monitor"; clickable: false }
+                    RowCard { nm: qsTr("Add device"); ds: qsTr("via QR or subscription key"); icon: "qr"; onActivated: root.goP(PageEnum.PageSetupWizardConfigSource) }
+                    RowCard { nm: qsTr("Manage servers"); ds: qsTr("node list and settings"); icon: "monitor"; onActivated: root.goP(PageEnum.PageSettingsServersList) }
+                    RowCard { nm: qsTr("Support"); ds: qsTr("we will reply in Telegram"); icon: "help"; onActivated: root.goP(PageEnum.PageSettingsApiSupport) }
                 }
 
                 Item { width: 1; height: 8 }
             }
+        }
+    }
+
+    // ===== Theme toggle (day/night) =====
+    Item {
+        id: themeToggleBtn
+        width: 36; height: 36; z: 200
+        anchors.top: parent.top; anchors.right: parent.right
+        anchors.topMargin: 14 + PageController.safeAreaTopMargin
+        anchors.rightMargin: 16
+        Rectangle { anchors.fill: parent; radius: 10; color: thM.containsMouse ? root.card : "transparent"; border.color: root.line; border.width: 1 }
+        Canvas {
+            id: thIcon
+            anchors.centerIn: parent; width: 20; height: 20
+            property bool dark: AmneziaStyle.isDark
+            property color col: root.fg
+            onDarkChanged: requestPaint()
+            onColChanged: requestPaint()
+            onPaint: {
+                var c = getContext("2d"); c.reset(); c.clearRect(0,0,width,height)
+                c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.6; c.lineCap = "round"; c.lineJoin = "round"
+                var cx = 10, cy = 10
+                if (dark) {
+                    c.beginPath(); c.arc(cx, cy, 6.4, 0, 2*Math.PI); c.fill()
+                    c.globalCompositeOperation = "destination-out"
+                    c.beginPath(); c.arc(cx + 3.6, cy - 2.2, 6.0, 0, 2*Math.PI); c.fill()
+                    c.globalCompositeOperation = "source-over"
+                } else {
+                    c.beginPath(); c.arc(cx, cy, 3.4, 0, 2*Math.PI); c.fill()
+                    for (var i = 0; i < 8; i++) {
+                        var a = i*Math.PI/4
+                        c.beginPath()
+                        c.moveTo(cx + Math.cos(a)*5.6, cy + Math.sin(a)*5.6)
+                        c.lineTo(cx + Math.cos(a)*8.0, cy + Math.sin(a)*8.0)
+                        c.stroke()
+                    }
+                }
+            }
+        }
+        MouseArea {
+            id: thM
+            anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+            onClicked: AmneziaStyle.isDark = !AmneziaStyle.isDark
         }
     }
 }

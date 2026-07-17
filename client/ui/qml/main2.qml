@@ -156,6 +156,20 @@ Window  {
     }
 
     Connections {
+        objectName: "serversUiControllerConnections"
+
+        target: ServersUiController
+
+        function onFinished(message) {
+            PageController.showNotificationMessage(message)
+        }
+
+        function onErrorOccurred(errorMessage) {
+            PageController.showNotificationMessage(errorMessage)
+        }
+    }
+
+    Connections {
         objectName: "settingsControllerConnections"
 
         target: SettingsController
@@ -246,7 +260,7 @@ Window  {
             }
         }
 
-        // ---- Window controls as round dots (right): minimize / maximize / close ----
+        // ---- Window controls as macOS-style traffic-light dots (right): minimize / maximize / close ----
         Row {
             anchors.right: parent.right
             anchors.rightMargin: 14
@@ -256,15 +270,13 @@ Window  {
             Rectangle {
                 width: 12; height: 12; radius: 6
                 anchors.verticalCenter: parent.verticalCenter
-                color: minMA.containsMouse ? "#55555E" : "#3A3A40"
-                Rectangle { anchors.centerIn: parent; width: 6; height: 1.4; radius: 1; color: "#0E0E10"; visible: minMA.containsMouse }
+                color: minMA.containsMouse ? "#FFCB4D" : "#FEBC2E"
                 MouseArea { id: minMA; anchors.fill: parent; anchors.margins: -4; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.showMinimized() }
             }
             Rectangle {
                 width: 12; height: 12; radius: 6
                 anchors.verticalCenter: parent.verticalCenter
-                color: maxMA.containsMouse ? "#55555E" : "#3A3A40"
-                Rectangle { anchors.centerIn: parent; width: 7; height: 7; radius: 2; color: "transparent"; border.color: "#0E0E10"; border.width: 1.4; visible: maxMA.containsMouse }
+                color: maxMA.containsMouse ? "#3BE156" : "#28C840"
                 MouseArea {
                     id: maxMA; anchors.fill: parent; anchors.margins: -4; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                     onClicked: root.visibility === Window.Maximized ? root.showNormal() : root.showMaximized()
@@ -273,12 +285,7 @@ Window  {
             Rectangle {
                 width: 12; height: 12; radius: 6
                 anchors.verticalCenter: parent.verticalCenter
-                color: closeMA.containsMouse ? "#E5484D" : "#46262A"
-                Item {
-                    anchors.centerIn: parent; width: 8; height: 8; visible: closeMA.containsMouse
-                    Rectangle { anchors.centerIn: parent; width: 9; height: 1.4; rotation: 45; color: "#FFFFFF" }
-                    Rectangle { anchors.centerIn: parent; width: 9; height: 1.4; rotation: -45; color: "#FFFFFF" }
-                }
+                color: closeMA.containsMouse ? "#FF7B75" : "#FF5F57"
                 MouseArea { id: closeMA; anchors.fill: parent; anchors.margins: -4; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.close() }
             }
         }

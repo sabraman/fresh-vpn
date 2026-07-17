@@ -63,6 +63,9 @@ Button {
 
     hoverEnabled: true
 
+    scale: root.enabled && root.pressed ? 0.97 : 1.0
+    Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutQuad } }
+
     background: Rectangle {
         id: focusBorder
 

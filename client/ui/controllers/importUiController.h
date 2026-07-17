@@ -2,6 +2,7 @@
 #define IMPORTUICONTROLLER_H
 
 #include <QObject>
+#include <QList>
 
 #include "core/controllers/selfhosted/importController.h"
 
@@ -21,12 +22,14 @@ public slots:
     void importConfig();
     void clearConfigFileName();
     bool extractConfigFromFile(const QString &fileName);
+    bool extractConfigFromQrImage(const QString &fileName);
     bool extractConfigFromData(QString data);
     bool extractConfigFromQr(const QByteArray &data);
     QString getConfig();
     QString getConfigFileName();
     QString getMaliciousWarningText();
     bool isNativeWireGuardConfig();
+    int getConfigsCount();
     void processNativeWireGuardConfig();
     QString readTextFile(const QString &fileName);
 
@@ -60,6 +63,7 @@ private:
     ImportController* m_importController;
 
     QJsonObject m_config;
+    QList<QJsonObject> m_configs;
     QString m_configFileName;
     QString m_maliciousWarningText;
     bool m_isNativeWireGuardConfig;

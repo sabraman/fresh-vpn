@@ -12,6 +12,10 @@
 #include <QRegularExpression>
 #include <QTimer>
 #include <QUrl>
+#include <QImage>
+#include <cstring>
+
+#include "quirc.h"
 
 #include "systemController.h"
 
@@ -61,6 +65,7 @@ bool ImportUiController::extractConfigFromFile(const QString &fileName)
     }
     
     m_config = result.config;
+    m_configs = { result.config };
     m_configFileName = result.configFileName;
     m_maliciousWarningText = result.maliciousWarningText;
     m_isNativeWireGuardConfig = result.isNativeWireGuardConfig;
@@ -87,18 +92,35 @@ bool ImportUiController::extractConfigFromData(QString data)
         data = body.trimmed();
     }
 
-    auto result = m_importController->extractConfigFromData(data);
-    
-    if (result.errorCode != ErrorCode::NoError) {
-        emit importErrorOccurred(result.errorCode, false);
+    const auto results = m_importController->extractAllConfigsFromData(data);
+
+    QList<QJsonObject> configs;
+    ImportController::ImportResult firstOk;
+    bool haveFirst = false;
+    ErrorCode firstError = ErrorCode::ImportInvalidConfigError;
+    for (const auto &result : results) {
+        if (result.errorCode == ErrorCode::NoError && !result.config.isEmpty()) {
+            configs.append(result.config);
+            if (!haveFirst) {
+                firstOk = result;
+                haveFirst = true;
+            }
+        } else if (result.errorCode != ErrorCode::NoError) {
+            firstError = result.errorCode;
+        }
+    }
+
+    if (!haveFirst) {
+        emit importErrorOccurred(firstError, false);
         return false;
     }
-    
-    m_config = result.config;
-    m_configFileName = result.configFileName;
-    m_maliciousWarningText = result.maliciousWarningText;
-    m_isNativeWireGuardConfig = result.isNativeWireGuardConfig;
-    
+
+    m_configs = configs;
+    m_config = firstOk.config;
+    m_configFileName = firstOk.configFileName;
+    m_maliciousWarningText = firstOk.maliciousWarningText;
+    m_isNativeWireGuardConfig = firstOk.isNativeWireGuardConfig;
+
     emit importConfigChanged();
     return true;
 }
@@ -113,6 +135,7 @@ bool ImportUiController::extractConfigFromQr(const QByteArray &data)
     }
     
     m_config = result.config;
+    m_configs = { result.config };
     m_configFileName = result.configFileName;
     m_maliciousWarningText = result.maliciousWarningText;
     m_isNativeWireGuardConfig = result.isNativeWireGuardConfig;
@@ -121,9 +144,87 @@ bool ImportUiController::extractConfigFromQr(const QByteArray &data)
     return true;
 }
 
+bool ImportUiController::extractConfigFromQrImage(const QString &fileName)
+{
+    QImage image(fileName);
+    if (image.isNull()) {
+        emit importErrorOccurred(ErrorCode::ImportOpenConfigError, false);
+        return false;
+    }
+
+    // Keep memory/time bounded for oversized screenshots.
+    const int maxDim = 2000;
+    if (image.width() > maxDim || image.height() > maxDim) {
+        image = image.scaled(maxDim, maxDim, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+
+    image = image.convertToFormat(QImage::Format_Grayscale8);
+    if (image.format() != QImage::Format_Grayscale8) {
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return false;
+    }
+
+    struct quirc *qr = quirc_new();
+    if (!qr) {
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return false;
+    }
+
+    QString decodedText;
+    bool decoded = false;
+
+    int w = 0;
+    int h = 0;
+    uint8_t *buf = nullptr;
+    if (quirc_resize(qr, image.width(), image.height()) >= 0) {
+        buf = quirc_begin(qr, &w, &h);
+    }
+
+    // Only proceed if quirc handed back a buffer matching the image we loaded.
+    if (buf && w == image.width() && h == image.height()) {
+        for (int y = 0; y < h; ++y) {
+            std::memcpy(buf + static_cast<size_t>(y) * static_cast<size_t>(w),
+                        image.constScanLine(y), static_cast<size_t>(w));
+        }
+        quirc_end(qr);
+
+        const int count = quirc_count(qr);
+        for (int i = 0; i < count && !decoded; ++i) {
+            struct quirc_code code;
+            struct quirc_data data;
+            quirc_extract(qr, i, &code);
+            quirc_decode_error_t err = quirc_decode(&code, &data);
+            if (err == QUIRC_ERROR_DATA_ECC) {
+                quirc_flip(&code);
+                err = quirc_decode(&code, &data);
+            }
+            if (err == QUIRC_SUCCESS && data.payload_len > 0 && data.payload_len <= QUIRC_MAX_PAYLOAD) {
+                decodedText = QString::fromUtf8(reinterpret_cast<const char *>(data.payload), data.payload_len);
+                decoded = true;
+            }
+        }
+    }
+
+    quirc_destroy(qr);
+
+    if (!decoded || decodedText.trimmed().isEmpty()) {
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return false;
+    }
+
+    return extractConfigFromData(decodedText);
+}
 QString ImportUiController::getConfig()
 {
     return QJsonDocument(m_config).toJson(QJsonDocument::Indented);
+}
+
+int ImportUiController::getConfigsCount()
+{
+    if (!m_configs.isEmpty()) {
+        return m_configs.size();
+    }
+    return m_config.isEmpty() ? 0 : 1;
 }
 
 QString ImportUiController::getConfigFileName()
@@ -149,9 +250,14 @@ void ImportUiController::processNativeWireGuardConfig()
 
 void ImportUiController::importConfig()
 {
-    m_importController->importConfig(m_config);
+    if (m_configs.size() > 1) {
+        m_importController->importConfigs(m_configs);
+    } else {
+        m_importController->importConfig(m_config);
+    }
     
     m_config = {};
+    m_configs.clear();
     m_configFileName.clear();
     m_maliciousWarningText.clear();
     m_isNativeWireGuardConfig = false;
@@ -184,6 +290,7 @@ bool ImportUiController::parseQrCodeChunk(const QString &code)
     auto parseResult = m_importController->parseQrCodeChunk(code);
     if (parseResult.success) {
         m_config = parseResult.importResult.config;
+        m_configs = { parseResult.importResult.config };
         m_configFileName = parseResult.importResult.configFileName;
         m_maliciousWarningText = parseResult.importResult.maliciousWarningText;
         m_isNativeWireGuardConfig = parseResult.importResult.isNativeWireGuardConfig;

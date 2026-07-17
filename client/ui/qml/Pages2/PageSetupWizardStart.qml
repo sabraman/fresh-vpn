@@ -15,7 +15,7 @@ PageType {
     id: root
     enableTimer: (SettingsController.isOnTv()) ? false : true
 
-    property color bg: "#0E0E11"; property color fg: "#F5F4EF"; property color mute: "#878B91"
+    property color bg: AmneziaStyle.fresh.bg; property color fg: AmneziaStyle.fresh.fg; property color mute: AmneziaStyle.fresh.mute
 
     Rectangle { anchors.fill: parent; color: root.bg }
 
@@ -52,7 +52,7 @@ PageType {
         Text {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 26
-            text: "Подключись за минуту"
+            text: qsTr("Connect in a minute")
             color: root.fg; font.pixelSize: 26; font.weight: 800
             horizontalAlignment: Text.AlignHCenter
         }
@@ -61,7 +61,7 @@ PageType {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 10
             Layout.maximumWidth: 420
-            text: "Вставь ключ подписки или отсканируй QR-код — остальное Fresh VPN сделает сам."
+            text: qsTr("Paste your subscription key or scan a QR code — Fresh VPN will do the rest.")
             color: root.mute; font.pixelSize: 14
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
@@ -82,7 +82,7 @@ PageType {
             pressedColor: "#9FC72E"
             textColor: "#0E0E11"
 
-            text: qsTr("Начать")
+            text: qsTr("Start")
 
             clickedFunc: function() {
                 PageController.goToPage(PageEnum.PageSetupWizardConfigSource)

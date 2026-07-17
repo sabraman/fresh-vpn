@@ -289,6 +289,21 @@ void CoreController::initSignalHandlers()
     m_serversUiController->updateModel();
     if (m_serversUiController->hasServersFromGatewayApi()) {
         m_apiNewsUiController->fetchNews(false);
+
+        // Refresh the subscription (server list / protocols / configs) shortly after launch so the
+        // user always sees the current gateway state. Deferred via a single-shot timer bound to this,
+        // so the UI renders first and the synchronous gateway call cannot block startup (and the
+        // callback is auto-cancelled if the controller is torn down before it fires).
+        QTimer::singleShot(1800, this, [this]() {
+            const int count = m_serversUiController->getServersCount();
+            for (int i = 0; i < count; ++i) {
+                const QString serverId = m_serversUiController->getServerId(i);
+                if (m_serversUiController->isServerFromApi(serverId)) {
+                    m_subscriptionUiController->updateServiceFromGateway(serverId, QString(), QString(), true);
+                    break;
+                }
+            }
+        });
     }
 }
 

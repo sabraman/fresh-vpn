@@ -20,6 +20,7 @@ void IpSplitTunnelingUiController::addSite(QString hostname)
 {
     if (m_ipSplitTunnelingController->addSite(hostname)) {
         emit finished(tr("New site added: %1").arg(hostname));
+        updateModel();
     }
 }
 
@@ -67,6 +68,14 @@ void IpSplitTunnelingUiController::exportSites(const QString &fileName)
 void IpSplitTunnelingUiController::toggleSplitTunneling(bool enabled)
 {
     m_ipSplitTunnelingController->toggleSplitTunneling(enabled);
+    emit isSplitTunnelingEnabledChanged();
+}
+
+void IpSplitTunnelingUiController::applyRussianDirectPreset()
+{
+    m_ipSplitTunnelingController->applyRussianDirectPreset();
+    updateModel();
+    emit routeModeChanged();
     emit isSplitTunnelingEnabledChanged();
 }
 

@@ -9,6 +9,7 @@
 #include <QPromise>
 #include <QSet>
 #include <QSysInfo>
+#include <QTimer>
 #include <QUuid>
 #include <QVariantMap>
 
@@ -213,7 +214,24 @@ ErrorCode SubscriptionController::executeRequest(const QString &endpoint, const 
 {
     GatewayController gatewayController(m_appSettingsRepository->getGatewayEndpoint(isTestPurchase), m_appSettingsRepository->isDevGatewayEnv(isTestPurchase), apiDefs::requestTimeoutMsecs,
                                         m_appSettingsRepository->isStrictKillSwitchEnabled());
-    return gatewayController.post(endpoint, apiPayload, responseBody);
+    // Fresh VPN: auto-retry transient gateway failures (1103/1100/1104) so a single hiccup is not shown to the user.
+    const int maxAttempts = 2;  // snappier: fewer UI-blocking retries (HTTP/1.1 makes transient errors rare)
+    ErrorCode errorCode = ErrorCode::NoError;
+    for (int attempt = 1; attempt <= maxAttempts; ++attempt) {
+        responseBody.clear();
+        errorCode = gatewayController.post(endpoint, apiPayload, responseBody);
+        const bool transient = (errorCode == ErrorCode::ApiConfigTimeoutError
+                                || errorCode == ErrorCode::ApiConfigDownloadError
+                                || errorCode == ErrorCode::ApiConfigSslError);
+        if (!transient || attempt == maxAttempts) {
+            break;
+        }
+        qWarning() << "Gateway transient error" << errorCode << "- retry" << (attempt + 1) << "of" << maxAttempts;
+        QEventLoop delayLoop;
+        QTimer::singleShot(250 * attempt, &delayLoop, &QEventLoop::quit);
+        delayLoop.exec();
+    }
+    return errorCode;
 }
 
 ErrorCode SubscriptionController::importServiceFromGateway(const QString &userCountryCode, const QString &serviceType,
@@ -426,7 +444,7 @@ ErrorCode SubscriptionController::updateServiceFromGateway(const QString &server
                                             m_appSettingsRepository->getAppLanguage().name().split("_").first(),
                                             m_appSettingsRepository->getInstallationUuid(true),
                                             apiV2->apiConfig.userCountryCode,
-                                            newCountryCode,
+                                            (newCountryCode.isEmpty() ? apiV2->apiConfig.serverCountryCode : newCountryCode),
                                             apiV2->serviceType(),
                                             serviceProtocol,
                                             authDataJson };
@@ -654,15 +672,21 @@ ErrorCode SubscriptionController::validateAndUpdateConfig(const QString &serverI
         return ErrorCode::NoError;
     }
 
+    // Fresh: always pull the latest config from the gateway on every connect so server-side
+    // changes (transport / keys / port / country) always reach the client and a stale cached
+    // config is never reused. If the refresh fails on a transient gateway hiccup while a cached
+    // config already exists, fall back to it instead of blocking the connection.
+    ErrorCode errorCode = updateServiceFromGateway(serverId, "", true);
+    if (errorCode == ErrorCode::NoError) {
+        return ErrorCode::NoError;
+    }
+    if (errorCode == ErrorCode::ApiSubscriptionExpiredError) {
+        return errorCode;
+    }
     if (!hasInstalledContainers) {
-        return updateServiceFromGateway(serverId, "", true);
+        return errorCode;
     }
-
-    if (isApiKeyExpired(serverId)) {
-        qDebug() << "attempt to update api config by expires_at event";
-        return updateServiceFromGateway(serverId, "", true);
-    }
-
+    qWarning() << "[Fresh] gateway refresh failed on connect, falling back to cached config:" << errorCode;
     return ErrorCode::NoError;
 }
 

@@ -68,6 +68,8 @@ ErrorCode XrayProtocol::start()
 {
     qDebug() << "XrayProtocol::start()";
 
+    setConnectionState(Vpn::ConnectionState::Connecting);
+
     // Inject SOCKS5 auth into the inbound before starting xray.
     // Re-uses existing credentials if the config already has them (e.g. imported config).
     amnezia::serialization::inbounds::InboundCredentials creds;

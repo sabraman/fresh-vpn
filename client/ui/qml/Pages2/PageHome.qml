@@ -8,19 +8,24 @@ import Style 1.0
 import "./"
 import "../Controls2"
 import "../Components"
+import "../Components/countrynames.js" as CN
 
 PageType {
     id: root
 
-    property color bg: "#0E0E11"; property color card: "#16171A"; property color bg2: "#1C1D21"
-    property color line: Qt.rgba(1,1,1,0.08); property color fg: "#F5F4EF"; property color mute: "#878B91"; property color dim: "#5A5D63"
-    property color lime: "#B8E641"; property color limeStrong: "#C8F050"
-    property color limeSoft: Qt.rgba(184/255,230/255,65/255,0.10); property color limeLine: Qt.rgba(184/255,230/255,65/255,0.30)
-    property color warn: "#FBB26A"; property color bad: "#E5484D"
+    property color bg: AmneziaStyle.fresh.bg; property color card: AmneziaStyle.fresh.card; property color bg2: AmneziaStyle.fresh.bg2
+    property color line: AmneziaStyle.fresh.line; property color fg: AmneziaStyle.fresh.fg; property color mute: AmneziaStyle.fresh.mute; property color dim: AmneziaStyle.fresh.dim
+    property color lime: AmneziaStyle.fresh.lime; property color limeStrong: AmneziaStyle.fresh.limeStrong
+    property color limeSoft: AmneziaStyle.fresh.limeSoft; property color limeLine: AmneziaStyle.fresh.limeLine
+    property color warn: AmneziaStyle.fresh.warn; property color bad: AmneziaStyle.fresh.bad
 
     property bool conn: ConnectionController.isConnected
     property string serverName: ServersUiController.defaultServerName
+    property bool apiMode: ServersUiController.isServerFromApi(ServersUiController.defaultServerId)
     property bool autoPick: true
+    property int countryLat: -1
+    property int curProto: -1
+    property bool acOn: false
 
     property string statusUrl: "http://94.156.232.206:8088/node-status.json"
     property var loadByCountry: ({})
@@ -57,9 +62,10 @@ PageType {
     function srvCode(){
         var p = "" + ServersUiController.defaultServerImagePathCollapsed
         var m = p.match(/([A-Za-z]{2})\.svg$/); if(m) return m[1].toUpperCase()
-        var raw = "" + root.serverName
+        var raw = decode("" + root.serverName)
         var ec = emojiCode(raw); if(ec.length===2 && root.ru[ec]) return ec
-        var n = decode(raw).toUpperCase()
+        var n = raw.toUpperCase()
+        var byName = CN.codeFromName(n); if(byName.length===2) return byName
         var mm = n.match(/\b([A-Z]{2})\b/); if(mm && root.ru[mm[1]]) return mm[1]
         return ""
     }
@@ -72,33 +78,46 @@ PageType {
         cut = cut.replace(/\s+/g, " ").trim()
         return cut
     }
-    function srvCountry(){ var c = srvCode(); return (c.length>0 && root.ru[c]) ? root.ru[c] : "" }
+    function srvCountry(){ var c = srvCode(); if(c.length===0) return ""; if(LanguageUiController.currentLanguageName === "English"){ var e = CN.en(c); if(e.length) return e } return root.ru[c] ? root.ru[c] : "" }
     function srvTitle(){
-        if(root.serverName.length===0) return "Выбрать сервер"
+        if(root.serverName.length===0) return qsTr("Select server")
         var t = cleanName(); if(t.length>0) return t
         var c = srvCountry(); if(c.length>0) return c
-        return "Сервер"
+        return qsTr("Server")
     }
     function flagSrc(){ var c = srvCode(); return c.length>0 ? ("qrc:/countriesFlags/images/flagKit/" + c + ".svg") : "" }
     function pingMs(){
         if(root.conn && ConnectionHealth.latencyMs>=0) return ConnectionHealth.latencyMs
+        if(root.apiMode) return root.countryLat
         return ServerLatencyController.latencyFor(ServersUiController.defaultServerId)
     }
     function latColor(ms){ if(ms<0) return root.mute; if(ms<100) return root.limeStrong; if(ms<250) return root.warn; return root.bad }
-    function latText(ms){ if(ms===-3) return "•••"; if(ms<0) return "нет"; return ms + " мс" }
-    function fmtB(b){ if(b>=1073741824) return (b/1073741824).toFixed(2)+" ГБ"; if(b>=1048576) return (b/1048576).toFixed(1)+" МБ"; if(b>=1024) return (b/1024).toFixed(0)+" КБ"; return Math.round(b)+" Б" }
+    function latText(ms){ if(ms===-3) return "•••"; if(ms<0) return qsTr("no"); return ms + qsTr(" ms") }
+    function fmtB(b){ if(b>=1073741824) return (b/1073741824).toFixed(2)+qsTr(" GB"); if(b>=1048576) return (b/1048576).toFixed(1)+qsTr(" MB"); if(b>=1024) return (b/1024).toFixed(0)+qsTr(" KB"); return Math.round(b)+qsTr(" B") }
+    function refreshProto(){ var sid = ServersUiController.defaultServerId; root.curProto = sid.length>0 ? ServersUiController.serverDefaultContainer(sid) : -1 }
+    function findApiServerId(){ var n = ServersUiController.getServersCount(); for(var i=0;i<n;i++){ var sid = "" + ServersUiController.getServerId(i); if(ServersUiController.isServerFromApi(sid)){ return sid } } return "" }
+    function kickCountryPing(){ ServerLatencyController.measureAll(); var apiSid = root.findApiServerId(); if(apiSid.length>0) SubscriptionUiController.prepareVpnKeyExport(apiSid) }
+    function setProto(awg){
+        var sid = ServersUiController.defaultServerId
+        if(sid.length===0) return
+        var target = awg ? 1 : 8
+        if(ServersUiController.serverDefaultContainer(sid) === target){ root.curProto = target; return }
+        ServersUiController.setDefaultContainer(sid, target)
+        root.curProto = target
+        if(root.conn || ConnectionController.isConnectionInProgress) ConnectionController.reconnect()
+    }
 
     function srvLoad(){ var c = srvCode(); if(root.feedKnown && root.loadByCountry[c] !== undefined) return root.loadByCountry[c]; return -1 }
     function loadColor(p){ if(p<0) return root.mute; if(p<60) return root.limeStrong; if(p<85) return root.warn; return root.bad }
     function loadText(p){ return p<0 ? "—" : (p + "%") }
-    function fmtUptime(s){ if(!root.conn || s<=0) return "—"; var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60; return h>0 ? (h+"ч "+m+"м") : (m+"м "+ss+"с") }
-    function locWord(n){ var a=n%10, b=n%100; if(a===1 && b!==11) return "локация"; if(a>=2 && a<=4 && (b<12||b>14)) return "локации"; return "локаций" }
+    function fmtUptime(s){ if(!root.conn || s<=0) return "—"; var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60; return h>0 ? (h+qsTr("h ")+m+qsTr("m")) : (m+qsTr("m ")+ss+qsTr("s")) }
+    function locWord(n){ var a=n%10, b=n%100; if(a===1 && b!==11) return qsTr("location"); if(a>=2 && a<=4 && (b<12||b>14)) return qsTr("locations"); return qsTr("locations") }
     function fmtFresh(){
-        if(root.feedUpdated<=0) return "обновляется"
+        if(root.feedUpdated<=0) return qsTr("updating")
         var diff = Math.floor(Date.now()/1000 - root.feedUpdated)
-        if(diff<180) return "обновлено только что"
-        if(diff<3600) return "обновлено " + Math.floor(diff/60) + " мин назад"
-        return "обновлено " + Math.floor(diff/3600) + " ч назад"
+        if(diff<180) return qsTr("updated just now")
+        if(diff<3600) return qsTr("updated ") + Math.floor(diff/60) + qsTr(" min ago")
+        return qsTr("updated ") + Math.floor(diff/3600) + qsTr(" h ago")
     }
     function pollStatus(){
         var xhr = new XMLHttpRequest()
@@ -125,20 +144,27 @@ PageType {
     }
 
     onConnChanged: { if(conn){ root.connStart = Date.now() } else { root.connStart = 0; root.connElapsed = 0 } }
-    Component.onCompleted: root.pollStatus()
+    Component.onCompleted: { root.pollStatus(); root.acOn = SettingsController.isAutoConnectEnabled(); root.refreshProto(); root.kickCountryPing() }
+    Connections { target: ServersUiController; function onDefaultServerIdChanged(){ root.refreshProto(); root.kickCountryPing() } }
+
+    Timer { interval: 2500; running: true; repeat: false; onTriggered: root.kickCountryPing() }
+
+    // Real per-country ping: the subscription lists every country host, so probe them directly.
+    Connections {
+        target: SubscriptionUiController
+        function onVpnKeyExportReady(){ ServerLatencyController.measureCountries(SubscriptionUiController.vpnKey) }
+    }
+    Connections {
+        target: ServerLatencyController
+        function onCountryLatencyChanged(cc, ms){ if(cc === root.srvCode().toUpperCase()) root.countryLat = ms }
+    }
     Timer { interval: 120000; running: true; repeat: true; onTriggered: root.pollStatus() }
     Timer { interval: 1000; running: root.conn; repeat: true; onTriggered: root.connElapsed = root.connStart>0 ? Math.floor((Date.now()-root.connStart)/1000) : 0 }
 
     Connections { objectName: "pageControllerConnections"; target: PageController; function onRestorePageHomeState(isContainerInstalled) { } }
-    Connections {
-        target: ServerLatencyController
-        function onMeasurementFinished(){
-            if(!root.autoPick || root.conn) return
-            var b = ServerLatencyController.bestServerId()
-            if(b && b.length>0 && b !== ServersUiController.defaultServerId)
-                ServersUiController.setDefaultServer(b)
-        }
-    }
+    // #1 fix: no silent auto-pick. The server the user explicitly chose always wins.
+    // (Previously onMeasurementFinished overwrote defaultServer with the lowest-latency
+    //  server right after connect but before conn=true, so Home showed a different country.)
 
     Rectangle { anchors.fill: parent; color: root.bg }
 
@@ -158,17 +184,17 @@ PageType {
             Column {
                 id: col
                 width: parent.width
-                spacing: 16
+                spacing: 7
 
-                Item { width: 1; height: 6 }
+                Item { width: 1; height: 0 }
 
                 // ===== Reactive shield =====
                 Item {
-                    width: parent.width; height: 196
+                    width: parent.width; height: 150
                     Canvas {
                         id: shieldCv
                         anchors.centerIn: parent
-                        width: 172; height: 182
+                        width: 140; height: 148
                         transformOrigin: Item.Center
                         property bool on: root.conn
                         property bool busy: ConnectionController.isConnectionInProgress
@@ -227,7 +253,7 @@ PageType {
                     width: parent.width; spacing: 5
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: root.conn ? "Подключено" : (ConnectionController.isConnectionInProgress ? "Подключение…" : "Отключено")
+                        text: root.conn ? qsTr("Connected") : (ConnectionController.isConnectionInProgress ? qsTr("Connecting…") : qsTr("Disconnected"))
                         color: root.fg; font.pixelSize: 22; font.weight: 800; font.family: "Bricolage Grotesque"
                     }
                     Row {
@@ -235,7 +261,7 @@ PageType {
                         Rectangle { width: 7; height: 7; radius: 4; anchors.verticalCenter: parent.verticalCenter; color: root.conn ? root.limeStrong : root.dim }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: root.conn ? ((root.srvCountry().length>0 ? root.srvCountry() : root.srvTitle()) + (ConnectionHealth.latencyMs>=0 ? (" · " + ConnectionHealth.latencyMs + " мс") : "")) : "Нажми, чтобы подключиться"
+                            text: root.conn ? ((root.srvCountry().length>0 ? root.srvCountry() : root.srvTitle()) + (ConnectionHealth.latencyMs>=0 ? (" · " + ConnectionHealth.latencyMs + qsTr(" ms")) : "")) : qsTr("Tap to connect")
                             color: root.mute; font.pixelSize: 12; font.weight: 600
                         }
                     }
@@ -243,11 +269,11 @@ PageType {
 
                 // ===== Connect button =====
                 Item {
-                    width: parent.width; height: 60
+                    width: parent.width; height: 50
                     Rectangle {
                         id: cbtn
                         anchors.centerIn: parent
-                        height: 54; radius: 999
+                        height: 46; radius: 999
                         width: root.conn ? 200 : 248
                         color: root.conn ? "transparent" : root.limeStrong
                         border.width: root.conn ? 1 : 0
@@ -270,7 +296,7 @@ PageType {
                             }
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                text: root.conn ? "Отключиться" : (ConnectionController.isConnectionInProgress ? "Подключение…" : "Подключиться")
+                                text: root.conn ? qsTr("Disconnect") : (ConnectionController.isConnectionInProgress ? qsTr("Connecting…") : qsTr("Connect"))
                                 color: root.conn ? root.limeStrong : "#11140A"; font.pixelSize: 15; font.weight: 800
                             }
                         }
@@ -280,10 +306,18 @@ PageType {
 
                 // ===== Server chip =====
                 Rectangle {
-                    width: parent.width; height: 64; radius: 16; color: root.card; border.color: root.line; border.width: 1
+                    width: parent.width; height: 56; radius: 16; color: root.card; border.color: root.line; border.width: 1
                     scale: chipM.pressed ? 0.99 : 1.0
                     Behavior on scale { NumberAnimation { duration: 90 } }
-                    MouseArea { id: chipM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: PageController.goToPage(PageEnum.PageSettingsServersList) }
+                    MouseArea { id: chipM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: {
+                        var sid = ServersUiController.defaultServerId
+                        ServersUiController.setProcessedServerId(sid)
+                        if (ServersUiController.isServerFromApi(sid) && ServersUiController.isServerCountrySelectionAvailable(sid)) {
+                            PageController.goToPage(PageEnum.PageSettingsApiAvailableCountries)
+                        } else {
+                            PageController.goToPage(PageEnum.PageSettingsServersList, false)
+                        }
+                    } }
                     RowLayout {
                         anchors.fill: parent; anchors.leftMargin: 14; anchors.rightMargin: 14; spacing: 11
                         Image { Layout.preferredWidth: 30; Layout.preferredHeight: 21; Layout.alignment: Qt.AlignVCenter; source: root.flagSrc(); visible: root.flagSrc().length>0; fillMode: Image.PreserveAspectFit }
@@ -291,7 +325,7 @@ PageType {
                         ColumnLayout {
                             Layout.fillWidth: true; spacing: 2
                             Text { Layout.fillWidth: true; elide: Text.ElideRight; text: root.srvCountry().length>0 ? root.srvCountry() : root.srvTitle(); color: root.fg; font.pixelSize: 14; font.weight: 700 }
-                            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: ServersUiController.defaultServerDefaultContainerName.length>0 ? ServersUiController.defaultServerDefaultContainerName : "сервер"; color: root.mute; font.pixelSize: 11 }
+                            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: ServersUiController.isServerFromApi(ServersUiController.defaultServerId) ? qsTr("Tap to change country") : (ServersUiController.defaultServerDefaultContainerName.length>0 ? ServersUiController.defaultServerDefaultContainerName : qsTr("server")); color: root.mute; font.pixelSize: 11 }
                         }
                         Rectangle { Layout.alignment: Qt.AlignVCenter; implicitHeight: 22; implicitWidth: latTxt.implicitWidth + 16; radius: 11; color: Qt.rgba(1,1,1,0.05); border.width: 1; border.color: root.line
                             Text { id: latTxt; anchors.centerIn: parent; text: root.latText(root.pingMs()); color: root.latColor(root.pingMs()); font.pixelSize: 12; font.weight: 700 } }
@@ -301,18 +335,89 @@ PageType {
                     }
                 }
 
+                // ===== Protocols =====
+                Column {
+                    width: parent.width; spacing: 8
+                    visible: ServersUiController.defaultServerId.length>0 && !ServersUiController.isDefaultServerFromApi
+                    Text { text: qsTr("Protocols"); color: root.mute; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    Rectangle {
+                        width: parent.width; height: 46; radius: 14; color: root.card; border.color: root.line; border.width: 1
+                        Row {
+                            anchors.fill: parent; anchors.margins: 5; spacing: 5
+                            Repeater {
+                                model: [ { nm: "AmneziaWG", awg: true }, { nm: "VLESS", awg: false } ]
+                                delegate: Rectangle {
+                                    width: (parent.width - 5) / 2; height: parent.height; radius: 10
+                                    property bool sel: modelData.awg ? (root.curProto === 1) : (root.curProto === 8)
+                                    color: sel ? root.limeStrong : "transparent"
+                                    scale: protoM.pressed ? 0.95 : 1.0
+                                    Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutQuad } }
+                                    Text { anchors.centerIn: parent; text: modelData.nm; color: sel ? "#11140A" : root.mute; font.pixelSize: 13; font.weight: 800 }
+                                    MouseArea { id: protoM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.setProto(modelData.awg) }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // ===== Quick settings tiles (one aligned row) =====
+                Grid {
+                    id: qgrid
+                    width: parent.width; columns: 3; columnSpacing: 10; rowSpacing: 10
+                    property real cw: (width - 20) / 3
+                    Repeater {
+                        model: [
+                            { ic: "qrc:/images/controls/shield-off.svg", lbl: qsTr("Kill switch"), k: "kill", info: qsTr("If the VPN suddenly drops, all internet is blocked so your real IP never leaks.") },
+                            { ic: "qrc:/images/controls/zap.svg", lbl: qsTr("Auto-connect"), k: "ac", info: qsTr("Automatically connect the VPN when the app starts.") },
+                            { ic: "qrc:/images/controls/rocket.svg", lbl: qsTr("Autostart"), k: "boot", info: qsTr("Launch Fresh VPN together with the computer.") }
+                        ]
+                        delegate: Rectangle {
+                            id: tile
+                            width: qgrid.cw; height: 88; radius: 15; color: root.card; border.width: 1
+                            property bool active: modelData.k==="kill" ? SettingsController.isKillSwitchEnabled
+                                            : modelData.k==="ac"   ? root.acOn
+                                            : SettingsController.autoStartEnabled
+                            border.color: tile.active ? root.limeLine : root.line
+                            scale: tileM.pressed ? 0.96 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutQuad } }
+                            InfoBadgeType {
+                                anchors.top: parent.top; anchors.right: parent.right; anchors.topMargin: 6; anchors.rightMargin: 6
+                                tipText: modelData.info
+                            }
+                            Column {
+                                anchors.centerIn: parent; width: parent.width - 16; spacing: 9
+                                Image { source: modelData.ic; sourceSize: Qt.size(40, 40); width: 20; height: 20; anchors.horizontalCenter: parent.horizontalCenter; fillMode: Image.PreserveAspectFit }
+                                Text { width: parent.width; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight; text: modelData.lbl; color: root.fg; font.pixelSize: 11; font.weight: 700 }
+                                Rectangle {
+                                    width: 38; height: 22; radius: 11; anchors.horizontalCenter: parent.horizontalCenter
+                                    color: tile.active ? root.limeStrong : root.line
+                                    Rectangle { width: 18; height: 18; radius: 9; y: 2; x: tile.active ? 18 : 2; color: "#ffffff"
+                                        Behavior on x { NumberAnimation { duration: 120 } } }
+                                }
+                            }
+                            MouseArea { id: tileM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: {
+                                if(modelData.k==="kill") SettingsController.isKillSwitchEnabled = !SettingsController.isKillSwitchEnabled
+                                else if(modelData.k==="ac"){ root.acOn = !root.acOn; SettingsController.toggleAutoConnect(root.acOn) }
+                                else SettingsController.toggleAutoStart(!SettingsController.autoStartEnabled)
+                            } }
+                        }
+                    }
+                }
+
                 // ===== Add subscription =====
                 Rectangle {
-                    width: parent.width; height: 48; radius: 14
+                    width: parent.width; height: 42; radius: 14
                     color: addM.pressed ? root.limeSoft : "transparent"
+                    scale: addM.pressed ? 0.97 : 1.0
+                    Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutQuad } }
                     border.color: root.limeLine; border.width: 1
                     Behavior on color { ColorAnimation { duration: 120 } }
                     Row {
                         anchors.centerIn: parent; spacing: 8
-                        Text { anchors.verticalCenter: parent.verticalCenter; text: "+"; color: root.limeStrong; font.pixelSize: 18; font.weight: 800 }
-                        Text { anchors.verticalCenter: parent.verticalCenter; text: "Добавить подписку"; color: root.limeStrong; font.pixelSize: 14; font.weight: 700 }
+                        
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Add subscription"); color: root.limeStrong; font.pixelSize: 14; font.weight: 700 }
                     }
-                    MouseArea { id: addM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: PageController.goToStartPage() }
+                    MouseArea { id: addM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: PageController.goToPage(PageEnum.PageSetupWizardConfigSource) }
                 }
                 // ===== Minigrid =====
                 Row {
@@ -321,12 +426,12 @@ PageType {
                     property real cw: (width - 20) / 3
                     Repeater {
                         model: [
-                            { l: "Скорость", v: root.conn ? (ConnectionController.rxSpeedMbps.toFixed(1) + " Мбит") : "—", acc: true },
-                            { l: "Пинг",     v: (root.conn && ConnectionHealth.latencyMs>=0) ? (ConnectionHealth.latencyMs + " мс") : "—", acc: false },
-                            { l: "Сессия",   v: root.fmtUptime(root.connElapsed), acc: false }
+                            { l: qsTr("Speed"), v: root.conn ? (ConnectionController.rxSpeedMbps.toFixed(1) + qsTr(" Mbps")) : "—", acc: true },
+                            { l: qsTr("Ping"),     v: (root.conn && ConnectionHealth.latencyMs>=0) ? (ConnectionHealth.latencyMs + qsTr(" ms")) : "—", acc: false },
+                            { l: qsTr("Session"),   v: root.fmtUptime(root.connElapsed), acc: false }
                         ]
                         delegate: Rectangle {
-                            width: mg.cw; height: 62; radius: 12; color: root.card; border.color: root.line; border.width: 1
+                            width: mg.cw; height: 54; radius: 12; color: root.card; border.color: root.line; border.width: 1
                             Column {
                                 anchors.centerIn: parent; spacing: 4; width: parent.width - 12
                                 Text { width: parent.width; horizontalAlignment: Text.AlignHCenter; text: modelData.l; color: root.dim; font.pixelSize: 9; font.weight: 700 }
@@ -336,8 +441,51 @@ PageType {
                     }
                 }
 
-                Item { width: 1; height: 10 }
+                Item { width: 1; height: 2 }
             }
+        }
+    }
+
+    // ===== Theme toggle (day/night) =====
+    Item {
+        id: themeToggleBtn
+        width: 36; height: 36; z: 200
+        anchors.top: parent.top; anchors.right: parent.right
+        anchors.topMargin: 14 + PageController.safeAreaTopMargin
+        anchors.rightMargin: 16
+        Rectangle { anchors.fill: parent; radius: 10; color: thM.containsMouse ? root.card : "transparent"; border.color: root.line; border.width: 1 }
+        Canvas {
+            id: thIcon
+            anchors.centerIn: parent; width: 20; height: 20
+            property bool dark: AmneziaStyle.isDark
+            property color col: root.fg
+            onDarkChanged: requestPaint()
+            onColChanged: requestPaint()
+            onPaint: {
+                var c = getContext("2d"); c.reset(); c.clearRect(0,0,width,height)
+                c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.6; c.lineCap = "round"; c.lineJoin = "round"
+                var cx = 10, cy = 10
+                if (dark) {
+                    c.beginPath(); c.arc(cx, cy, 6.4, 0, 2*Math.PI); c.fill()
+                    c.globalCompositeOperation = "destination-out"
+                    c.beginPath(); c.arc(cx + 3.6, cy - 2.2, 6.0, 0, 2*Math.PI); c.fill()
+                    c.globalCompositeOperation = "source-over"
+                } else {
+                    c.beginPath(); c.arc(cx, cy, 3.4, 0, 2*Math.PI); c.fill()
+                    for (var i = 0; i < 8; i++) {
+                        var a = i*Math.PI/4
+                        c.beginPath()
+                        c.moveTo(cx + Math.cos(a)*5.6, cy + Math.sin(a)*5.6)
+                        c.lineTo(cx + Math.cos(a)*8.0, cy + Math.sin(a)*8.0)
+                        c.stroke()
+                    }
+                }
+            }
+        }
+        MouseArea {
+            id: thM
+            anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+            onClicked: AmneziaStyle.isDark = !AmneziaStyle.isDark
         }
     }
 }

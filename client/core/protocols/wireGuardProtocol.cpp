@@ -3,6 +3,7 @@
 #include <QProcess>
 #include <QTcpSocket>
 #include <QThread>
+#include <QTimer>
 
 #include "wireGuardProtocol.h"
 #include "core/utils/networkUtilities.h"
@@ -13,14 +14,23 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
     : VpnProtocol(configuration, parent)
 {
     m_impl.reset(new LocalSocketController());
+    QTimer *statusTimer = new QTimer(this);
+    statusTimer->setInterval(1000);
+    connect(statusTimer, &QTimer::timeout, this, [this]() { if (m_impl) m_impl->checkStatus(); });
     connect(m_impl.get(), &ControllerImpl::connected, this,
-            [this](const QString &pubkey, const QDateTime &connectionTimestamp) {
-                setConnectionState(Vpn::ConnectionState::Connected);
+            [this, statusTimer](const QString &pubkey, const QDateTime &connectionTimestamp) {
+                setConnectionState(Vpn::ConnectionState::Connected); statusTimer->start();
             });
     connect(m_impl.get(), &ControllerImpl::statusUpdated, this,
             [this](const QString& serverIpv4Gateway,
                    const QString& deviceIpv4Address, uint64_t txBytes,
                    uint64_t rxBytes) {
+                // Feed real tunnel counters into the stats pipeline. setBytesChanged expects
+                // cumulative totals (rx, tx) and computes the per-interval diff itself; the
+                // daemon status is cumulative, so pass it straight through. Note the arg
+                // order is (received, sent) - opposite to this callback's (tx, rx) order.
+                setBytesChanged(rxBytes, txBytes);
+
                 const QString previousGateway = m_vpnGateway;
                 const QString previousLocal = m_vpnLocalAddress;
 
@@ -38,7 +48,7 @@ WireguardProtocol::WireguardProtocol(const QJsonObject &configuration, QObject *
             });
 
     connect(m_impl.get(), &ControllerImpl::disconnected, this,
-            [this]() { setConnectionState(Vpn::ConnectionState::Disconnected); });
+            [this, statusTimer]() { statusTimer->stop(); setConnectionState(Vpn::ConnectionState::Disconnected); });
     m_impl->initialize(nullptr, nullptr);
 }
 
@@ -75,5 +85,6 @@ ErrorCode WireguardProtocol::stopMzImpl()
 
 ErrorCode WireguardProtocol::start()
 {
+    setConnectionState(Vpn::ConnectionState::Connecting);
     return startMzImpl();
 }

@@ -51,8 +51,18 @@ ListViewType {
                         TelemtConfigModel.updateModel(config)
                         PageController.goToPage(PageEnum.PageServiceTelemtSettings, false)
                     } else {
-                        InstallController.updateProtocols(ServersUiController.processedServerId, containerIndex)
-                        PageController.goToPage(PageEnum.PageSettingsServerProtocol)
+                        var openProtocol = function() {
+                            InstallController.updateProtocols(ServersUiController.processedServerId, containerIndex)
+                            PageController.goToPage(PageEnum.PageSettingsServerProtocol)
+                        }
+                        showQuestionDrawer(
+                            qsTr("Change protocol settings?"),
+                            qsTr("These are advanced settings. Changing protocol parameters incorrectly may break the connection to this server. Only change them if you understand what you're doing."),
+                            qsTr("Continue"),
+                            qsTr("Cancel"),
+                            openProtocol,
+                            function() {}
+                        )
                     }
 
                 } else {

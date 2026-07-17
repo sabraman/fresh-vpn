@@ -17,14 +17,16 @@
 using namespace amnezia;
 
 namespace {
-    constexpr char gatewayEndpoint[] = "http://gw.amnezia.org:80/";
+    // beta: pin Fresh gateway via Cloudflare CDN front gw.fr3sh.online (single endpoint).
+    constexpr char gatewayEndpoint[] = "https://gw.fr3sh.online/";
 }
 
 SecureAppSettingsRepository::SecureAppSettingsRepository(SecureQSettings* settings, QObject *parent)
     : QObject(parent), m_settings(settings)
 {
-    QString storedEndpoint = value("Conf/gatewayEndpoint", gatewayEndpoint).toString();
-    m_gatewayEndpoint = storedEndpoint.isEmpty() ? gatewayEndpoint : storedEndpoint;
+    // beta dev/staging: always pin to baked-in Fresh gateway, ignore any stale stored value.
+    m_gatewayEndpoint = QString::fromLatin1(gatewayEndpoint);
+    setValue("Conf/gatewayEndpoint", m_gatewayEndpoint);
 }
 
 QVariant SecureAppSettingsRepository::value(const QString &key, const QVariant &defaultValue) const
@@ -35,6 +37,46 @@ QVariant SecureAppSettingsRepository::value(const QString &key, const QVariant &
 void SecureAppSettingsRepository::setValue(const QString &key, const QVariant &value)
 {
     m_settings->setValue(key, value);
+}
+
+bool SecureAppSettingsRepository::isRuDirectSeedDone() const
+{
+    return value("Conf/ruDirectSeedDone", false).toBool();
+}
+
+void SecureAppSettingsRepository::setRuDirectSeedDone(bool done)
+{
+    setValue("Conf/ruDirectSeedDone", done);
+}
+
+bool SecureAppSettingsRepository::isAwgDefaultMigrationDone() const
+{
+    return value("Conf/awgDefaultMigrationDone", false).toBool();
+}
+
+void SecureAppSettingsRepository::setAwgDefaultMigrationDone(bool done)
+{
+    setValue("Conf/awgDefaultMigrationDone", done);
+}
+
+bool SecureAppSettingsRepository::isDnsResetMigrationDone() const
+{
+    return value("Conf/dnsResetMigrationDone", false).toBool();
+}
+
+void SecureAppSettingsRepository::setDnsResetMigrationDone(bool done)
+{
+    setValue("Conf/dnsResetMigrationDone", done);
+}
+
+bool SecureAppSettingsRepository::isServerNameMigrationDone() const
+{
+    return value("Conf/serverNameMigrationDone", false).toBool();
+}
+
+void SecureAppSettingsRepository::setServerNameMigrationDone(bool done)
+{
+    setValue("Conf/serverNameMigrationDone", done);
 }
 
 QLocale SecureAppSettingsRepository::getAppLanguage() const
@@ -73,8 +115,8 @@ void SecureAppSettingsRepository::setAllowedDnsServers(const QStringList &server
 
 QString SecureAppSettingsRepository::primaryDns() const
 {
-    constexpr char cloudFlareNs1[] = "1.1.1.1";
-    return value("Conf/primaryDns", cloudFlareNs1).toString();
+    constexpr char adguardNs1[] = "94.140.14.14"; // AdGuard "Default" DNS - blocks ads and trackers
+    return value("Conf/primaryDns", adguardNs1).toString();
 }
 
 void SecureAppSettingsRepository::setPrimaryDns(const QString &dns)
@@ -84,8 +126,8 @@ void SecureAppSettingsRepository::setPrimaryDns(const QString &dns)
 
 QString SecureAppSettingsRepository::secondaryDns() const
 {
-    constexpr char cloudFlareNs2[] = "1.0.0.1";
-    return value("Conf/secondaryDns", cloudFlareNs2).toString();
+    constexpr char adguardNs2[] = "94.140.15.15"; // AdGuard "Default" DNS - blocks ads and trackers
+    return value("Conf/secondaryDns", adguardNs2).toString();
 }
 
 void SecureAppSettingsRepository::setSecondaryDns(const QString &dns)
@@ -288,6 +330,16 @@ bool SecureAppSettingsRepository::isKillSwitchEnabled() const
 void SecureAppSettingsRepository::setKillSwitchEnabled(bool enabled)
 {
     setValue("Conf/killSwitchEnabled", enabled);
+}
+
+bool SecureAppSettingsRepository::isAutoUpdateEnabled() const
+{
+    return value("Conf/autoUpdateEnabled", true).toBool();
+}
+
+void SecureAppSettingsRepository::setAutoUpdateEnabled(bool enabled)
+{
+    setValue("Conf/autoUpdateEnabled", enabled);
 }
 
 bool SecureAppSettingsRepository::isStrictKillSwitchEnabled() const

@@ -4,7 +4,7 @@
 namespace apiDefs
 {
 
-constexpr int requestTimeoutMsecs = 12 * 1000; // 12 secs
+constexpr int requestTimeoutMsecs = 8 * 1000; // 8 secs (snappier UI; gateway ~0.2s over HTTP/1.1)
 
 } // namespace apiDefs
 

@@ -42,10 +42,11 @@ ErrorCode VpnProtocol::lastError() const
 
 void VpnProtocol::onTimeout()
 {
-    qDebug() << "Timeout";
+    qWarning() << "VpnProtocol: tunnel did not come up within the timeout; giving up";
 
     emit timeoutTimerEvent();
     stop();
+    setLastError(ErrorCode::VpnTunnelDidNotComeUpError);
 }
 
 void VpnProtocol::startTimeoutTimer()
@@ -89,6 +90,20 @@ void VpnProtocol::setConnectionState(Vpn::ConnectionState state)
     if (m_connectionState == Vpn::ConnectionState::Disconnected) {
         m_receivedBytes = 0;
         m_sentBytes = 0;
+    }
+
+    switch (m_connectionState) {
+    case Vpn::ConnectionState::Connecting:
+    case Vpn::ConnectionState::Reconnecting:
+        startTimeoutTimer();
+        break;
+    case Vpn::ConnectionState::Connected:
+    case Vpn::ConnectionState::Disconnected:
+    case Vpn::ConnectionState::Error:
+        stopTimeoutTimer();
+        break;
+    default:
+        break;
     }
 
     qDebug().noquote() << QString("Connection state: '%1'").arg(textConnectionState());

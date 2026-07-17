@@ -13,6 +13,7 @@ import "../Controls2"
 import "../Controls2/TextTypes"
 import "../Config"
 import "../Components"
+import "../Components/countrynames.js" as CN
 
 PageType {
     id: root
@@ -35,9 +36,14 @@ PageType {
             return
         }
 
+        var wasConnected = ConnectionController.isConnected || ConnectionController.isConnectionInProgress
         PageController.showBusyIndicator(true)
-        SubscriptionUiController.updateServiceFromGateway(ServersUiController.processedServerId, countryCode, countryName)
+        var ok = SubscriptionUiController.updateServiceFromGateway(ServersUiController.processedServerId, countryCode, countryName)
+        ServersUiController.updateModel()
         PageController.showBusyIndicator(false)
+        if (ok && wasConnected) {
+            ConnectionController.reconnect()
+        }
     }
 
     Component.onCompleted: {
@@ -195,25 +201,16 @@ PageType {
                     Layout.fillWidth: true
                     Layout.leftMargin: 16
 
-                    text: countryName
+                    text: CN.localName(countryCode, countryName, LanguageUiController.currentLanguageName === "English")
 
                     ButtonGroup.group: containersRadioButtonGroup
 
                     imageSource: "qrc:/images/controls/download.svg"
 
                     checked: index === ApiCountryModel.currentIndex
-                    checkable: !ConnectionController.isConnected
+                    checkable: true
 
                     onClicked: {
-                        if (ConnectionController.isConnectionInProgress) {
-                            PageController.showNotificationMessage(qsTr("Unable change server location while trying to make an active connection"))
-                            return
-                        }
-                        if (ConnectionController.isConnected) {
-                            PageController.showNotificationMessage(qsTr("Unable change server location while there is an active connection"))
-                            return
-                        }
-
                         root.selectConnectionCountry(index, countryCode, countryName)
                     }
 

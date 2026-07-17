@@ -3,7 +3,7 @@
     <CPackWiXFragment Id="CM_CP_AmneziaVPN.AmneziaVPN_service.exe">
         <ServiceInstall
                 Id="AmneziaServiceInstall"
-                Name="AmneziaVPN-service"
+                Name="FreshVPN-service"
                 DisplayName="AmneziaVPN Service"
                 Description="Service for AmneziaVPN"
                 Start="auto"
@@ -15,7 +15,7 @@
         </ServiceInstall>
         <ServiceControl
                 Id="AmneziaServiceControl"
-                Name="AmneziaVPN-service"
+                Name="FreshVPN-service"
                 Start="install"
                 Stop="both"
                 Remove="uninstall"

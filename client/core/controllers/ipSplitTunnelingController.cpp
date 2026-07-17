@@ -7,11 +7,63 @@ IpSplitTunnelingController::IpSplitTunnelingController(SecureAppSettingsReposito
       m_appSettingsRepository(appSettingsRepository)
 {
     m_currentRouteMode = m_appSettingsRepository->routeMode();
+    // #4 Fresh: one-time seed - route Russian services directly (outside VPN), like the Happ subscription.
+    if (!m_appSettingsRepository->isRuDirectSeedDone()) {
+        applyRussianDirectPreset();
+        m_appSettingsRepository->setRuDirectSeedDone(true);
+        m_currentRouteMode = m_appSettingsRepository->routeMode();
+    }
+
     if (m_currentRouteMode == RouteMode::VpnAllSites) { // for old split tunneling configs
         m_appSettingsRepository->setRouteMode(RouteMode::VpnOnlyForwardSites);
         m_currentRouteMode = RouteMode::VpnOnlyForwardSites;
     }
     fillSites();
+}
+
+void IpSplitTunnelingController::applyRussianDirectPreset()
+{
+    // Route everything through the VPN EXCEPT these Russian services (they go direct
+    // via the local/RU connection) so banking, gov and RU services are not geo-blocked.
+    setRouteMode(RouteMode::VpnAllExceptSites);
+    const QStringList sites = russianDirectSites();
+    for (const QString &site : sites) {
+        addSite(site);
+    }
+    m_appSettingsRepository->setSitesSplitTunnelingEnabled(true);
+}
+
+QStringList IpSplitTunnelingController::russianDirectSites()
+{
+    return QStringList {
+        // Banks & payments
+        "sberbank.ru", "online.sberbank.ru", "sberbank.com", "tbank.ru", "tinkoff.ru",
+        "alfabank.ru", "alfabank.com", "vtb.ru", "gazprombank.ru", "raiffeisen.ru",
+        "open.ru", "psbank.ru", "sovcombank.ru", "rshb.ru", "mkb.ru", "pochtabank.ru",
+        "yoomoney.ru", "nspk.ru", "mironline.ru", "cbr.ru", "qiwi.com",
+        // Government services
+        "gosuslugi.ru", "nalog.ru", "nalog.gov.ru", "mos.ru", "pfr.gov.ru", "sfr.gov.ru",
+        "fss.ru", "government.ru", "kremlin.ru", "mvd.ru", "gibdd.ru", "rosreestr.ru",
+        "rosreestr.gov.ru", "fedsfm.ru",
+        // Marketplaces & retail
+        "ozon.ru", "www.ozon.ru", "ozone.ru", "cdn1.ozone.ru", "cdn2.ozone.ru", "xapi.ozon.ru", "api.ozon.ru", "ozon.travel", "wildberries.ru", "www.wildberries.ru", "wb.ru", "wbbasket.ru", "basket-01.wbbasket.ru", "avito.ru", "www.avito.ru", "avito.st", "market.yandex.ru",
+        "megamarket.ru", "sbermegamarket.ru", "dns-shop.ru", "mvideo.ru", "citilink.ru",
+        "eldorado.ru", "lamoda.ru", "aliexpress.ru", "leroymerlin.ru", "vseinstrumenti.ru",
+        "petrovich.ru",
+        // Media, streaming & social
+        "vk.com", "vk.ru", "vkvideo.ru", "ok.ru", "dzen.ru", "kinopoisk.ru", "rutube.ru",
+        "smotrim.ru", "premier.one", "ivi.ru", "okko.tv", "wink.ru", "more.tv", "start.ru",
+        "kion.ru", "music.yandex.ru", "zvuk.com",
+        // Yandex, mail & portals
+        "yandex.ru", "ya.ru", "disk.yandex.ru", "mail.yandex.ru", "taxi.yandex.ru",
+        "mail.ru", "list.ru", "bk.ru", "inbox.ru", "rambler.ru",
+        // Telecom
+        "mts.ru", "beeline.ru", "megafon.ru", "tele2.ru", "rt.ru",
+        // Travel
+        "rzd.ru", "aeroflot.ru", "pobeda.aero", "s7.ru", "tutu.ru", "aviasales.ru",
+        // Misc
+        "hh.ru", "2gis.ru", "gismeteo.ru", "drom.ru", "pochta.ru", "cdek.ru"
+    };
 }
 
 bool IpSplitTunnelingController::addSiteInternal(const QString &hostname, const QString &ip)

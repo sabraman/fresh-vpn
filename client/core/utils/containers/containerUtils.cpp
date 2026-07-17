@@ -69,7 +69,7 @@ QMap<DockerContainer, QString> ContainerUtils::containerHumanNames()
              { DockerContainer::WireGuard, "WireGuard" },
              { DockerContainer::Awg, "AmneziaWG" },
              { DockerContainer::Awg2, "AmneziaWG" },
-             { DockerContainer::Xray, "XRay" },
+             { DockerContainer::Xray, "VLESS" },
              { DockerContainer::Ipsec, QObject::tr("IPsec") },
              { DockerContainer::SSXray, "Shadowsocks"},
 
@@ -131,7 +131,7 @@ QMap<DockerContainer, QString> ContainerUtils::containerDetailedDescriptions()
                       "It provides a good balance between speed and security but is easily recognized by DPI systems, "
                       "making it susceptible to blocking.\n"
                       "\nFeatures:\n"
-                      "* Available on all AmneziaVPN platforms\n"
+                      "* Available on all Fresh VPN platforms\n"
                       "* Normal battery consumption on mobile devices\n"
                       "* Flexible customization for various devices and OS\n"
                       "* Operates over both TCP and UDP protocols") },
@@ -140,7 +140,7 @@ QMap<DockerContainer, QString> ContainerUtils::containerDetailedDescriptions()
                       "It uses fixed encryption settings, delivering lower latency and higher data transfer speeds compared to OpenVPN. "
                       "However, WireGuard is easily identifiable by DPI systems due to its distinctive packet signatures, making it susceptible to blocking.\n"
                       "\nFeatures:\n"
-                      "* Available on all AmneziaVPN platforms\n"
+                      "* Available on all Fresh VPN platforms\n"
                       "* Low power consumption on mobile devices\n"
                       "* Minimal configuration required\n"
                       "* Easily detected by DPI systems (susceptible to blocking)\n"
@@ -152,7 +152,7 @@ QMap<DockerContainer, QString> ContainerUtils::containerDetailedDescriptions()
                       "making VPN traffic indistinguishable from regular internet traffic.\n"
                       "\nAmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.\n"
                       "\nFeatures:\n"
-                      "* Available on all AmneziaVPN platforms\n"
+                      "* Available on all Fresh VPN platforms\n"
                       "* Low battery consumption on mobile devices\n"
                       "* Minimal settings required\n"
                       "* Undetectable by traffic analysis systems (DPI)\n"
@@ -175,7 +175,7 @@ QMap<DockerContainer, QString> ContainerUtils::containerDetailedDescriptions()
                       "It reconnects quickly when switching networks or devices, making it ideal for dynamic network environments. "
                       "While it provides good security and speed, it's easily recognized by DPI systems and susceptible to blocking.\n"
                       "\nFeatures:\n"
-                      "* Available in AmneziaVPN only on Windows\n"
+                      "* Available in Fresh VPN only on Windows\n"
                       "* Low battery consumption on mobile devices\n"
                       "* Minimal configuration required\n"
                       "* Detectable by DPI analysis systems(easily blocked)\n"

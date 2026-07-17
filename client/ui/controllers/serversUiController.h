@@ -52,6 +52,15 @@ public slots:
 
     void editServerName(const QString &serverId, const QString &name);
 
+    void setServerDns(const QString &serverId, const QString &dns1, const QString &dns2);
+    QString serverDns1(const QString &serverId) const;
+    QString serverDns2(const QString &serverId) const;
+    bool serverSupportsCustomDns(const QString &serverId) const;
+
+    void setServerMtu(const QString &serverId, const QString &mtu);
+    QString serverMtu(const QString &serverId) const;
+    bool serverHasAwg(const QString &serverId) const;
+
     void setDefaultServer(const QString &serverId);
     void setDefaultServerAtIndex(int index);
 
@@ -115,7 +124,7 @@ signals:
     void updateApiCountryModel();
 
 public:
-    void updateModel();
+    Q_INVOKABLE void updateModel();
     
 private:
     const ServerDescription &serverDescriptionById(const QString &serverId) const;

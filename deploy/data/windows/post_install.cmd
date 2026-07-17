@@ -1,5 +1,5 @@
 sc stop AmneziaWGTunnel$AmneziaVPN
 sc delete AmneziaWGTunnel$AmneziaVPN
-taskkill /IM "AmneziaVPN-service.exe" /F
-taskkill /IM "AmneziaVPN.exe" /F
+taskkill /IM "FreshVPN-service.exe" /F
+taskkill /IM "FreshVPN.exe" /F
 exit /b 0

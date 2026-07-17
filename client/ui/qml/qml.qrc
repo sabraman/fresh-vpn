@@ -19,6 +19,7 @@
         <file>Components/TermsAndPrivacyText.qml</file>
         <file>Components/TransportProtoSelector.qml</file>
         <file>Components/AddSitePanel.qml</file>
+        <file>Components/countrynames.js</file>
         <file>Config/GlobalConfig.qml</file>
         <file>Config/qmldir</file>
         <file>Controls2/BackButtonType.qml</file>
@@ -39,6 +40,8 @@
         <file>Controls2/HeaderTypeWithSwitcher.qml</file>
         <file>Controls2/HorizontalRadioButton.qml</file>
         <file>Controls2/ImageButtonType.qml</file>
+        <file>Controls2/FreshToolTipType.qml</file>
+        <file>Controls2/InfoBadgeType.qml</file>
         <file>Controls2/LabelWithButtonType.qml</file>
         <file>Controls2/LabelWithImageType.qml</file>
         <file>Controls2/ListViewWithLabelsType.qml</file>
@@ -106,6 +109,7 @@
         <file>Pages2/PageSettingsKillSwitch.qml</file>
         <file>Pages2/PageSettingsKillSwitchExceptions.qml</file>
         <file>Pages2/PageSettingsLogging.qml</file>
+        <file>Pages2/PageSettingsServerAdvanced.qml</file>
         <file>Pages2/PageSettingsServerData.qml</file>
         <file>Pages2/PageSettingsServerInfo.qml</file>
         <file>Pages2/PageSettingsServerProtocol.qml</file>

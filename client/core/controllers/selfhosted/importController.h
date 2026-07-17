@@ -5,6 +5,8 @@
 #include <QJsonObject>
 #include <QByteArray>
 #include <QMap>
+#include <QList>
+#include <QStringList>
 
 #include "core/repositories/secureServersRepository.h"
 #include "core/repositories/secureAppSettingsRepository.h"
@@ -55,6 +57,9 @@ public:
     };
 
     ImportResult extractConfigFromData(const QString &data, const QString &configFileName = "");
+    // Extract EVERY server from a subscription body (or a single config when it is not a
+    // multi-server subscription). Used so one subscription import yields the whole country list.
+    QList<ImportResult> extractAllConfigsFromData(const QString &data, const QString &configFileName = "");
     ImportResult extractConfigFromQr(const QByteArray &data);
 
     void startDecodingQr();
@@ -64,6 +69,7 @@ public:
     int qrChunksTotal() const;
 
     void importConfig(const QJsonObject &config);
+    void importConfigs(const QList<QJsonObject> &configs);
     QJsonObject processNativeWireGuardConfig(const QJsonObject &config);
 
 signals:
@@ -74,6 +80,8 @@ signals:
 private:
     ConfigTypes checkConfigFormat(const QString &config) const;
     QString firstUriFromSubscription(const QString &data) const;
+    QStringList allUrisFromSubscription(const QString &data) const;
+    bool addServerFromConfig(const QJsonObject &config);
     QJsonObject extractOpenVpnConfig(const QString &data) const;
     QJsonObject extractWireGuardConfig(const QString &data, ConfigTypes &configType) const;
     QJsonObject extractXrayConfig(const QString &data, ConfigTypes configType, const QString &description = "") const;

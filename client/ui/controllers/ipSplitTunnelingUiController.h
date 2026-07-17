@@ -25,6 +25,7 @@ public slots:
     void exportSites(const QString &fileName);
     void toggleSplitTunneling(bool enabled);
     void setRouteMode(int routeMode);
+    void applyRussianDirectPreset();
 
     int getRouteMode() const;
     bool isSplitTunnelingEnabled() const;

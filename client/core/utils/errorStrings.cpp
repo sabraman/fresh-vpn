@@ -66,6 +66,7 @@ QString errorString(ErrorCode code) {
     case (ErrorCode::OpenVpnAdaptersInUseError): errorMessage = QObject::tr("Can't connect: another VPN connection is active"); break;
     case (ErrorCode::OpenVpnTapAdapterError): errorMessage = QObject::tr("Can't setup OpenVPN TAP network adapter"); break;
     case (ErrorCode::AddressPoolError): errorMessage = QObject::tr("VPN pool error: no available addresses"); break;
+    case (ErrorCode::VpnTunnelDidNotComeUpError): errorMessage = QObject::tr("The server did not respond. Try another server or protocol."); break;
 
     case (ErrorCode::ImportInvalidConfigError): errorMessage = QObject::tr("The config does not contain any containers and credentials for connecting to the server"); break;
     case (ErrorCode::ImportBackupFileUseRestoreInstead): errorMessage = QObject::tr("Backup files cannot be imported here. Use 'Restore from backup' instead."); break;
@@ -79,7 +80,7 @@ QString errorString(ErrorCode code) {
     case (ErrorCode::AndroidError): errorMessage = QObject::tr("VPN connection error"); break;
 
     // Api errors
-    case (ErrorCode::ApiConfigDownloadError): errorMessage = QObject::tr("Error when retrieving configuration from API"); break;
+    case (ErrorCode::ApiConfigDownloadError): errorMessage = QObject::tr("Couldn't load connection data. Check your connection and try again."); break;
     case (ErrorCode::ApiConfigAlreadyAdded): errorMessage = QObject::tr("This config has already been added to the application"); break;
     case (ErrorCode::ApiConfigEmptyError): errorMessage = QObject::tr("In the response from the server, an empty config was received"); break;
     case (ErrorCode::ApiConfigSslError): errorMessage = QObject::tr("SSL error occurred"); break;
@@ -88,10 +89,10 @@ QString errorString(ErrorCode code) {
     case (ErrorCode::ApiConfigDecryptionError): errorMessage = QObject::tr("Failed to decrypt response payload"); break;
     case (ErrorCode::ApiServicesMissingError): errorMessage = QObject::tr("Missing list of available services"); break;
     case (ErrorCode::ApiConfigLimitError): errorMessage = QObject::tr("The limit of allowed configurations per subscription has been exceeded"); break;
-    case (ErrorCode::ApiNotFoundError): errorMessage = QObject::tr("Error when retrieving configuration from API"); break;
+    case (ErrorCode::ApiNotFoundError): errorMessage = QObject::tr("Couldn't load connection data. Check your connection and try again."); break;
     case (ErrorCode::ApiMigrationError): errorMessage = QObject::tr("A migration error has occurred. Please contact our technical support"); break;
     case (ErrorCode::ApiUpdateRequestError): errorMessage = QObject::tr("Please update the application to use this feature"); break;
-    case (ErrorCode::ApiSubscriptionExpiredError): errorMessage = QObject::tr("Your Amnezia Premium subscription has expired.\n Please check your email for renewal instructions.\n If you haven't received an email, please contact our support."); break;
+    case (ErrorCode::ApiSubscriptionExpiredError): errorMessage = QObject::tr("Your Fresh Premium subscription has expired.\n Please check your email for renewal instructions.\n If you haven't received an email, please contact our support."); break;
     case (ErrorCode::ApiPurchaseError): errorMessage = QObject::tr("Unable to process purchase"); break;
     case (ErrorCode::ApiSubscriptionNotActiveError): errorMessage = QObject::tr("No active subscription found"); break;
     case (ErrorCode::ApiNoPurchasedSubscriptionsError): errorMessage = QObject::tr("No purchased subscriptions found. Please purchase a subscription first"); break;
@@ -111,7 +112,7 @@ QString errorString(ErrorCode code) {
 
     case(ErrorCode::InternalError):
     default:
-        errorMessage = QObject::tr("Internal error"); break;
+        errorMessage = QObject::tr("Something went wrong. Please try again or choose another server."); break;
     }
 
     return QObject::tr("ErrorCode: %1. ").arg(code) + errorMessage;

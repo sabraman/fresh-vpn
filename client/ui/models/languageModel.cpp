@@ -2,10 +2,13 @@
 
 LanguageModel::LanguageModel(QObject *parent) : QAbstractListModel(parent)
 {
-    QMetaEnum metaEnum = QMetaEnum::fromType<LanguageSettings::AvailableLanguageEnum>();
-    for (int i = 0; i < metaEnum.keyCount(); i++) {
-        m_availableLanguages.push_back(LanguageModelData { getLocalLanguageName(static_cast<LanguageSettings::AvailableLanguageEnum>(i)),
-                                                           static_cast<LanguageSettings::AvailableLanguageEnum>(i) });
+    // Fresh VPN: expose only English + Russian in the selector (enum kept intact).
+    const LanguageSettings::AvailableLanguageEnum langs[] = {
+        LanguageSettings::AvailableLanguageEnum::English,
+        LanguageSettings::AvailableLanguageEnum::Russian,
+    };
+    for (auto lang : langs) {
+        m_availableLanguages.push_back(LanguageModelData { getLocalLanguageName(lang), lang });
     }
 }
 

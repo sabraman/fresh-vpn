@@ -21,8 +21,18 @@ class AmneziaLibxray(ConanFile):
     def layout(self):
         basic_layout(self, build_folder=".")
 
+    @property
+    def _build_on_windows(self):
+        return str(self.settings_build.os) == "Windows"
+
     def build_requirements(self):
         self.tool_requires("go/1.26.0")
+        if self._build_on_windows:
+            # build.sh is bash-only; reuse the same pattern the other recipes
+            # in this repo already use for Windows hosts.
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
     
     def validate(self):
         if self.settings.os != "Android":

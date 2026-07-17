@@ -12,6 +12,7 @@
 
 #include <QApplication>
 #include <QDesktopServices>
+#include <QFont>
 #include <QIcon>
 #include <QWindow>
 
@@ -44,6 +45,13 @@ SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
                                        this,
                                        [&](){ qApp->quit(); });
 
+    // Smaller tray context-menu font
+    QFont trayMenuFont = m_menu.font();
+    if (trayMenuFont.pointSizeF() > 0)
+        trayMenuFont.setPointSizeF(qMax(8.0, trayMenuFont.pointSizeF() * 0.85));
+    else if (trayMenuFont.pixelSize() > 0)
+        trayMenuFont.setPixelSize(qMax(11, static_cast<int>(trayMenuFont.pixelSize() * 0.85)));
+    m_menu.setFont(trayMenuFont);
     m_systemTrayIcon.setContextMenu(&m_menu);
     setTrayState(Vpn::ConnectionState::Disconnected);
 }

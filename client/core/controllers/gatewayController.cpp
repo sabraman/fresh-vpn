@@ -14,6 +14,9 @@
 
 #include "QBlockCipher.h"
 #include "QRsa.h"
+#include <QDateTime>
+#include "core/crypto/freshBetaCrypto.h"
+#include "core/crypto/freshDevKey.h"
 
 #include "amneziaApplication.h"
 #include "core/utils/api/apiUtils.h"
@@ -68,11 +71,15 @@ GatewayController::EncryptedRequestData GatewayController::prepareRequest(const 
 #endif
 
     encRequestData.request.setTransferTimeout(m_requestTimeoutMsecs);
+    // Fresh: force HTTP/1.1 for gateway calls. Qt's HTTP/2 against the Cloudflare-fronted
+    // gateway intermittently fails ("HTTP/2 protocol error" / stream reset) -> ApiConfig
+    // timeouts (1100/1103), slow UI, stale configs. HTTP/1.1 is fast & reliable (~0.2s).
+    encRequestData.request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
     encRequestData.request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     encRequestData.request.setRawHeader(QString("X-Client-Request-ID").toUtf8(), QUuid::createUuid().toString(QUuid::WithoutBraces).toUtf8());
-    encRequestData.request.setUrl(endpoint.arg(m_proxyUrl.isEmpty() ? m_gatewayEndpoint : m_proxyUrl));
+    // beta: S3-bypass disabled (threat-model: MITM). Single pinned endpoint only.
+    encRequestData.request.setUrl(endpoint.arg(m_gatewayEndpoint));
 
-    // bypass killSwitch exceptions for API-gateway
 #ifdef AMNEZIA_DESKTOP
     if (m_isStrictKillSwitchEnabled) {
         QString host = QUrl(encRequestData.request.url()).host();
@@ -87,38 +94,35 @@ GatewayController::EncryptedRequestData GatewayController::prepareRequest(const 
     }
 #endif
 
-    QSimpleCrypto::QBlockCipher blockCipher;
-    encRequestData.key = blockCipher.generatePrivateSalt(32);
-    encRequestData.iv = blockCipher.generatePrivateSalt(32);
-    encRequestData.salt = blockCipher.generatePrivateSalt(8);
+    // beta envelope: AES-256-GCM session key + 12B request nonce.
+    // Field reuse: encRequestData.key = aes_key(32), encRequestData.iv = request nonce(12).
+    encRequestData.key = FreshBetaCrypto::randomBytes(FreshBetaCrypto::kAesKeyLen);
+    encRequestData.iv = FreshBetaCrypto::randomBytes(FreshBetaCrypto::kNonceLen);
+    encRequestData.salt = QByteArray();
+    const qint64 tsMs = QDateTime::currentMSecsSinceEpoch();
 
     QJsonObject keyPayload;
     keyPayload[apiDefs::key::aesKey] = QString(encRequestData.key.toBase64());
-    keyPayload[apiDefs::key::aesIv] = QString(encRequestData.iv.toBase64());
-    keyPayload[apiDefs::key::aesSalt] = QString(encRequestData.salt.toBase64());
+    keyPayload[apiDefs::key::nonce] = QString(encRequestData.iv.toBase64());
+    keyPayload[apiDefs::key::ts] = tsMs;
 
     QByteArray encryptedKeyPayload;
     QByteArray encryptedApiPayload;
     try {
-        QSimpleCrypto::QRsa rsa;
-
-        EVP_PKEY *publicKey = nullptr;
-        try {
-            QByteArray rsaKey = m_isDevEnvironment ? DEV_AGW_PUBLIC_KEY : PROD_AGW_PUBLIC_KEY;
-            QSimpleCrypto::QRsa rsa;
-            publicKey = rsa.getPublicKeyFromByteArray(rsaKey);
-        } catch (...) {
-            Utils::logException();
+        // beta dev/staging: env-injected key is empty, fall back to baked-in dev key.
+        QByteArray rsaKey = m_isDevEnvironment ? QByteArray(DEV_AGW_PUBLIC_KEY) : QByteArray(PROD_AGW_PUBLIC_KEY);
+        if (rsaKey.isEmpty()) {
+            rsaKey = QByteArray(FRESH_DEV_AGW_PUBLIC_KEY_PEM);
+        }
+        if (rsaKey.isEmpty()) {
             qCritical() << "error loading public key from environment variables";
             encRequestData.errorCode = ErrorCode::ApiMissingAgwPublicKey;
             return encRequestData;
         }
+        encryptedKeyPayload = FreshBetaCrypto::rsaOaepSha256Encrypt(QJsonDocument(keyPayload).toJson(QJsonDocument::Compact), rsaKey);
 
-        encryptedKeyPayload = rsa.encrypt(QJsonDocument(keyPayload).toJson(), publicKey, RSA_PKCS1_PADDING);
-        EVP_PKEY_free(publicKey);
-
-        encryptedApiPayload = blockCipher.encryptAesBlockCipher(QJsonDocument(apiPayload).toJson(), encRequestData.key, encRequestData.iv,
-                                                                "", encRequestData.salt);
+        QByteArray aad = FreshBetaCrypto::tsAadBigEndian(tsMs);
+        encryptedApiPayload = FreshBetaCrypto::aesGcmSeal(QJsonDocument(apiPayload).toJson(QJsonDocument::Compact), encRequestData.key, encRequestData.iv, aad);
     } catch (...) {
         Utils::logException();
         qCritical() << "error when encrypting the request body";
@@ -138,13 +142,22 @@ GatewayController::DecryptionResult GatewayController::tryDecryptResponseBody(co
                                                                               QNetworkReply::NetworkError replyError, const QByteArray &key,
                                                                               const QByteArray &iv, const QByteArray &salt)
 {
+    Q_UNUSED(replyError);
+    Q_UNUSED(iv);
+    Q_UNUSED(salt);
+
     DecryptionResult result;
     result.decryptedBody = encryptedResponseBody;
     result.isDecryptionSuccessful = false;
 
+    // beta response: raw bytes [ nonce2(12) ][ ciphertext ][ GCM tag(16) ], AES-256-GCM, aad empty.
     try {
-        QSimpleCrypto::QBlockCipher blockCipher;
-        result.decryptedBody = blockCipher.decryptAesBlockCipher(encryptedResponseBody, key, iv, "", salt);
+        if (encryptedResponseBody.size() < FreshBetaCrypto::kNonceLen + FreshBetaCrypto::kGcmTagLen) {
+            return result;
+        }
+        const QByteArray nonce2 = encryptedResponseBody.left(FreshBetaCrypto::kNonceLen);
+        const QByteArray ctAndTag = encryptedResponseBody.mid(FreshBetaCrypto::kNonceLen);
+        result.decryptedBody = FreshBetaCrypto::aesGcmOpen(ctAndTag, key, nonce2, QByteArray());
         result.isDecryptionSuccessful = true;
     } catch (...) {
         result.decryptedBody = encryptedResponseBody;
@@ -437,65 +450,8 @@ QStringList GatewayController::getProxyUrls(const QString &serviceType, const QS
 bool GatewayController::shouldBypassProxy(const QNetworkReply::NetworkError &replyError, const QByteArray &decryptedResponseBody,
                                           bool isDecryptionSuccessful)
 {
-    const QByteArray &responseBody = decryptedResponseBody;
-
-    int apiHttpStatus = -1;
-    QString apiErrorMessage;
-    if (isDecryptionSuccessful) {
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(responseBody);
-        if (jsonDoc.isObject()) {
-            QJsonObject jsonObj = jsonDoc.object();
-            apiHttpStatus = jsonObj.value("http_status").toInt(-1);
-            apiErrorMessage = jsonObj.value(QStringLiteral("message")).toString().trimmed();
-        }
-    } else {
-        qDebug() << "failed to decrypt the data";
-        return true;
-    }
-
-    if (replyError == QNetworkReply::NetworkError::OperationCanceledError || replyError == QNetworkReply::NetworkError::TimeoutError) {
-        qDebug() << "timeout occurred";
-        qDebug() << replyError;
-        return true;
-    } 
-    if (responseBody.contains("html")) {
-        qDebug() << "the response contains an html tag";
-        return true;
-    } 
-    if (apiHttpStatus == httpStatusCodeRequestTimeout) {
-        return false;
-    }
-    if (apiHttpStatus == httpStatusCodeNotFound) {
-        if (responseBody.contains(errorResponsePattern1) || responseBody.contains(errorResponsePattern2)
-            || responseBody.contains(errorResponsePattern3) || responseBody.contains(errorResponsePatternQrSessionNotFound)
-            || responseBody.contains(errorResponsePatternSessionNotFound)) {
-            return false;
-        } else {
-            qDebug() << replyError;
-            return true;
-        }
-    }
-    if (apiHttpStatus == httpStatusCodeNotImplemented) {
-        if (responseBody.contains(updateRequestResponsePattern)) {
-            return false;
-        } else {
-            qDebug() << replyError;
-            return true;
-        }
-    } 
-    if (apiHttpStatus == httpStatusCodeConflict) {
-        return false;
-    } 
-    if (apiHttpStatus == httpStatusCodePaymentRequired) {
-        return false;
-    } 
-    if (apiHttpStatus == httpStatusCodeUnprocessableEntity) {
-        return apiErrorMessage != unprocessableSubscriptionMessage;
-    } 
-    if (replyError != QNetworkReply::NetworkError::NoError) {
-        qDebug() << replyError;
-        return true;
-    }
+    // beta: S3-bypass disabled by threat-model (MITM). Always pin single endpoint.
+    Q_UNUSED(replyError); Q_UNUSED(decryptedResponseBody); Q_UNUSED(isDecryptionSuccessful);
     return false;
 }
 

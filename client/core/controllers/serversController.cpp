@@ -17,6 +17,9 @@ ServersController::ServersController(SecureServersRepository *serversRepository,
     : QObject(parent), m_serversRepository(serversRepository), m_appSettingsRepository(appSettingsRepository)
 {
     ensureDefaultServerValid();
+    migrateSelfHostedToAwgDefault();
+    migrateServerDnsToDefault();
+    migrateServerNamesToCountry();
 }
 
 void ServersController::ensureDefaultServerValid()
@@ -34,6 +37,112 @@ void ServersController::ensureDefaultServerValid()
     if (!firstId.isEmpty()) {
         setDefaultServer(firstId);
     }
+}
+
+void ServersController::migrateSelfHostedToAwgDefault()
+{
+    // #6 Fresh: make AmneziaWG the default protocol once, for any server that has an AWG
+    // container (VLESS/443 gets throttled; AWG holds). Runs a single time, then respects
+    // whatever protocol the user later picks manually.
+    if (!m_appSettingsRepository || m_appSettingsRepository->isAwgDefaultMigrationDone()) {
+        return;
+    }
+    const int count = getServersCount();
+    for (int i = 0; i < count; ++i) {
+        const QString serverId = getServerId(i);
+        if (serverId.isEmpty()) {
+            continue;
+        }
+        if (ContainerUtils::isAwgContainer(getDefaultContainer(serverId))) {
+            continue; // already on AWG
+        }
+        const QMap<DockerContainer, ContainerConfig> containers = getServerContainersMap(serverId);
+        for (auto it = containers.constBegin(); it != containers.constEnd(); ++it) {
+            if (ContainerUtils::isAwgContainer(it.key())) {
+                setDefaultContainer(serverId, it.key());
+                break;
+            }
+        }
+    }
+    m_appSettingsRepository->setAwgDefaultMigrationDone(true);
+}
+
+void ServersController::migrateServerDnsToDefault()
+{
+    if (!m_appSettingsRepository || m_appSettingsRepository->isDnsResetMigrationDone()) {
+        return;
+    }
+    const int count = getServersCount();
+    for (int i = 0; i < count; ++i) {
+        const QString serverId = getServerId(i);
+        if (serverId.isEmpty()) {
+            continue;
+        }
+        const QPair<QString, QString> dns = serverDns(serverId);
+        if (!dns.first.isEmpty() || !dns.second.isEmpty()) {
+            setServerDns(serverId, QString(), QString());
+        }
+    }
+    m_appSettingsRepository->setDnsResetMigrationDone(true);
+}
+
+namespace
+{
+// Fresh: the panel remark travels into the server record verbatim
+// ("<flag> Germany | Optimal"). Founder wants plain country names, so strip the
+// flag emoji and everything past the separator.
+QString countryOnlyName(const QString &raw)
+{
+    QString out;
+    out.reserve(raw.size());
+    for (int i = 0; i < raw.size(); ++i) {
+        const QChar c = raw.at(i);
+        if (c.isHighSurrogate() && i + 1 < raw.size() && raw.at(i + 1).isLowSurrogate()) {
+            const uint cp = QChar::surrogateToUcs4(c, raw.at(i + 1));
+            if (cp >= 0x1F1E6 && cp <= 0x1F1FF) { ++i; continue; }
+            if (cp >= 0x1F300 && cp <= 0x1FAFF) { ++i; continue; }
+            out.append(c);
+            out.append(raw.at(i + 1));
+            ++i;
+            continue;
+        }
+        const ushort u = c.unicode();
+        if (u == 0xFE0F || u == 0x200D) {
+            continue;
+        }
+        if (u >= 0x2600 && u <= 0x27BF) {
+            continue;
+        }
+        out.append(c);
+    }
+
+    const int bar = out.indexOf(QLatin1Char('|'));
+    if (bar >= 0) {
+        out = out.left(bar);
+    }
+    return out.simplified();
+}
+} // namespace
+
+void ServersController::migrateServerNamesToCountry()
+{
+    if (!m_appSettingsRepository || m_appSettingsRepository->isServerNameMigrationDone()) {
+        return;
+    }
+    const int count = getServersCount();
+    for (int i = 0; i < count; ++i) {
+        const QString serverId = getServerId(i);
+        if (serverId.isEmpty()) {
+            continue;
+        }
+        const QString current = notificationDisplayName(serverId);
+        const QString cleaned = countryOnlyName(current);
+        if (cleaned.isEmpty() || cleaned == current) {
+            continue;
+        }
+        renameServer(serverId, cleaned);
+    }
+    m_appSettingsRepository->setServerNameMigrationDone(true);
 }
 
 bool ServersController::renameServer(const QString &serverId, const QString &name)
@@ -83,6 +192,140 @@ bool ServersController::renameServer(const QString &serverId, const QString &nam
     }
 }
 
+bool ServersController::setServerDns(const QString &serverId, const QString &dns1, const QString &dns2)
+{
+    const serverConfigUtils::ConfigType kind = m_serversRepository->serverKind(serverId);
+    switch (kind) {
+    case serverConfigUtils::ConfigType::SelfHostedAdmin: {
+        auto cfg = m_serversRepository->selfHostedAdminConfig(serverId);
+        if (!cfg.has_value()) return false;
+        cfg->dns1 = dns1;
+        cfg->dns2 = dns2;
+        m_serversRepository->editServer(serverId, cfg->toJson(), kind);
+        break;
+    }
+    case serverConfigUtils::ConfigType::SelfHostedUser: {
+        auto cfg = m_serversRepository->selfHostedUserConfig(serverId);
+        if (!cfg.has_value()) return false;
+        cfg->dns1 = dns1;
+        cfg->dns2 = dns2;
+        m_serversRepository->editServer(serverId, cfg->toJson(), kind);
+        break;
+    }
+    case serverConfigUtils::ConfigType::Native: {
+        auto cfg = m_serversRepository->nativeConfig(serverId);
+        if (!cfg.has_value()) return false;
+        cfg->dns1 = dns1;
+        cfg->dns2 = dns2;
+        m_serversRepository->editServer(serverId, cfg->toJson(), kind);
+        break;
+    }
+    default:
+        return false;
+    }
+
+    const QPair<QString, QString> stored = serverDns(serverId);
+    return stored.first == dns1 && stored.second == dns2;
+}
+
+QPair<QString, QString> ServersController::serverDns(const QString &serverId) const
+{
+    const serverConfigUtils::ConfigType kind = m_serversRepository->serverKind(serverId);
+    switch (kind) {
+    case serverConfigUtils::ConfigType::SelfHostedAdmin: {
+        auto cfg = m_serversRepository->selfHostedAdminConfig(serverId);
+        if (cfg.has_value()) return { cfg->dns1, cfg->dns2 };
+        break;
+    }
+    case serverConfigUtils::ConfigType::SelfHostedUser: {
+        auto cfg = m_serversRepository->selfHostedUserConfig(serverId);
+        if (cfg.has_value()) return { cfg->dns1, cfg->dns2 };
+        break;
+    }
+    case serverConfigUtils::ConfigType::Native: {
+        auto cfg = m_serversRepository->nativeConfig(serverId);
+        if (cfg.has_value()) return { cfg->dns1, cfg->dns2 };
+        break;
+    }
+    default:
+        break;
+    }
+    return { QString(), QString() };
+}
+
+DockerContainer ServersController::awgContainerOf(const QString &serverId) const
+{
+    const QMap<DockerContainer, ContainerConfig> containers = getServerContainersMap(serverId);
+    for (auto it = containers.constBegin(); it != containers.constEnd(); ++it) {
+        if (ContainerUtils::isAwgContainer(it.key())) {
+            return it.key();
+        }
+    }
+    return DockerContainer::None;
+}
+
+bool ServersController::serverHasAwg(const QString &serverId) const
+{
+    return awgContainerOf(serverId) != DockerContainer::None;
+}
+
+QString ServersController::serverMtu(const QString &serverId) const
+{
+    const DockerContainer container = awgContainerOf(serverId);
+    if (container == DockerContainer::None) {
+        return QString();
+    }
+    const ContainerConfig cc = getServerContainersMap(serverId).value(container);
+    if (const auto *awg = cc.protocolConfig.as<AwgProtocolConfig>()) {
+        if (awg->clientConfig.has_value()) {
+            return awg->clientConfig->mtu;
+        }
+    }
+    return QString();
+}
+
+bool ServersController::setServerMtu(const QString &serverId, const QString &mtu)
+{
+    const DockerContainer container = awgContainerOf(serverId);
+    if (container == DockerContainer::None) {
+        return false;
+    }
+    ContainerConfig cc = getServerContainersMap(serverId).value(container);
+    auto *awg = cc.protocolConfig.as<AwgProtocolConfig>();
+    if (!awg || !awg->clientConfig.has_value()) {
+        return false;
+    }
+    awg->clientConfig->mtu = mtu;
+
+    const serverConfigUtils::ConfigType kind = m_serversRepository->serverKind(serverId);
+    switch (kind) {
+    case serverConfigUtils::ConfigType::SelfHostedAdmin: {
+        auto cfg = m_serversRepository->selfHostedAdminConfig(serverId);
+        if (!cfg.has_value()) return false;
+        cfg->updateContainerConfig(container, cc);
+        m_serversRepository->editServer(serverId, cfg->toJson(), kind);
+        break;
+    }
+    case serverConfigUtils::ConfigType::SelfHostedUser: {
+        auto cfg = m_serversRepository->selfHostedUserConfig(serverId);
+        if (!cfg.has_value()) return false;
+        cfg->updateContainerConfig(container, cc);
+        m_serversRepository->editServer(serverId, cfg->toJson(), kind);
+        break;
+    }
+    case serverConfigUtils::ConfigType::Native: {
+        auto cfg = m_serversRepository->nativeConfig(serverId);
+        if (!cfg.has_value()) return false;
+        cfg->updateContainerConfig(container, cc);
+        m_serversRepository->editServer(serverId, cfg->toJson(), kind);
+        break;
+    }
+    default:
+        return false;
+    }
+
+    return serverMtu(serverId) == mtu;
+}
 void ServersController::removeServer(const QString &serverId)
 {
     m_serversRepository->removeServer(serverId);

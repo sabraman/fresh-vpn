@@ -44,6 +44,8 @@ public:
 
     void clearSettings();
 
+    Q_INVOKABLE void resetSettingsKeepServers();
+
     bool isAutoConnectEnabled() const;
     void toggleAutoConnect(bool enable);
 
@@ -64,6 +66,9 @@ public:
 
     bool isStrictKillSwitchEnabled() const;
     void toggleStrictKillSwitch(bool enable);
+
+    Q_INVOKABLE bool isAutoUpdateEnabled() const;
+    Q_INVOKABLE void setAutoUpdateEnabled(bool enable);
 
     QString getInstallationUuid(bool createIfNotExists = true) const;
 

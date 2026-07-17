@@ -84,6 +84,11 @@ PageType {
     }
 
     property list<QtObject> serverActions: [
+        makePrimary,
+        apiProto,
+        apiSubKey,
+        apiConfigs,
+        apiDevices,
         check,
         reboot,
         remove,
@@ -224,4 +229,83 @@ PageType {
         }
     }
 
+
+    QtObject {
+        id: makePrimary
+        property bool isVisible: !ServersUiController.isServerFromApi(ServersUiController.processedServerId) && !ServersUiController.isDefaultServerCurrentlyProcessed()
+        readonly property string title: qsTr("Make this the primary server")
+        readonly property string description: qsTr("Fresh VPN connects to it by default")
+        readonly property var tColor: AmneziaStyle.color.paleGray
+        readonly property var clickedHandler: function() {
+            ServersUiController.setDefaultServer(ServersUiController.processedServerId)
+            PageController.showNotificationMessage(qsTr("This server is now primary"))
+        }
+    }
+    QtObject {
+        id: apiProto
+        property bool isVisible: ServersUiController.isServerFromApi(ServersUiController.processedServerId)
+                                 && ApiAccountInfoModel.data("isProtocolSelectionSupported")
+        readonly property string title: SubscriptionUiController.isVlessProtocol(ServersUiController.processedServerId)
+                                        ? qsTr("Protocol: VLESS (tap to switch to AmneziaWG)")
+                                        : qsTr("Protocol: AmneziaWG (tap to switch to VLESS)")
+        readonly property string description: qsTr("If the protocol is blocked on your network, switch to another")
+        readonly property var tColor: AmneziaStyle.color.paleGray
+        readonly property var clickedHandler: function() {
+            var toVless = !SubscriptionUiController.isVlessProtocol(ServersUiController.processedServerId)
+            var yesFn = function() {
+                if (ServersUiController.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
+                    PageController.showNotificationMessage(qsTr("Cannot change protocol during active connection"))
+                } else {
+                    PageController.showBusyIndicator(true)
+                    SubscriptionUiController.setCurrentProtocol(ServersUiController.processedServerId, toVless ? "vless" : "awg")
+                    SubscriptionUiController.updateServiceFromGateway(ServersUiController.processedServerId, "", "", true)
+                    PageController.showBusyIndicator(false)
+                }
+            }
+            showQuestionDrawer(qsTr("Change connection protocol?"),
+                qsTr("The connection will be reconfigured. The active connection may briefly drop."),
+                qsTr("Continue"), qsTr("Cancel"), yesFn, function() {})
+        }
+    }
+
+    QtObject {
+        id: apiSubKey
+        property bool isVisible: ServersUiController.isServerFromApi(ServersUiController.processedServerId)
+
+        readonly property string title: qsTr("Subscription Key")
+        readonly property string description: ""
+        readonly property var tColor: AmneziaStyle.color.paleGray
+        readonly property var clickedHandler: function() {
+            PageController.goToPage(PageEnum.PageSettingsApiSubscriptionKey)
+            PageController.showBusyIndicator(true)
+            SubscriptionUiController.prepareVpnKeyExport(ServersUiController.processedServerId)
+            PageController.showBusyIndicator(false)
+        }
+    }
+
+    QtObject {
+        id: apiConfigs
+        property bool isVisible: ServersUiController.isServerFromApi(ServersUiController.processedServerId)
+
+        readonly property string title: qsTr("Configuration Files")
+        readonly property string description: qsTr("Manage configuration files")
+        readonly property var tColor: AmneziaStyle.color.paleGray
+        readonly property var clickedHandler: function() {
+            SubscriptionUiController.updateApiCountryModel()
+            PageController.goToPage(PageEnum.PageSettingsApiNativeConfigs)
+        }
+    }
+
+    QtObject {
+        id: apiDevices
+        property bool isVisible: ServersUiController.isServerFromApi(ServersUiController.processedServerId)
+
+        readonly property string title: qsTr("Active Devices")
+        readonly property string description: qsTr("Manage currently connected devices")
+        readonly property var tColor: AmneziaStyle.color.paleGray
+        readonly property var clickedHandler: function() {
+            SubscriptionUiController.updateApiDevicesModel()
+            PageController.goToPage(PageEnum.PageSettingsApiDevices)
+        }
+    }
 }

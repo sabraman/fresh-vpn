@@ -192,6 +192,21 @@ void SettingsController::clearSettings()
     toggleAutoStart(false);
 }
 
+// Reset app preferences to defaults WITHOUT touching the servers/subscription repository,
+// so a user who broke their configuration can recover without re-importing the subscription.
+void SettingsController::resetSettingsKeepServers()
+{
+    m_appSettingsRepository->clearSettings();
+
+    emit siteSplitTunnelingRouteModeChanged(RouteMode::VpnOnlyForwardSites);
+    emit siteSplitTunnelingToggled(false);
+
+    emit appSplitTunnelingRouteModeChanged(AppsRouteMode::VpnAllExceptApps);
+    emit appSplitTunnelingToggled(false);
+
+    toggleAutoStart(false);
+}
+
 bool SettingsController::isAutoConnectEnabled() const
 {
     return m_appSettingsRepository->isAutoConnect();
@@ -258,6 +273,16 @@ bool SettingsController::isKillSwitchEnabled() const
 void SettingsController::toggleKillSwitch(bool enable)
 {
     m_appSettingsRepository->setKillSwitchEnabled(enable);
+}
+
+bool SettingsController::isAutoUpdateEnabled() const
+{
+    return m_appSettingsRepository->isAutoUpdateEnabled();
+}
+
+void SettingsController::setAutoUpdateEnabled(bool enable)
+{
+    m_appSettingsRepository->setAutoUpdateEnabled(enable);
 }
 
 bool SettingsController::isStrictKillSwitchEnabled() const

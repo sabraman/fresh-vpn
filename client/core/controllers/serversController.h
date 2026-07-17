@@ -37,6 +37,13 @@ public:
 
     // Server management
     bool renameServer(const QString &serverId, const QString &name);
+    bool setServerDns(const QString &serverId, const QString &dns1, const QString &dns2);
+    QPair<QString, QString> serverDns(const QString &serverId) const;
+
+    bool setServerMtu(const QString &serverId, const QString &mtu);
+    QString serverMtu(const QString &serverId) const;
+    bool serverHasAwg(const QString &serverId) const;
+    DockerContainer awgContainerOf(const QString &serverId) const;
     void removeServer(const QString &serverId);
     void setDefaultServer(const QString &serverId);
 
@@ -65,6 +72,9 @@ public:
 
 private:
     void ensureDefaultServerValid();
+    void migrateSelfHostedToAwgDefault();
+    void migrateServerDnsToDefault();
+    void migrateServerNamesToCountry();
 
     SecureServersRepository* m_serversRepository;
     SecureAppSettingsRepository* m_appSettingsRepository;

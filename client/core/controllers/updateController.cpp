@@ -1,6 +1,8 @@
 #include "updateController.h"
 
 #include <QNetworkReply>
+#include <QCryptographicHash>
+#include <QFile>
 #include <QVersionNumber>
 #include <QUrl>
 #include <QJsonDocument>
@@ -20,13 +22,13 @@ namespace
     Logger logger("UpdateController");
 
 #if defined(Q_OS_WINDOWS)
-    const QLatin1String kInstallerRemoteFileNamePattern("AmneziaVPN_%1_windows_x64.exe");
+    const QLatin1String kInstallerRemoteFileNamePattern("FreshVPN_%1_windows_x64.exe");
     const QString kInstallerLocalPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/AmneziaVPN_installer.exe";
 #elif defined(Q_OS_MACOS) && !defined(MACOS_NE)
-    const QLatin1String kInstallerRemoteFileNamePattern("AmneziaVPN_%1_macos_x64.pkg");
+    const QLatin1String kInstallerRemoteFileNamePattern("FreshVPN_%1_macos_x64.pkg");
     const QString kInstallerLocalPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/AmneziaVPN.pkg";
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-    const QLatin1String kInstallerRemoteFileNamePattern("AmneziaVPN_%1_linux_x64.run");
+    const QLatin1String kInstallerRemoteFileNamePattern("FreshVPN_%1_linux_x64.run");
     const QString kInstallerLocalPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/AmneziaVPN.run";
 #endif
 }
@@ -241,13 +243,49 @@ void UpdateController::runInstaller()
 
             file.close();
 
+            // Fresh: verify SHA-256 over the wire before executing (supply-chain integrity).
+            QNetworkRequest shaReq;
+            shaReq.setTransferTimeout(15000);
+            shaReq.setUrl(QUrl(m_downloadUrl + ".sha256"));
+            QNetworkReply *shaReply = amnApp->networkManager()->get(shaReq);
+            QObject::connect(shaReply, &QNetworkReply::finished, [this, shaReply]() {
+                const int code = shaReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                const bool netOk = (shaReply->error() == QNetworkReply::NoError) && (code == 200);
+                const QByteArray expectedHex = shaReply->readAll().trimmed().left(64).toLower();
+                shaReply->deleteLater();
+                if (!netOk || expectedHex.size() != 64) {
+                    logger.error() << "Update aborted: missing/invalid checksum, http" << code;
+                    QFile::remove(kInstallerLocalPath);
+                    return;
+                }
+                QFile vf(kInstallerLocalPath);
+                if (!vf.open(QIODevice::ReadOnly)) {
+                    logger.error() << "Update aborted: cannot reopen installer for hashing";
+                    return;
+                }
+                QCryptographicHash hash(QCryptographicHash::Sha256);
+                const bool hashed = hash.addData(&vf);
+                vf.close();
+                if (!hashed) {
+                    logger.error() << "Update aborted: hashing failed";
+                    QFile::remove(kInstallerLocalPath);
+                    return;
+                }
+                const QByteArray actualHex = hash.result().toHex().toLower();
+                if (actualHex != expectedHex) {
+                    logger.error() << "Update aborted: checksum mismatch expected" << expectedHex << "actual" << actualHex;
+                    QFile::remove(kInstallerLocalPath);
+                    return;
+                }
+                logger.info() << "Installer checksum verified, launching update";
     #if defined(Q_OS_WINDOWS)
-            runWindowsInstaller(kInstallerLocalPath);
+                runWindowsInstaller(kInstallerLocalPath);
     #elif defined(Q_OS_MACOS) && !defined(MACOS_NE)
-            runMacInstaller(kInstallerLocalPath);
+                runMacInstaller(kInstallerLocalPath);
     #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-            runLinuxInstaller(kInstallerLocalPath);
+                runLinuxInstaller(kInstallerLocalPath);
     #endif
+            });
         } else {
             logger.error() << "Installer download failed, network error:" << static_cast<int>(reply->error())
                            << reply->errorString();

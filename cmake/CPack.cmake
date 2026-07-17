@@ -8,13 +8,13 @@ elseif(LINUX AND NOT ANDROID)
     set(CPACK_PACKAGE_FILE_NAME "FreshVPN_${AMNEZIAVPN_VERSION}_linux_x64")
 endif()
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "Fresh VPN")
-set(CPACK_PACKAGE_EXECUTABLES       AmneziaVPN AmneziaVPN)
+set(CPACK_PACKAGE_EXECUTABLES       FreshVPN "Fresh VPN")
 set(CPACK_PRE_BUILD_SCRIPTS         ${CMAKE_CURRENT_LIST_DIR}/sign_binaries.cmake)
 set(CPACK_POST_BUILD_SCRIPTS        ${CMAKE_CURRENT_LIST_DIR}/sign_packages.cmake)
 set(CPACK_PROJECT_CONFIG_FILE       ${CMAKE_CURRENT_LIST_DIR}/CPackOptions.cmake)
 set(CPACK_RESOURCE_FILE_LICENSE     ${CMAKE_SOURCE_DIR}/deploy/data/LICENSE.txt)
 
-list(PREPEND CPACK_COMPONENTS_ALL AmneziaVPN)
+list(PREPEND CPACK_COMPONENTS_ALL FreshVPN)
 
 if(APPLE)
     set(CPACK_GENERATOR productbuild)
@@ -61,7 +61,7 @@ if(LINUX AND NOT ANDROID)
         ${CMAKE_SOURCE_DIR}/deploy/data/linux/post_install.sh
         ${CMAKE_SOURCE_DIR}/deploy/data/linux/post_uninstall.sh
         DESTINATION "."
-        COMPONENT AmneziaVPN
+        COMPONENT FreshVPN
     )
 endif()
 
@@ -70,19 +70,19 @@ if(WIN32)
         ${CMAKE_SOURCE_DIR}/deploy/data/windows/post_install.cmd
         ${CMAKE_SOURCE_DIR}/deploy/data/windows/post_uninstall.cmd
         DESTINATION "."
-        COMPONENT AmneziaVPN
+        COMPONENT FreshVPN
     )
 endif()
 
 if (APPLE AND NOT IOS AND NOT MACOS_NE)
     install(FILES ${CMAKE_SOURCE_DIR}/deploy/data/macos/AmneziaVPN.plist
         DESTINATION "AmneziaVPN.app/Contents/Resources"
-        COMPONENT AmneziaVPN
+        COMPONENT FreshVPN
     )
 endif()
 
 include(CPackIFW)
-cpack_ifw_configure_component(AmneziaVPN
+cpack_ifw_configure_component(FreshVPN
     VERSION ${AMNEZIAVPN_VERSION}
     RELEASE_DATE ${RELEASE_DATE}
     REQUIRES_ADMIN_RIGHTS
@@ -92,7 +92,7 @@ cpack_ifw_configure_component(AmneziaVPN
 
 include(CPack)
 cpack_add_component(Uninstall
-    DISPLAY_NAME "Uninstall AmneziaVPN"
+    DISPLAY_NAME "Uninstall Fresh VPN"
     REQUIRES_ADMIN_RIGHTS
     DISABLED
 )

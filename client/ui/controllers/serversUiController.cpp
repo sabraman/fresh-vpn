@@ -86,6 +86,57 @@ void ServersUiController::setDefaultContainerAtIndex(int index, int containerInd
     }
 }
 
+void ServersUiController::setServerDns(const QString &serverId, const QString &dns1, const QString &dns2)
+{
+    if (serverId.isEmpty()) {
+        return;
+    }
+
+    if (!m_serversController->setServerDns(serverId, dns1, dns2)) {
+        emit errorOccurred(tr("This server type does not support a custom DNS"));
+        return;
+    }
+    updateModel();
+    emit finished(tr("DNS for this server is saved"));
+}
+
+QString ServersUiController::serverDns1(const QString &serverId) const
+{
+    return m_serversController->serverDns(serverId).first;
+}
+
+QString ServersUiController::serverDns2(const QString &serverId) const
+{
+    return m_serversController->serverDns(serverId).second;
+}
+
+void ServersUiController::setServerMtu(const QString &serverId, const QString &mtu)
+{
+    if (serverId.isEmpty()) {
+        return;
+    }
+    if (!m_serversController->setServerMtu(serverId, mtu)) {
+        emit errorOccurred(tr("Could not save MTU for this server"));
+        return;
+    }
+    updateModel();
+    emit finished(tr("MTU for this server is saved"));
+}
+
+QString ServersUiController::serverMtu(const QString &serverId) const
+{
+    return m_serversController->serverMtu(serverId);
+}
+
+bool ServersUiController::serverHasAwg(const QString &serverId) const
+{
+    return m_serversController->serverHasAwg(serverId);
+}
+bool ServersUiController::serverSupportsCustomDns(const QString &serverId) const
+{
+    return !isServerFromApi(serverId);
+}
+
 void ServersUiController::editServerName(const QString &serverId, const QString &name)
 {
     if (serverId.isEmpty()) {

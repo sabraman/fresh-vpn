@@ -112,6 +112,31 @@ PageType {
             }
         }
 
+        BasicButtonType {
+            id: ruBypassButton
+
+            Layout.fillWidth: true
+            Layout.topMargin: 16
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+
+            enabled: root.pageEnabled
+
+            defaultColor: AmneziaStyle.color.transparent
+            hoveredColor: AmneziaStyle.color.translucentWhite
+            pressedColor: AmneziaStyle.color.sheerWhite
+            disabledColor: AmneziaStyle.color.mutedGray
+            textColor: AmneziaStyle.color.paleGray
+            borderWidth: 1
+
+            text: qsTr("Russian services directly")
+
+            clickedFunc: function() {
+                IpSplitTunnelingController.applyRussianDirectPreset()
+                PageController.showNotificationMessage(qsTr("Russian services will open directly, without the VPN"))
+            }
+        }
+
         DropDownType {
             id: selector
 

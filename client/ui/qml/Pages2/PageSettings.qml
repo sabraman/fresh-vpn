@@ -13,19 +13,21 @@ import "../Components"
 PageType {
     id: root
 
-    property color bg: "#0E0E11"; property color card: "#16171A"; property color line: Qt.rgba(1,1,1,0.08)
-    property color fg: "#F5F4EF"; property color mute: "#878B91"; property color dim: "#5A5D63"
-    property color lime: "#B8E641"; property color limeStrong: "#C8F050"
-    property color limeSoft: Qt.rgba(184/255,230/255,65/255,0.10); property color limeLine: Qt.rgba(184/255,230/255,65/255,0.30)
-    property color bg3: "#25262B"; property color danger: "#E5715A"
+    property color bg: AmneziaStyle.fresh.bg; property color card: AmneziaStyle.fresh.card; property color line: AmneziaStyle.fresh.line
+    property color fg: AmneziaStyle.fresh.fg; property color mute: AmneziaStyle.fresh.mute; property color dim: AmneziaStyle.fresh.dim
+    property color lime: AmneziaStyle.fresh.lime; property color limeStrong: AmneziaStyle.fresh.limeStrong
+    property color limeSoft: AmneziaStyle.fresh.limeSoft; property color limeLine: AmneziaStyle.fresh.limeLine
+    property color bg3: AmneziaStyle.fresh.bg3; property color danger: AmneziaStyle.fresh.danger
 
     property bool maskOn: false
     property bool autoPickOn: true
     property bool autoConnectOn: false
     property bool newsOn: false
+    property bool autoUpdateOn: false
     Component.onCompleted: {
         autoConnectOn = SettingsController.isAutoConnectEnabled()
         newsOn = SettingsController.isNewsNotificationsEnabled()
+        autoUpdateOn = SettingsController.isAutoUpdateEnabled()
     }
 
     function goP(p) { PageController.goToPage(p) }
@@ -104,138 +106,79 @@ PageType {
 
                 Column {
                     width: parent.width; spacing: 4
-                    Text { text: "Настройки"; color: root.fg; font.pixelSize: 26; font.weight: 800 }
-                    Text { text: "Главные переключатели под рукой"; color: root.mute; font.pixelSize: 13 }
-                }
-
-                Grid {
-                    id: grid
-                    width: parent.width
-                    columns: 2
-                    rowSpacing: 12; columnSpacing: 12
-                    property real cw: (width - 12) / 2
-
-                    Repeater {
-                        model: [
-                            { ic: "shield",  nm: "Аварийный стоп",     ds: "Обрыв VPN — интернет сразу блокируется", kind: "ks" },
-                            { ic: "refresh", nm: "Авто-подключение",   ds: "VPN включается сам при запуске",         kind: "ac" },
-                            { ic: "mask",    nm: "Маскировка трафика",  ds: "Прячет VPN под обычный трафик",          kind: "mask" },
-                            { ic: "server",  nm: "Авто-выбор сервера",  ds: "Сам подбирает самый быстрый узел",       kind: "auto" }
-                        ]
-                        delegate: Rectangle {
-                            id: tg
-                            width: grid.cw; height: 104; radius: 16
-                            property bool on: modelData.kind === "ks"   ? SettingsController.isKillSwitchEnabled
-                                            : modelData.kind === "ac"   ? root.autoConnectOn
-                                            : modelData.kind === "mask" ? root.maskOn
-                                            : root.autoPickOn
-                            color: root.card
-                            border.color: root.line; border.width: 1
-                            scale: tgM.pressed ? 0.985 : 1.0
-                            Behavior on scale { NumberAnimation { duration: 90 } }
-
-                            Row {
-                                anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                                spacing: 12
-                                Rectangle {
-                                    width: 38; height: 38; radius: 11; anchors.verticalCenter: parent.verticalCenter
-                                    color: tg.on ? Qt.rgba(184/255,230/255,65/255,0.14) : Qt.rgba(1,1,1,0.05)
-                                    Canvas {
-                                        anchors.centerIn: parent; width: 22; height: 22
-                                        property color col: tg.on ? root.limeStrong : root.mute
-                                        property string ic: modelData.ic
-                                        onColChanged: requestPaint()
-                                        onPaint: {
-                                            var c = getContext("2d"); c.reset()
-                                            c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.8; c.lineCap = "round"; c.lineJoin = "round"
-                                            if (ic === "shield") { c.beginPath(); c.moveTo(11,2); c.lineTo(19,5); c.lineTo(19,11); c.bezierCurveTo(19,17,15,20,11,21); c.bezierCurveTo(7,20,3,17,3,11); c.lineTo(3,5); c.closePath(); c.stroke() }
-                                            else if (ic === "refresh") { c.beginPath(); c.arc(11,11,7,0.6,2*Math.PI); c.stroke(); c.beginPath(); c.moveTo(17,4); c.lineTo(18.5,8.5); c.lineTo(14,8); c.stroke() }
-                                            else if (ic === "mask") { c.beginPath(); c.moveTo(3,7); c.lineTo(19,7); c.stroke(); c.beginPath(); c.moveTo(3,11); c.lineTo(19,11); c.stroke(); c.beginPath(); c.moveTo(3,15); c.lineTo(13,15); c.stroke() }
-                                            else { c.strokeRect(4,3,14,6); c.strokeRect(4,13,14,6); c.beginPath(); c.arc(8,6,0.6,0,2*Math.PI); c.fill(); c.beginPath(); c.arc(8,16,0.6,0,2*Math.PI); c.fill() }
-                                        }
-                                    }
-                                }
-                                Column {
-                                    width: parent.width - 38 - 46 - 24; anchors.verticalCenter: parent.verticalCenter; spacing: 3
-                                    Text { width: parent.width; elide: Text.ElideRight; text: modelData.nm; color: root.fg; font.pixelSize: 14; font.weight: 700 }
-                                    Text { width: parent.width; wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight; text: modelData.ds; color: root.mute; font.pixelSize: 11 }
-                                }
-                                Rectangle {
-                                    width: 46; height: 26; radius: 13; anchors.verticalCenter: parent.verticalCenter
-                                    color: tg.on ? root.limeStrong : Qt.rgba(1,1,1,0.12)
-                                    Behavior on color { ColorAnimation { duration: 150 } }
-                                    Rectangle { width: 20; height: 20; radius: 10; y: 3; color: "#FFFFFF"; x: tg.on ? 23 : 3
-                                        Behavior on x { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } } }
-                                }
-                            }
-                            MouseArea {
-                                id: tgM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    if (modelData.kind === "ks") SettingsController.isKillSwitchEnabled = !SettingsController.isKillSwitchEnabled
-                                    else if (modelData.kind === "ac") { root.autoConnectOn = !root.autoConnectOn; SettingsController.toggleAutoConnect(root.autoConnectOn) }
-                                    else if (modelData.kind === "mask") root.maskOn = !root.maskOn
-                                    else root.autoPickOn = !root.autoPickOn
-                                }
-                            }
-                        }
-                    }
+                    Text { text: qsTr("Settings"); color: root.fg; font.pixelSize: 26; font.weight: 800 }
+                    Text { text: qsTr("Application and account settings"); color: root.mute; font.pixelSize: 13 }
                 }
 
                 Column {
                     width: parent.width; spacing: 10
                     visible: !GC.isMobile() || ServersUiController.hasServersFromGatewayApi
-                    Text { text: "ПРИЛОЖЕНИЕ"; color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    Text { text: qsTr("APPLICATION"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
                     ToggleRow {
                         visible: !GC.isMobile()
-                        nm: "Автозапуск"
-                        ds: "Запускать Fresh VPN при включении компьютера"
+                        nm: qsTr("Autostart")
+                        ds: qsTr("Launch Fresh VPN when the computer starts")
                         on: SettingsController.autoStartEnabled
                         onSwitched: SettingsController.toggleAutoStart(!SettingsController.autoStartEnabled)
                     }
                     ToggleRow {
                         visible: !GC.isMobile()
-                        nm: "Запуск свёрнутым"
-                        ds: "Открываться в трее без окна (нужен автозапуск)"
+                        nm: qsTr("Start minimized")
+                        ds: qsTr("Open in the tray without a window (autostart required)")
                         rowEnabled: SettingsController.autoStartEnabled
                         on: SettingsController.autoStartEnabled && SettingsController.startMinimized
                         onSwitched: SettingsController.toggleStartMinimized(!SettingsController.startMinimized)
                     }
                     ToggleRow {
                         visible: ServersUiController.hasServersFromGatewayApi
-                        nm: "Уведомления о новостях"
-                        ds: "Значок при непрочитанных новостях сервиса"
+                        nm: qsTr("News notifications")
+                        ds: qsTr("Badge for unread service news")
                         on: root.newsOn
                         onSwitched: { root.newsOn = !root.newsOn; SettingsController.toggleNewsNotificationsEnabled(root.newsOn) }
+                    }
+                }
+                Column {
+                    width: parent.width; spacing: 10
+                    Text { text: qsTr("CONNECTION & PROTECTION"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    NavRow {
+                        nm: qsTr("Ad & tracker blocking")
+                        ds: qsTr("DNS filtering of ads and trackers")
+                        onActivated: root.goP(PageEnum.PageSettingsDns)
+                    }
+                    NavRow {
+                        nm: qsTr("Russian services direct")
+                        ds: qsTr("Route RU services outside the VPN tunnel")
+                        onActivated: root.goP(PageEnum.PageSettingsSplitTunneling)
                     }
                 }
 
                 Column {
                     width: parent.width; spacing: 10
-                    Text { text: "ПРОЧЕЕ"; color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    Text { text: qsTr("OTHER"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
                     NavRow {
-                        nm: "Язык"
+                        nm: qsTr("Language")
                         ds: LanguageUiController.currentLanguageName
                         onActivated: selectLanguageDrawer.openTriggered()
                     }
                     NavRow {
-                        nm: "Журнал событий"
-                        ds: SettingsController.isLoggingEnabled ? "Включён" : "Выключен"
+                        nm: qsTr("Event log")
+                        ds: SettingsController.isLoggingEnabled ? qsTr("Enabled") : qsTr("Disabled")
                         onActivated: root.goP(PageEnum.PageSettingsLogging)
                     }
                     NavRow {
-                        nm: "Сбросить настройки"
-                        ds: "Удалить все данные приложения"
+                        nm: qsTr("Reset settings")
+                        ds: qsTr("Reset to defaults, subscription is kept")
                         tint: root.danger
                         onActivated: {
-                            var h = qsTr("Reset settings and remove all data from the application?")
-                            var d = qsTr("All settings will be reset to default. All installed Fresh VPN services will still remain on the server.")
+                            var h = qsTr("Reset all settings to default?")
+                            var d = qsTr("All settings will return to their default values. Your subscription and connected servers will be kept.")
                             var yes = qsTr("Continue")
                             var no = qsTr("Cancel")
                             var yesFn = function() {
                                 if (ServersUiController.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
                                     PageController.showNotificationMessage(qsTr("Cannot reset settings during active connection"))
                                 } else {
-                                    SettingsController.clearSettings()
+                                    SettingsController.resetSettingsKeepServers()
                                     PageController.goToPageHome()
                                 }
                             }
@@ -245,6 +188,29 @@ PageType {
                     }
                 }
 
+                Column {
+                    width: parent.width; spacing: 10
+                    Text { text: qsTr("ABOUT"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+                    ToggleRow {
+                        nm: qsTr("Auto-update")
+                        ds: qsTr("Install new versions automatically on launch")
+                        on: root.autoUpdateOn
+                        onSwitched: { root.autoUpdateOn = !root.autoUpdateOn; SettingsController.setAutoUpdateEnabled(root.autoUpdateOn) }
+                    }
+                    NavRow {
+                        nm: qsTr("Check for updates")
+                        ds: qsTr("Look for a new version now")
+                        onActivated: {
+                            PageController.showNotificationMessage(qsTr("Checking for updates..."))
+                            UpdateController.checkForUpdates()
+                        }
+                    }
+                    NavRow {
+                        nm: qsTr("About")
+                        ds: qsTr("Version %1").arg(SettingsController.getAppVersion())
+                        onActivated: root.goP(PageEnum.PageSettingsAbout)
+                    }
+                }
                 Item { width: 1; height: 8 }
             }
         }
@@ -254,5 +220,48 @@ PageType {
         id: selectLanguageDrawer
         width: root.width
         height: root.height
+    }
+
+    // ===== Theme toggle (day/night) =====
+    Item {
+        id: themeToggleBtn
+        width: 36; height: 36; z: 200
+        anchors.top: parent.top; anchors.right: parent.right
+        anchors.topMargin: 14 + PageController.safeAreaTopMargin
+        anchors.rightMargin: 16
+        Rectangle { anchors.fill: parent; radius: 10; color: thM.containsMouse ? root.card : "transparent"; border.color: root.line; border.width: 1 }
+        Canvas {
+            id: thIcon
+            anchors.centerIn: parent; width: 20; height: 20
+            property bool dark: AmneziaStyle.isDark
+            property color col: root.fg
+            onDarkChanged: requestPaint()
+            onColChanged: requestPaint()
+            onPaint: {
+                var c = getContext("2d"); c.reset(); c.clearRect(0,0,width,height)
+                c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.6; c.lineCap = "round"; c.lineJoin = "round"
+                var cx = 10, cy = 10
+                if (dark) {
+                    c.beginPath(); c.arc(cx, cy, 6.4, 0, 2*Math.PI); c.fill()
+                    c.globalCompositeOperation = "destination-out"
+                    c.beginPath(); c.arc(cx + 3.6, cy - 2.2, 6.0, 0, 2*Math.PI); c.fill()
+                    c.globalCompositeOperation = "source-over"
+                } else {
+                    c.beginPath(); c.arc(cx, cy, 3.4, 0, 2*Math.PI); c.fill()
+                    for (var i = 0; i < 8; i++) {
+                        var a = i*Math.PI/4
+                        c.beginPath()
+                        c.moveTo(cx + Math.cos(a)*5.6, cy + Math.sin(a)*5.6)
+                        c.lineTo(cx + Math.cos(a)*8.0, cy + Math.sin(a)*8.0)
+                        c.stroke()
+                    }
+                }
+            }
+        }
+        MouseArea {
+            id: thM
+            anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+            onClicked: AmneziaStyle.isDark = !AmneziaStyle.isDark
+        }
     }
 }

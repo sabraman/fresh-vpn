@@ -20,8 +20,20 @@ PageType {
     readonly property int pageSettingsServerProtocols: 0
     readonly property int pageSettingsServerServices: 1
     readonly property int pageSettingsServerData: 2
+    readonly property int pageSettingsServerAdvanced: 3
 
     property var processedServer
+
+    function cleanName(s) {
+        var raw = "" + s
+        try { raw = decodeURIComponent(raw) } catch (e) {}
+        while (raw.length >= 2 && raw.charCodeAt(0) === 0xD83C && raw.charCodeAt(1) >= 0xDDE6 && raw.charCodeAt(1) <= 0xDDFF) { raw = raw.substring(2) }
+        var cut = raw.indexOf("|") >= 0 ? raw.substring(0, raw.indexOf("|")) : raw
+        if (cut.length > 3 && cut[0] >= "A" && cut[0] <= "Z" && cut[1] >= "A" && cut[1] <= "Z" && cut[2] === " ")
+            cut = cut.substring(3)
+        cut = cut.split("  ").join(" ").split("  ").join(" ").trim()
+        return cut.length > 0 ? cut : ("" + s)
+    }
 
     Connections {
         target: PageController
@@ -86,9 +98,9 @@ PageType {
             Layout.rightMargin: 16
             Layout.bottomMargin: 10
 
-            actionButtonImage: "qrc:/images/controls/edit-3.svg"
+            actionButtonImage: ""  // Fresh: rename via click on the name (below), no separate pencil
 
-            headerText: root.processedServer != null ? root.processedServer.name : ""
+            headerText: root.processedServer != null ? cleanName(root.processedServer.name) : ""
             descriptionText: {
                 if (root.processedServer == null) {
                     return ""
@@ -104,6 +116,14 @@ PageType {
 
             actionButtonFunction: function() {
                 serverNameEditDrawer.openTriggered()
+            }
+
+            // Fresh: rename by clicking the server name itself (hover shows it is editable)
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: serverNameEditDrawer.openTriggered()
             }
         }
 
@@ -162,6 +182,15 @@ PageType {
                 Keys.onReturnPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerData)
                 Keys.onEnterPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerData)
             }
+
+            TabButtonType {
+                id: advancedTab
+                isSelected: tabBar.currentIndex === root.pageSettingsServerAdvanced
+                text: qsTr("Advanced")
+
+                Keys.onReturnPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerAdvanced)
+                Keys.onEnterPressed: TabBar.tabBar.setCurrentIndex(root.pageSettingsServerAdvanced)
+            }
         }
 
         StackLayout {
@@ -183,6 +212,11 @@ PageType {
 
             PageSettingsServerData {
                 id: dataPage
+                stackView: root.stackView
+            }
+
+            PageSettingsServerAdvanced {
+                id: advancedPage
                 stackView: root.stackView
             }
         }

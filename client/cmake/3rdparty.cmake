@@ -7,6 +7,7 @@ set(LIBS ${LIBS} SortFilterProxyModel)
 include(${CLIENT_ROOT_DIR}/cmake/QSimpleCrypto.cmake)
 
 include(${CLIENT_ROOT_DIR}/3rd/qrcodegen/qrcodegen.cmake)
+include(${CLIENT_ROOT_DIR}/3rd/quirc/quirc.cmake)
 
 add_compile_definitions(_WINSOCKAPI_)
 

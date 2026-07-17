@@ -64,6 +64,8 @@ public:
     void setKillSwitchEnabled(bool enabled);
     bool isStrictKillSwitchEnabled() const;
     void setStrictKillSwitchEnabled(bool enabled);
+    bool isAutoUpdateEnabled() const;
+    void setAutoUpdateEnabled(bool enabled);
     
     bool isAutoConnect() const;
     void setAutoConnect(bool enabled);
@@ -92,6 +94,18 @@ public:
 
     QByteArray xraySavedConfigs() const;
     void setXraySavedConfigs(const QByteArray &data);
+
+    // Fresh: one-time seed / migration flags
+    bool isRuDirectSeedDone() const;
+    void setRuDirectSeedDone(bool done);
+    bool isAwgDefaultMigrationDone() const;
+    void setAwgDefaultMigrationDone(bool done);
+
+    bool isDnsResetMigrationDone() const;
+    void setDnsResetMigrationDone(bool done);
+
+    bool isServerNameMigrationDone() const;
+    void setServerNameMigrationDone(bool done);
 
 signals:
     void appLanguageChanged(QLocale locale);

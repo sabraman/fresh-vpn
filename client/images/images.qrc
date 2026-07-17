@@ -12,6 +12,7 @@
         <file>earth_sheet.png</file>
         <file>controls/alert-circle.svg</file>
         <file>controls/amnezia.svg</file>
+        <file>controls/fresh-leaf.svg</file>
         <file>controls/app.svg</file>
         <file>controls/archive-restore.svg</file>
         <file>controls/arrow-left.svg</file>
@@ -55,6 +56,10 @@
         <file>controls/radio-button.svg</file>
         <file>controls/radio.svg</file>
         <file>controls/refresh-cw.svg</file>
+        <file>controls/shield-off.svg</file>
+        <file>controls/zap.svg</file>
+        <file>controls/target.svg</file>
+        <file>controls/rocket.svg</file>
         <file>controls/save.svg</file>
         <file>controls/scan-line.svg</file>
         <file>controls/search.svg</file>

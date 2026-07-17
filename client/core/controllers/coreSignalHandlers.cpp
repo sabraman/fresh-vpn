@@ -435,8 +435,11 @@ void CoreSignalHandlers::initNotificationHandler()
 void CoreSignalHandlers::initUpdateFoundHandler()
 {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-    connect(m_coreController->m_apiNewsUiController, &ApiNewsUiController::fetchNewsFinished, m_coreController->m_updateUiController,
-            &UpdateUiController::checkForUpdates);
+    connect(m_coreController->m_apiNewsUiController, &ApiNewsUiController::fetchNewsFinished, this, [this]() {
+        if (m_coreController->m_appSettingsRepository->isAutoUpdateEnabled()) {
+            m_coreController->m_updateUiController->checkForUpdates();
+        }
+    });
 
     connect(m_coreController->m_updateUiController, &UpdateUiController::updateFound, this, [this]() {
         const QString version = m_coreController->m_updateUiController->getVersion();

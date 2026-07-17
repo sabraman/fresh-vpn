@@ -21,6 +21,8 @@ set(HEADERS ${HEADERS}
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.h
     ${CLIENT_ROOT_DIR}/core/controllers/coreSignalHandlers.h
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.h
+    ${CLIENT_ROOT_DIR}/core/crypto/freshBetaCrypto.h
+    ${CLIENT_ROOT_DIR}/core/crypto/freshDevKey.h
     ${CLIENT_ROOT_DIR}/core/utils/selfhosted/sshSession.h
     ${CLIENT_ROOT_DIR}/core/controllers/serversController.h
     ${CLIENT_ROOT_DIR}/core/controllers/selfhosted/usersController.h
@@ -98,6 +100,7 @@ set(SOURCES ${SOURCES}
     ${CLIENT_ROOT_DIR}/core/controllers/coreController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/coreSignalHandlers.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/gatewayController.cpp
+    ${CLIENT_ROOT_DIR}/core/crypto/freshBetaCrypto.cpp
     ${CLIENT_ROOT_DIR}/core/utils/selfhosted/sshSession.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/serversController.cpp
     ${CLIENT_ROOT_DIR}/core/controllers/selfhosted/usersController.cpp
