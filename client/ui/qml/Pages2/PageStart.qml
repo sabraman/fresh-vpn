@@ -275,10 +275,14 @@ PageType {
         id: tabBarStackView
         objectName: "tabBarStackView"
 
+        // The nav is a left rail on desktop but a bottom bar on phones, so the
+        // content area has to dodge it on a different side. Anchoring left to
+        // tabBar.right unconditionally collapsed this to zero width on Android:
+        // a full-width bottom bar makes tabBar.right == parent.right.
         anchors.top: parent.top
         anchors.right: parent.right
-        anchors.left: tabBar.right
-        anchors.bottom: parent.bottom
+        anchors.left: tabBar.isDesktop ? tabBar.right : parent.left
+        anchors.bottom: tabBar.isDesktop ? parent.bottom : tabBar.top
 
         enabled: !root.isControlsDisabled
 
