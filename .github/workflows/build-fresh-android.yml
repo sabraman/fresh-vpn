@@ -76,7 +76,7 @@ jobs:
       shell: bash
       env:
         QT_INSTALL_DIR: ${{ runner.temp }}
-      run: deploy/build.sh android --abi arm64-v8a
+      run: deploy/build.sh --target android --abi arm64-v8a
 
     - name: 'Show what was produced'
       if: ${{ always() }}
