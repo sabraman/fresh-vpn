@@ -229,7 +229,7 @@ void AmneziaApplication::loadFonts()
     QFontDatabase::addApplicationFont(":/fonts/Inter-VF.ttf");
     QFontDatabase::addApplicationFont(":/fonts/BricolageGrotesque-VF.ttf");
     QFontDatabase::addApplicationFont(":/fonts/JetBrainsMono-VF.ttf");
-    QApplication::setFont(QFont("Inter"));
+    QGuiApplication::setFont(QFont("Inter"));
 }
 
 bool AmneziaApplication::parseCommands()
