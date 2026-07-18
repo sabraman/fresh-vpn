@@ -64,7 +64,7 @@ PageType {
         property bool clickable: true
         signal activated()
         width: parent ? parent.width : 0
-        height: 60; radius: 14; color: root.card; border.color: root.line; border.width: 1
+        height: 48; radius: 14; color: root.card; border.color: root.line; border.width: 1
         Row {
             anchors.left: parent.left; anchors.leftMargin: 14; anchors.verticalCenter: parent.verticalCenter; spacing: 13
             IconBox { tp: icon; anchors.verticalCenter: parent.verticalCenter }
@@ -80,15 +80,22 @@ PageType {
     Flickable {
         anchors.fill: parent
         anchors.topMargin: 18 + PageController.safeAreaTopMargin
-        contentHeight: wrap.height + 40
+        id: flk
+        contentHeight: wrap.phone ? Math.max(flk.height, col.implicitHeight * wrap.k + 8) : (wrap.height + 40)
         clip: true
         boundsBehavior: Flickable.StopAtBounds
 
         Item {
             id: wrap
+            property bool phone: Qt.platform.os === "android" || Qt.platform.os === "ios"
+            property real avail: flk.height - 24
+            property real k: (phone && col.implicitHeight > avail && col.implicitHeight > 0) ? Math.max(0.80, avail / col.implicitHeight) : 1.0
             width: Math.min(620, root.width - 56)
             x: (root.width - width) / 2
+            y: phone ? Math.max(0, (flk.height - col.implicitHeight * k) / 2 - 6) : 0
             height: col.implicitHeight
+            scale: k
+            transformOrigin: Item.Top
 
             Column {
                 id: col

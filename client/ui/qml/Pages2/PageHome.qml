@@ -171,20 +171,27 @@ PageType {
     Flickable {
         anchors.fill: parent
         anchors.topMargin: 14 + PageController.safeAreaTopMargin
-        contentHeight: wrap.height + 48
+        id: flk
+        contentHeight: wrap.phone ? Math.max(flk.height, col.implicitHeight * wrap.k + 8) : (wrap.height + 48)
         clip: true
         boundsBehavior: Flickable.StopAtBounds
 
         Item {
             id: wrap
+            property bool phone: Qt.platform.os === "android" || Qt.platform.os === "ios"
+            property real avail: flk.height - 24
+            property real k: (phone && col.implicitHeight > avail && col.implicitHeight > 0) ? Math.max(0.80, avail / col.implicitHeight) : 1.0
             width: Math.min(460, root.width - 56)
             x: (root.width - width) / 2
+            y: phone ? Math.max(0, (flk.height - col.implicitHeight * k) / 2 - 6) : 0
             height: col.implicitHeight
+            scale: k
+            transformOrigin: Item.Top
 
             Column {
                 id: col
                 width: parent.width
-                spacing: 7
+                spacing: 14
 
                 Item { width: 1; height: 0 }
 
