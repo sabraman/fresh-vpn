@@ -385,7 +385,7 @@ PageType {
                                             : modelData.k==="ac"   ? root.acOn
                                             : SettingsController.autoStartEnabled
                             border.color: tile.active ? root.limeLine : root.line
-                            scale: tileM.pressed ? 0.96 : 1.0
+                            scale: swM.pressed ? 0.96 : 1.0
                             Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutQuad } }
                             InfoBadgeType {
                                 anchors.top: parent.top; anchors.right: parent.right; anchors.topMargin: 6; anchors.rightMargin: 6
@@ -396,17 +396,18 @@ PageType {
                                 Image { source: modelData.ic; sourceSize: Qt.size(40, 40); width: 20; height: 20; anchors.horizontalCenter: parent.horizontalCenter; fillMode: Image.PreserveAspectFit }
                                 Text { width: parent.width; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight; text: modelData.lbl; color: root.fg; font.pixelSize: 11; font.weight: 700 }
                                 Rectangle {
+                                    id: sw
                                     width: 38; height: 22; radius: 11; anchors.horizontalCenter: parent.horizontalCenter
                                     color: tile.active ? root.limeStrong : root.line
                                     Rectangle { width: 18; height: 18; radius: 9; y: 2; x: tile.active ? 18 : 2; color: "#ffffff"
                                         Behavior on x { NumberAnimation { duration: 120 } } }
+                                    MouseArea { id: swM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: {
+                                        if(modelData.k==="kill") SettingsController.isKillSwitchEnabled = !SettingsController.isKillSwitchEnabled
+                                        else if(modelData.k==="ac"){ root.acOn = !root.acOn; SettingsController.toggleAutoConnect(root.acOn) }
+                                        else SettingsController.toggleAutoStart(!SettingsController.autoStartEnabled)
+                                    } }
                                 }
                             }
-                            MouseArea { id: tileM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: {
-                                if(modelData.k==="kill") SettingsController.isKillSwitchEnabled = !SettingsController.isKillSwitchEnabled
-                                else if(modelData.k==="ac"){ root.acOn = !root.acOn; SettingsController.toggleAutoConnect(root.acOn) }
-                                else SettingsController.toggleAutoStart(!SettingsController.autoStartEnabled)
-                            } }
                         }
                     }
                 }

@@ -347,7 +347,7 @@ PageType {
             { lbl: qsTr("Home"),       t: "house", nav: 0 },
             { lbl: qsTr("Statistics"), t: "chart", nav: 2 },
             { lbl: qsTr("Profile"),    t: "user",  nav: 3 },
-            { lbl: qsTr("Guide"),      t: "book",  nav: 5 },
+            { lbl: "Помощь",      t: "book",  nav: 5 },
             { lbl: qsTr("Settings"),   t: "gear",  nav: 4 }
         ]
 

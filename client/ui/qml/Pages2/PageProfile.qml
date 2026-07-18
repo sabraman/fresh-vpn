@@ -186,9 +186,9 @@ PageType {
                             Behavior on color { ColorAnimation { duration: 150 } }
                             Rectangle { width: 20; height: 20; radius: 10; y: 3; color: "#FFFFFF"; x: root.autopayOn ? 23 : 3
                                 Behavior on x { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } } }
+                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.autopayOn = !root.autopayOn }
                         }
                     }
-                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.autopayOn = !root.autopayOn }
                 }
 
                 // ===== Payment history =====

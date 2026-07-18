@@ -61,9 +61,9 @@ PageType {
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Rectangle { width: 20; height: 20; radius: 10; y: 3; color: "#FFFFFF"; x: on ? 23 : 3
                     Behavior on x { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } } }
+                MouseArea { anchors.fill: parent; enabled: rowEnabled; cursorShape: rowEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor; onClicked: switched() }
             }
         }
-        MouseArea { anchors.fill: parent; enabled: rowEnabled; cursorShape: rowEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor; onClicked: switched() }
     }
 
     component NavRow: Rectangle {
