@@ -29,7 +29,7 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
 
     <application
-        android:name=".AmneziaApplication"
+        android:name="org.amnezia.vpn.AmneziaApplication"
         android:label="-- %%INSERT_APP_NAME%% --"
         android:icon="@mipmap/icon"
         android:roundIcon="@mipmap/icon_round"
@@ -41,7 +41,7 @@
         tools:targetApi="s">
 
         <activity
-            android:name=".AmneziaActivity"
+            android:name="org.amnezia.vpn.AmneziaActivity"
             android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation|density
                 |fontScale|layoutDirection|locale|keyboard|keyboardHidden|navigation|mcc|mnc"
             android:launchMode="singleInstance"
@@ -71,28 +71,28 @@
         </activity>
 
         <activity
-            android:name=".CameraActivity"
+            android:name="org.amnezia.vpn.CameraActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:exported="false" />
 
         <activity
-            android:name=".VpnRequestActivity"
+            android:name="org.amnezia.vpn.VpnRequestActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:exported="false"
             android:theme="@style/Translucent" />
 
-        <activity android:name=".AuthActivity"
+        <activity android:name="org.amnezia.vpn.AuthActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:exported="false"
             android:theme="@style/Translucent" />
 
-        <activity android:name=".TvFilePicker"
+        <activity android:name="org.amnezia.vpn.TvFilePicker"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:taskAffinity=""
@@ -100,7 +100,7 @@
             android:theme="@style/Translucent" />
 
         <activity
-            android:name=".ImportConfigActivity"
+            android:name="org.amnezia.vpn.ImportConfigActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:taskAffinity=""
@@ -153,7 +153,7 @@
         </activity>
 
         <service
-            android:name=".AwgService"
+            android:name="org.amnezia.vpn.AwgService"
             android:process=":amneziaAwgService"
             android:permission="android.permission.BIND_VPN_SERVICE"
             android:foregroundServiceType="systemExempted"
@@ -166,7 +166,7 @@
         </service>
 
         <service
-            android:name=".OpenVpnService"
+            android:name="org.amnezia.vpn.OpenVpnService"
             android:process=":amneziaOpenVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE"
             android:foregroundServiceType="systemExempted"
@@ -179,7 +179,7 @@
         </service>
 
         <service
-            android:name=".XrayService"
+            android:name="org.amnezia.vpn.XrayService"
             android:process=":amneziaXrayService"
             android:permission="android.permission.BIND_VPN_SERVICE"
             android:foregroundServiceType="systemExempted"
@@ -192,7 +192,7 @@
         </service>
 
         <service
-            android:name=".AmneziaTileService"
+            android:name="org.amnezia.vpn.AmneziaTileService"
             android:process=":amneziaTileService"
             android:icon="@drawable/ic_amnezia_round"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
