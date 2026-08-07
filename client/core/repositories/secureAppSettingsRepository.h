@@ -96,8 +96,15 @@ public:
     void setXraySavedConfigs(const QByteArray &data);
 
     // Fresh: one-time seed / migration flags
+    // Kept only to recognise installs seeded by the old boolean flag.
     bool isRuDirectSeedDone() const;
     void setRuDirectSeedDone(bool done);
+
+    // The boolean above latched on the first run, so later edits to the RU-direct
+    // list could only ever reach fresh installs. A version lets a top-up run once
+    // per list revision instead.
+    int ruDirectSeedVersion() const;
+    void setRuDirectSeedVersion(int version);
     bool isAwgDefaultMigrationDone() const;
     void setAwgDefaultMigrationDone(bool done);
 

@@ -495,17 +495,20 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
   }
 
   if (type == "backendFailure") {
+    // Каждая ветка теперь заканчивается сигналом наверх. Раньше все ветки
+    // только писали в лог (вызовы REPORTERROR были закомментированы), поэтому
+    // поломка службы была видна лишь в логе, а человек смотрел на вечное
+    // "Подключение...". Что делать с поломкой - решает протокол, здесь мы
+    // только честно сообщаем факт.
     if (!obj.contains("errorCode")) {
-      // report a generic error if we dont know what it is.
       logger.error() << "generic backend failure error";
-      // REPORTERROR(ErrorHandler::ControllerError, "controller");
+      emit backendFailure(QStringLiteral("backend failure without error code"));
       return;
     }
     auto errorCode = static_cast<uint8_t>(obj["errorCode"].toInt());
     if (errorCode >= (uint8_t)DaemonError::DAEMON_ERROR_MAX) {
-      // Also report a generic error if the code is invalid.
       logger.error() << "invalid backend failure error code";
-      // REPORTERROR(ErrorHandler::ControllerError, "controller");
+      emit backendFailure(QStringLiteral("backend failure with invalid error code"));
       return;
     }
     switch (static_cast<DaemonError>(errorCode)) {
@@ -513,7 +516,7 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
         [[fallthrough]];
       case DaemonError::ERROR_FATAL:
         logger.error() << "generic backend failure error (fatal or error none)";
-        // REPORTERROR(ErrorHandler::ControllerError, "controller");
+        emit backendFailure(QStringLiteral("fatal backend failure"));
         break;
       case DaemonError::ERROR_SPLIT_TUNNEL_INIT_FAILURE:
         [[fallthrough]];
@@ -521,13 +524,14 @@ void LocalSocketController::parseCommand(const QByteArray& command) {
         [[fallthrough]];
       case DaemonError::ERROR_SPLIT_TUNNEL_EXCLUDE_FAILURE:
         logger.error() << "split tunnel backend failure error";
-        //REPORTERROR(ErrorHandler::SplitTunnelError, "controller");
+        emit backendFailure(QStringLiteral("split tunnel backend failure"));
         break;
       case DaemonError::DAEMON_ERROR_MAX:
-        // We should not get here.
+        // Сюда попасть не должны: такое значение отсеяно проверкой выше.
         Q_ASSERT(false);
         break;
     }
+    return;
   }
 
   if (type == "logs") {

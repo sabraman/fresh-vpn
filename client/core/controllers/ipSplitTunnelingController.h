@@ -49,6 +49,11 @@ private:
     bool validateHostname(const QString &hostname) const;
     void processSiteAfterResolve(const QString &hostname, const QString &ip);
     void processSite(const QString &hostname, const QString &ip);
+    // Adds RU-direct hosts that a previous seed version did not know about.
+    // Unlike applyRussianDirectPreset() it leaves routeMode and the split-tunnel
+    // switch alone - those belong to the user once they have seen them.
+    void topUpRussianDirectSites();
+
     static QStringList russianDirectSites();
 
     SecureAppSettingsRepository* m_appSettingsRepository;

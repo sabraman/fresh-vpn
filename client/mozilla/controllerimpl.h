@@ -76,6 +76,12 @@ class ControllerImpl : public QObject {
                  const QDateTime& connectionTimestamp = QDateTime());
   void disconnected();
 
+  // Служба-бэкенд сообщила о собственной поломке. Раньше такого сигнала не
+  // было вовсе: сообщение об ошибке от службы дочитывалось до конца, писалось
+  // в лог и там же умирало. Протокол не мог отличить "молчит, но живо" от
+  // "сломалось насовсем" и вставал в вечное "Подключение...".
+  void backendFailure(const QString& reason);
+
   // This method should be emitted after a checkStatus() call.
   // "serverIpv4Gateway" is the current VPN tunnel gateway.
   // "deviceIpv4Address" is the address of the VPN client.

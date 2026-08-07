@@ -81,7 +81,7 @@ PageType {
         if (useVless === root.vlessActive)
             return
         showQuestionDrawer(qsTr("Change the connection protocol?"),
-            qsTr("The connection will be reconfigured to %1. If one protocol is blocked on the network, another often helps. The active connection may briefly drop.").arg(useVless ? "XRay (VLESS)" : "AmneziaWG"),
+            qsTr("The connection will be reconfigured to %1. If the current protocol works unstably on the network, another one often works better. The active connection may briefly drop.").arg(useVless ? "XRay (VLESS)" : "AmneziaWG"),
             qsTr("Switch"), qsTr("Cancel"),
             function() { root.switchProto(useVless) }, function() {})
     }

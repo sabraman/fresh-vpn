@@ -126,6 +126,18 @@ PageType {
             ServersUiController.setProcessedServerId(ServersUiController.defaultServerId)
             PageController.goToPage(PageEnum.PageSetupWizardEasy)
         }
+
+        // Выбранная точка не ответила, клиент сам ушёл на запасную.
+        // Молчать нельзя: человек увидит другую страну и решит, что это сбой.
+        function onSwitchedToBackup(serverName) {
+            if (serverName && serverName.length > 0) {
+                PageController.showNotificationMessage(
+                    qsTr("Основной канал не ответил, подключились через запасной: ") + serverName)
+            } else {
+                PageController.showNotificationMessage(
+                    qsTr("Основной канал не ответил, подключились через запасной"))
+            }
+        }
     }
 
     Connections {

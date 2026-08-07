@@ -12,9 +12,14 @@ import "../Controls2"
 import "../Controls2/TextTypes"
 import "../Config"
 import "../Components"
+import "../Components/FreshFaq.js" as FreshFaq
 
 PageType {
     id: root
+
+    // Разделы вопросов приходят из общего файла FreshFaq.js.
+    // Пустая строка = показан список разделов.
+    property string faqCat: ""
 
     QtObject {
         id: telegram
@@ -128,20 +133,57 @@ PageType {
 
             Text {
                 Layout.leftMargin: 16; Layout.rightMargin: 16; Layout.fillWidth: true
-                text: qsTr("FAQ")
+                text: root.faqCat === "" ? qsTr("FAQ") : (FreshFaq.categoryById(root.faqCat) || {title: ""}).title
                 color: AmneziaStyle.fresh.dim
                 font.pixelSize: 12; font.weight: 800
             }
 
+            // Выбор раздела: пока он не выбран, показываем только разделы
             Repeater {
-                model: [
-                    { q: qsTr("How do I connect?"), a: qsTr("Open the app, choose a country and tap 'Connect'. AmneziaWG is used by default; if the network blocks it, switch the protocol to VLESS on the Home screen.") },
-                    { q: qsTr("Speed or ping show a dash"), a: qsTr("These values appear only during an active connection. Ping is measured to the server, while speed and traffic count the live tunnel data.") },
-                    { q: qsTr("Russian sites open slowly through the VPN"), a: qsTr("Open Settings, enable split tunneling and add Russian sites or apps to the exceptions list — they will open directly, without the VPN.") },
-                    { q: qsTr("How do I use Fresh VPN on another device?"), a: qsTr("Copy the subscription key on the server screen and import it into Fresh VPN (or a compatible client) on the other device.") },
-                    { q: qsTr("How do I reset the app?"), a: qsTr("Settings → 'Reset all settings to default'. Your subscription and servers will be kept.") },
-                    { q: qsTr("My subscription has expired"), a: qsTr("Renew it and open the app again — the subscription will update automatically on launch.") }
-                ]
+                model: root.faqCat === "" ? FreshFaq.categories : []
+                delegate: Rectangle {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 16; Layout.rightMargin: 16
+                    implicitHeight: 46
+                    color: "transparent"
+                    Text {
+                        anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right; anchors.rightMargin: 26
+                        elide: Text.ElideRight
+                        text: modelData.title
+                        color: AmneziaStyle.fresh.fg
+                        font.pixelSize: 14; font.weight: 600
+                    }
+                    Text {
+                        anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                        text: modelData.items.length
+                        color: AmneziaStyle.fresh.limeStrong
+                        font.pixelSize: 13; font.weight: 800
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.faqCat = modelData.id
+                    }
+                }
+            }
+
+            // Возврат к разделам
+            Text {
+                visible: root.faqCat !== ""
+                Layout.leftMargin: 16; Layout.rightMargin: 16; Layout.bottomMargin: 6
+                text: qsTr("‹ All sections")
+                color: AmneziaStyle.fresh.mute
+                font.pixelSize: 12; font.weight: 700
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.faqCat = ""
+                }
+            }
+
+            Repeater {
+                model: root.faqCat === "" ? [] : (FreshFaq.categoryById(root.faqCat) || {items: []}).items
                 delegate: ColumnLayout {
                     id: faqItem
                     Layout.fillWidth: true

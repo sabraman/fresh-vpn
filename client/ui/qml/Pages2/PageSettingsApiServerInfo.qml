@@ -79,7 +79,7 @@ PageType {
             return
         showQuestionDrawer(
             qsTr("Change connection protocol?"),
-            qsTr("The connection will be reconfigured to %1. If one protocol is blocked on your network, switching to another often helps. The active connection may briefly drop.").arg(useVless ? "VLESS" : "AmneziaWG"),
+            qsTr("The connection will be reconfigured to %1. If the current protocol works unstably on your network, another one often gives a better connection. The active connection may briefly drop.").arg(useVless ? "VLESS" : "AmneziaWG"),
             qsTr("Switch"),
             qsTr("Cancel"),
             function() { root.setProtocol(useVless) },
@@ -297,7 +297,7 @@ PageType {
                                 width: parent.width; wrapMode: Text.WordWrap
                                 text: root.protoSwitchBlocked
                                     ? qsTr("Disconnect the VPN to change the protocol.")
-                                    : qsTr("If one protocol is blocked on your network, switch to another.")
+                                    : qsTr("If the current protocol works unstably on your network, switch to another.")
                                 color: root.dim; font.pixelSize: 11
                             }
                         }

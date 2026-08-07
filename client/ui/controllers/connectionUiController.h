@@ -57,6 +57,10 @@ signals:
     void connectionStateChanged();
     void trafficChanged();
 
+    // Основная точка не ответила, вышли через запасную. Интерфейс показывает
+    // это плашкой: человек должен понимать, почему подключился к другой стране.
+    void switchedToBackup(const QString &serverName);
+
     void connectionErrorOccurred(ErrorCode errorCode);
 
     void connectButtonClicked();

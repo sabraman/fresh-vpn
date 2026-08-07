@@ -13,6 +13,7 @@
         <file>Components/ServersListView.qml</file>
         <file>Components/SettingsContainersListView.qml</file>
         <file>Components/BenefitRow.qml</file>
+        <file>Components/FreshFaq.js</file>
         <file>Components/BenefitsPanel.qml</file>
         <file>Components/SubscriptionExpiredDrawer.qml</file>
         <file>Components/SubscriptionPlanCard.qml</file>

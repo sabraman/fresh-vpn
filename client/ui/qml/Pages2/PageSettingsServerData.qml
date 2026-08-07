@@ -248,7 +248,7 @@ PageType {
         readonly property string title: SubscriptionUiController.isVlessProtocol(ServersUiController.processedServerId)
                                         ? qsTr("Protocol: VLESS (tap to switch to AmneziaWG)")
                                         : qsTr("Protocol: AmneziaWG (tap to switch to VLESS)")
-        readonly property string description: qsTr("If the protocol is blocked on your network, switch to another")
+        readonly property string description: qsTr("If the current protocol works unstably on your network, switch to another")
         readonly property var tColor: AmneziaStyle.color.paleGray
         readonly property var clickedHandler: function() {
             var toVless = !SubscriptionUiController.isVlessProtocol(ServersUiController.processedServerId)

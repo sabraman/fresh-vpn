@@ -44,14 +44,33 @@ void VpnProtocol::onTimeout()
 {
     qWarning() << "VpnProtocol: tunnel did not come up within the timeout; giving up";
 
+    // Порядок важен. stop() у AmneziaWG синхронно роняет сигнал disconnected,
+    // и если позвать его первым, наверх уходит безобидное "отключено", а
+    // настоящая причина приходит следом - интерфейс успевает показать не то.
+    // Поэтому сначала код ошибки и состояние, только потом остановка.
+    setLastError(ErrorCode::VpnTunnelDidNotComeUpError);
+
+    // Раньше код ошибки никуда не уходил: сигнал protocolError отсюда не
+    // отправлялся вовсе, и наверх попадало только состояние "ошибка" без
+    // причины.
+    emit protocolError(ErrorCode::VpnTunnelDidNotComeUpError);
+
     emit timeoutTimerEvent();
     stop();
-    setLastError(ErrorCode::VpnTunnelDidNotComeUpError);
 }
 
 void VpnProtocol::startTimeoutTimer()
 {
-    m_timeoutTimer->start(30000);
+    // 10 секунд, а не 30. Рабочая точка отвечает за доли секунды (наш замер
+    // 2026-07-25: 250-430 мс), поэтому полминуты ожидания ничего не спасают,
+    // зато делают автоматический перебор точек невыносимо долгим: три попытки
+    // по 30 секунд - это полторы минуты, столько человек не ждёт.
+    //
+    // Почему именно 10, а не 15: рукопожатие WireGuard - это один обмен
+    // пакетами, который клиент сам повторяет каждые 5 секунд. Десяти секунд
+    // хватает на две попытки даже на плохой мобильной сети, а провал при этом
+    // становится виден человеку до того, как он решит, что приложение зависло.
+    m_timeoutTimer->start(10000);
 }
 
 void VpnProtocol::stopTimeoutTimer()

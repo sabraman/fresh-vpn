@@ -129,7 +129,7 @@ PageType {
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
 
-                text: qsTr("Enable WireGuard obfuscation. It may be useful if WireGuard is blocked on your provider.")
+                text: qsTr("Enable WireGuard obfuscation. It may help if the connection is unstable on your network.")
             }
         }
 

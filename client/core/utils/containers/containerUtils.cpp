@@ -128,8 +128,7 @@ QMap<DockerContainer, QString> ContainerUtils::containerDetailedDescriptions()
           QObject::tr("OpenVPN is one of the most popular and reliable VPN protocols. "
                       "It uses SSL/TLS encryption, supports a wide variety of devices and operating systems, "
                       "and is continuously improved by the community due to its open-source nature. "
-                      "It provides a good balance between speed and security but is easily recognized by DPI systems, "
-                      "making it susceptible to blocking.\n"
+                      "It provides a good balance between speed and security.\n"
                       "\nFeatures:\n"
                       "* Available on all Fresh VPN platforms\n"
                       "* Normal battery consumption on mobile devices\n"
@@ -138,53 +137,49 @@ QMap<DockerContainer, QString> ContainerUtils::containerDetailedDescriptions()
         { DockerContainer::WireGuard,
           QObject::tr("WireGuard is a modern, streamlined VPN protocol offering stable connectivity and excellent performance across all devices. "
                       "It uses fixed encryption settings, delivering lower latency and higher data transfer speeds compared to OpenVPN. "
-                      "However, WireGuard is easily identifiable by DPI systems due to its distinctive packet signatures, making it susceptible to blocking.\n"
+                      "\n"
                       "\nFeatures:\n"
                       "* Available on all Fresh VPN platforms\n"
                       "* Low power consumption on mobile devices\n"
                       "* Minimal configuration required\n"
-                      "* Easily detected by DPI systems (susceptible to blocking)\n"
                       "* Operates over UDP protocol") },
         { DockerContainer::Awg2,
           QObject::tr("AmneziaWG is a modern VPN protocol based on WireGuard, "
                       "combining simplified architecture with high performance across all devices. "
-                      "It addresses WireGuard's main vulnerability (easy detection by DPI systems) through advanced obfuscation techniques, "
-                      "making VPN traffic indistinguishable from regular internet traffic.\n"
-                      "\nAmneziaWG is an excellent choice for those seeking a fast, stealthy VPN connection.\n"
+                      "It keeps the speed of WireGuard while staying stable on mobile and public networks.\n"
+                      "\nAmneziaWG is an excellent choice for those seeking a fast and stable VPN connection.\n"
                       "\nFeatures:\n"
                       "* Available on all Fresh VPN platforms\n"
                       "* Low battery consumption on mobile devices\n"
                       "* Minimal settings required\n"
-                      "* Undetectable by traffic analysis systems (DPI)\n"
+                      "* Stable on mobile and public networks\n"
                       "* Operates over UDP protocol") },
         { DockerContainer::Xray,
-          QObject::tr("REALITY is an innovative protocol developed by the creators of XRay, designed specifically to combat high levels of internet censorship. "
-                      "REALITY identifies censorship systems during the TLS handshake, "
-                      "redirecting suspicious traffic seamlessly to legitimate websites like google.com while providing genuine TLS certificates. "
-                      "This allows VPN traffic to blend indistinguishably with regular web traffic without special configuration."
-                      "\nUnlike older protocols such as VMess, VLESS, and XTLS-Vision, REALITY incorporates an advanced built-in \"friend-or-foe\" detection mechanism, "
-                      "effectively protecting against DPI and other traffic analysis methods.\n"
+          QObject::tr("REALITY is a modern protocol developed by the creators of XRay. "
+                      "It establishes a genuine TLS session using valid certificates, "
+                      "so the connection looks like an ordinary visit to a website. "
+                      "No special configuration is required."
+                      "\nUnlike older protocols such as VMess, VLESS and XTLS-Vision, REALITY needs no extra tuning to work.\n"
                       "\nFeatures:\n"
-                      "* Resistant to active probing and DPI detection\n"
-                      "* No special configuration required to disguise traffic\n"
-                      "* Highly effective in heavily censored regions\n"
+                      "* Works over standard TLS with genuine certificates\n"
+                      "* No special configuration required\n"
+                      "* Stable on mobile and public networks\n"
                       "* Minimal battery consumption on devices\n"
                       "* Operates over TCP protocol") },
         { DockerContainer::Ipsec,
           QObject::tr("IKEv2, combined with IPSec encryption, is a modern and reliable VPN protocol. "
                       "It reconnects quickly when switching networks or devices, making it ideal for dynamic network environments. "
-                      "While it provides good security and speed, it's easily recognized by DPI systems and susceptible to blocking.\n"
+                      "It provides good security and speed.\n"
                       "\nFeatures:\n"
                       "* Available in Fresh VPN only on Windows\n"
                       "* Low battery consumption on mobile devices\n"
                       "* Minimal configuration required\n"
-                      "* Detectable by DPI analysis systems(easily blocked)\n"
                       "* Operates over UDP protocol(ports 500 and 4500)") },
 
         { DockerContainer::TorWebSite, QObject::tr("Website in Tor network") },
         { DockerContainer::Dns, QObject::tr("DNS Service") },
         { DockerContainer::Sftp,
-          QObject::tr("After installation, Amnezia will create a\n\n file storage on your server. "
+          QObject::tr("After installation, Fresh VPN will create a\n\n file storage on your server. "
                       "You will be able to access it using\n FileZilla or other SFTP clients, "
                       "as well as mount the disk on your device to access\n it directly from your device.\n\n"
                       "For more detailed information, you can\n find it in the support section under \"Create SFTP file storage.\" ") },
@@ -192,11 +187,10 @@ QMap<DockerContainer, QString> ContainerUtils::containerDetailedDescriptions()
         { DockerContainer::MtProxy,
           QObject::tr("Telegram MTProto proxy server. "
                       "Allows Telegram clients to connect through your server "
-                      "using the MTProto protocol. Supports FakeTLS mode for "
-                      "bypassing DPI-based blocking.") },
+                      "using the MTProto protocol. Supports FakeTLS mode.") },
         { DockerContainer::Telemt,
           QObject::tr("Telegram MTProto proxy powered by Telemt (Rust). "
-                      "Supports secure and TLS fronting modes with optional traffic masking.") },
+                      "Supports secure and TLS fronting modes.") },
     };
 }
 

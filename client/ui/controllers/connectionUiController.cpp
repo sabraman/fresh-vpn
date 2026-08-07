@@ -24,6 +24,15 @@ ConnectionUiController::ConnectionUiController(ConnectionController* connectionC
 
     connect(this, &ConnectionUiController::connectButtonClicked, this, &ConnectionUiController::toggleConnection, Qt::QueuedConnection);
 
+    // Переключение на запасную точку переводим в понятное человеку название страны.
+    connect(m_connectionController, &ConnectionController::switchedToBackup, this,
+            [this](const QString &serverId) {
+                const QString name = m_serversController
+                        ? m_serversController->notificationDisplayName(serverId)
+                        : QString();
+                emit switchedToBackup(name);
+            });
+
     m_state = Vpn::ConnectionState::Disconnected;
 }
 

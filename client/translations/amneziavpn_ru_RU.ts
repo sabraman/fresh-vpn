@@ -2071,6 +2071,38 @@ Thank you for staying with us!</source>
   <context>
     <name>PageSettingsAbout</name>
     <message>
+      <source>Open source</source>
+      <translation>Открытый код</translation>
+    </message>
+    <message>
+      <source>Fresh VPN is built on AmneziaVPN, a free and open source program. We changed the look and part of the behaviour; the tunnel itself, the protocols and the cryptography come from it. Distributed under the GNU General Public License v3.</source>
+      <translation>Fresh VPN построен на AmneziaVPN – свободной программе с открытым исходным кодом. Мы изменили внешний вид и часть поведения; сам туннель, протоколы и криптография достались от неё. Распространяется по лицензии GNU General Public License версии 3.</translation>
+    </message>
+    <message>
+      <source>Fresh VPN source code</source>
+      <translation>Исходный код Fresh VPN</translation>
+    </message>
+    <message>
+      <source>Our changes, open repository</source>
+      <translation>Наши изменения, открытый репозиторий</translation>
+    </message>
+    <message>
+      <source>AmneziaVPN source code</source>
+      <translation>Исходный код AmneziaVPN</translation>
+    </message>
+    <message>
+      <source>The project we are built on</source>
+      <translation>Проект, на котором мы построены</translation>
+    </message>
+    <message>
+      <source>GNU GPL v3 licence</source>
+      <translation>Лицензия GNU GPL v3</translation>
+    </message>
+    <message>
+      <source>Full text of the licence</source>
+      <translation>Полный текст лицензии</translation>
+    </message>
+    <message>
       <source>Support Amnezia</source>
       <translation>Поддержите Fresh</translation>
     </message>
@@ -2706,8 +2738,8 @@ Thank you for staying with us!</source>
       <translation>Сменить протокол подключения?</translation>
     </message>
     <message>
-      <source>The connection will be reconfigured to %1. If one protocol is blocked on your network, switching to another often helps. The active connection may briefly drop.</source>
-      <translation>Подключение будет перенастроено на %1. Если один протокол заблокирован в сети, переключение на другой часто помогает. Активное соединение может ненадолго прерваться.</translation>
+      <source>The connection will be reconfigured to %1. If the current protocol works unstably on your network, another one often gives a better connection. The active connection may briefly drop.</source>
+      <translation>Подключение будет перенастроено на %1. Если текущий протокол работает нестабильно в вашей сети, другой часто даёт лучшее соединение. Активное соединение может ненадолго прерваться.</translation>
     </message>
     <message>
       <source>Switch</source>
@@ -2734,8 +2766,8 @@ Thank you for staying with us!</source>
       <translation>Отключите VPN, чтобы сменить протокол.</translation>
     </message>
     <message>
-      <source>If one protocol is blocked on your network, switch to another.</source>
-      <translation>Если один протокол блокируется в вашей сети — переключитесь на другой.</translation>
+      <source>If the current protocol works unstably on your network, switch to another.</source>
+      <translation>Если текущий протокол работает нестабильно в вашей сети — переключитесь на другой.</translation>
     </message>
     <message>
       <source>MANAGEMENT</source>
@@ -2932,7 +2964,7 @@ Thank you for staying with us!</source>
       <translation>Как подключиться?</translation>
     </message>
     <message>
-      <source>Open the app, choose a country and tap 'Connect'. AmneziaWG is used by default; if the network blocks it, switch the protocol to VLESS on the Home screen.</source>
+      <source>Open the app, choose a country and tap 'Connect'. AmneziaWG is used by default; if the connection is unstable on your network, switch the protocol to VLESS on the Home screen.</source>
       <translation>Откройте приложение, выберите страну и нажмите «Подключиться». По умолчанию используется AmneziaWG; если сеть его блокирует, переключите протокол на VLESS на Главной.</translation>
     </message>
     <message>
@@ -3510,8 +3542,8 @@ Thank you for staying with us!</source>
       <translation>Протокол: AmneziaWG (нажмите, чтобы включить VLESS)</translation>
     </message>
     <message>
-      <source>If the protocol is blocked on your network, switch to another</source>
-      <translation>Если протокол блокируется в вашей сети, переключитесь на другой</translation>
+      <source>If the current protocol works unstably on your network, switch to another</source>
+      <translation>Если текущий протокол работает нестабильно в вашей сети, переключитесь на другой</translation>
     </message>
     <message>
       <source>Change connection protocol?</source>
@@ -4339,8 +4371,8 @@ Thank you for staying with us!</source>
       <translation>Показать</translation>
     </message>
     <message>
-      <source>Enable WireGuard obfuscation. It may be useful if WireGuard is blocked on your provider.</source>
-      <translation>Включить обфускацию WireGuard. Это может быть полезно, если WireGuard блокируется вашим провайдером.</translation>
+      <source>Enable WireGuard obfuscation. It may help if the connection is unstable on your network.</source>
+      <translation>Включить обфускацию WireGuard. Это может помочь, если соединение нестабильно в вашей сети.</translation>
     </message>
     <message>
       <source>Use connection codes only from sources you trust. Codes from public sources may have been created to intercept your data.</source>
@@ -6340,8 +6372,8 @@ FileZilla или другие SFTP-клиенты, а также смонтир�
       <translation>Сменить протокол подключения?</translation>
     </message>
     <message>
-      <source>The connection will be reconfigured to %1. If one protocol is blocked on the network, another often helps. The active connection may briefly drop.</source>
-      <translation>Подключение будет перенастроено на %1. Если один протокол блокируется в сети, другой часто помогает. Активное соединение может ненадолго прерваться.</translation>
+      <source>The connection will be reconfigured to %1. If the current protocol works unstably on the network, another one often works better. The active connection may briefly drop.</source>
+      <translation>Подключение будет перенастроено на %1. Если текущий протокол работает нестабильно в сети, другой часто работает лучше. Активное соединение может ненадолго прерваться.</translation>
     </message>
     <message>
       <source>Switch</source>

@@ -8,6 +8,7 @@ import Style 1.0
 import "./"
 import "../Controls2"
 import "../Components"
+import "../Components/FreshFaq.js" as FreshFaq
 
 PageType {
     id: root
@@ -34,14 +35,10 @@ PageType {
     function openInHapp(){ var link = "" + SubscriptionUiController.vpnKey; if(link.length === 0) return false; Qt.openUrlExternally("happ://add/" + encodeURIComponent(link)); return true }
     Component.onCompleted: { var sid = root.apiServerId(); if(sid.length>0) SubscriptionUiController.prepareVpnKeyExport(sid) }
 
-    property var faq: [
-        { q: qsTr("Why is the speed lower than without the VPN?"), a: qsTr("Traffic travels through an extra server. Pick a country closer to you: the ping drops and the speed rises.") },
-        { q: qsTr("It says connected, but sites do not open"), a: qsTr("Switch the protocol on the Home screen (AmneziaWG or VLESS) and reconnect. If it still fails, message support.") },
-        { q: qsTr("How do I use Fresh on my phone?"), a: qsTr("Copy the subscription link above, pick your device in this guide and follow the four steps.") },
-        { q: qsTr("How many devices can I connect?"), a: qsTr("The same subscription link works on several devices at once: phone, computer, TV.") },
-        { q: qsTr("What is AmneziaWG?"), a: qsTr("Our default protocol. It is a modified WireGuard that keeps working where the plain one is throttled.") },
-        { q: qsTr("How do I extend the subscription?"), a: qsTr("Open Profile, choose a plan and pay. The subscription renews automatically.") }
-    ]
+    // Вопросы берём из общего файла FreshFaq.js — он генерится из faq.json
+    // мини-приложения, чтобы ответы в программе и в чате не разъезжались.
+    // Пустая строка = показан список разделов.
+    property string faqCat: ""
 
     property var guides: ({
         "ios": { label: qsTr("iPhone"), happName: qsTr("Open in the App Store"), happUrl: "https://apps.apple.com/app/id6504287215", happScheme: true, fresh: "soon",
@@ -252,12 +249,55 @@ PageType {
                     }
                 }
 
-                // FAQ
+                // FAQ: сначала разделы, внутри — только их вопросы
                 Column {
                     width: parent.width; spacing: 8
-                    Text { text: qsTr("FREQUENTLY ASKED"); color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4 }
+
+                    Text {
+                        text: root.faqCat === "" ? qsTr("FREQUENTLY ASKED") : (FreshFaq.categoryById(root.faqCat) || {title: ""}).title
+                        color: root.dim; font.pixelSize: 11; font.weight: 800; leftPadding: 4
+                    }
+
+                    // Возврат к списку разделов
+                    Rectangle {
+                        visible: root.faqCat !== ""
+                        width: parent.width; height: 34; radius: 10
+                        color: "transparent"; border.color: root.line; border.width: 1
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTr("‹ All sections"); color: root.mute; font.pixelSize: 12; font.weight: 700
+                        }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.faqCat = "" }
+                    }
+
+                    // Разделы
                     Repeater {
-                        model: root.faq
+                        model: root.faqCat === "" ? FreshFaq.categories : []
+                        delegate: Rectangle {
+                            width: parent.width; height: 46; radius: 14
+                            color: root.card; border.color: root.line; border.width: 1
+                            Row {
+                                anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                                spacing: 10
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: parent.width - 46
+                                    elide: Text.ElideRight
+                                    text: modelData.title; color: root.fg; font.pixelSize: 14; font.weight: 700
+                                }
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: modelData.items.length
+                                    color: root.limeStrong; font.pixelSize: 13; font.weight: 800
+                                }
+                            }
+                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.faqCat = modelData.id }
+                        }
+                    }
+
+                    // Вопросы выбранного раздела
+                    Repeater {
+                        model: root.faqCat === "" ? [] : (FreshFaq.categoryById(root.faqCat) || {items: []}).items
                         delegate: Rectangle {
                             id: fq
                             property bool open: false
@@ -279,7 +319,7 @@ PageType {
                                         text: modelData.q; color: root.fg; font.pixelSize: 14; font.weight: 700
                                     }
                                     Text {
-                                        text: fq.open ? "−" : "+"
+                                        text: fq.open ? "\u2212" : "+"
                                         color: root.limeStrong; font.pixelSize: 16; font.weight: 800
                                     }
                                 }
@@ -294,7 +334,6 @@ PageType {
                         }
                     }
                 }
-
                 // Support
                 Rectangle {
                     width: parent.width; radius: 14; color: root.limeSoft; border.color: root.limeLine; border.width: 1

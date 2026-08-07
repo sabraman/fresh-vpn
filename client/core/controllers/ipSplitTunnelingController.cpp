@@ -2,15 +2,41 @@
 #include "core/utils/networkUtilities.h"
 #include <QJsonObject>
 
+namespace {
+// Bump on every change to russianDirectSites() so existing installs pick it up.
+// 1 = the original list, seeded by the old boolean flag.
+constexpr int kRuDirectSeedVersion = 2;
+}
+
 IpSplitTunnelingController::IpSplitTunnelingController(SecureAppSettingsRepository* appSettingsRepository, QObject* parent)
     : QObject(parent),
       m_appSettingsRepository(appSettingsRepository)
 {
     m_currentRouteMode = m_appSettingsRepository->routeMode();
-    // #4 Fresh: one-time seed - route Russian services directly (outside VPN), like the Happ subscription.
-    if (!m_appSettingsRepository->isRuDirectSeedDone()) {
-        applyRussianDirectPreset();
-        m_appSettingsRepository->setRuDirectSeedDone(true);
+
+    // #4 Fresh: route Russian services directly (outside VPN), like the Happ subscription.
+    //
+    // This used to latch on a plain bool, so an edit to russianDirectSites() only
+    // ever reached installs that had never launched: two machines of different
+    // vintages held different lists off the same source file. Seeding by version
+    // lets a list revision land on existing installs too.
+    const int seededVersion = m_appSettingsRepository->ruDirectSeedVersion();
+    if (seededVersion < kRuDirectSeedVersion) {
+        const bool neverSeeded = (seededVersion == 0 && !m_appSettingsRepository->isRuDirectSeedDone());
+        if (neverSeeded) {
+            // First launch: our defaults apply in full.
+            applyRussianDirectPreset();
+            m_appSettingsRepository->setRuDirectSeedDone(true);
+            m_appSettingsRepository->setRuDirectSeedVersion(kRuDirectSeedVersion);
+        } else if (m_currentRouteMode == RouteMode::VpnAllExceptSites) {
+            // Upgrade: add what is new, touch nothing the user owns.
+            topUpRussianDirectSites();
+            m_appSettingsRepository->setRuDirectSeedVersion(kRuDirectSeedVersion);
+        }
+        // Any other route mode: the list is dormant there, and addSite() writes into
+        // whichever mode is current - topping up now would file these hosts under the
+        // wrong mode and route them THROUGH the VPN instead of around it. Leave the
+        // version unrecorded so the top-up still happens if they switch back.
         m_currentRouteMode = m_appSettingsRepository->routeMode();
     }
 
@@ -19,6 +45,18 @@ IpSplitTunnelingController::IpSplitTunnelingController(SecureAppSettingsReposito
         m_currentRouteMode = RouteMode::VpnOnlyForwardSites;
     }
     fillSites();
+}
+
+void IpSplitTunnelingController::topUpRussianDirectSites()
+{
+    // Only ever called while m_currentRouteMode is VpnAllExceptSites, so addSite()
+    // - and the async resolver callback it starts - files these under the mode they
+    // belong to. addSiteInternal() already skips hosts that are present, so this is
+    // an add-only pass: user-added sites and user preferences survive untouched.
+    const QStringList sites = russianDirectSites();
+    for (const QString &site : sites) {
+        addSite(site);
+    }
 }
 
 void IpSplitTunnelingController::applyRussianDirectPreset()

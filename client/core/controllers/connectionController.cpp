@@ -1,5 +1,6 @@
 #include "connectionController.h"
 
+#include <QDebug>
 #include <QJsonDocument>
 
 #include "core/configurators/configuratorBase.h"
@@ -18,6 +19,19 @@
 using namespace amnezia;
 using namespace ProtocolUtils;
 
+namespace
+{
+    // Ошибки подписки и обращения к нашему API (диапазон кодов 11xx) рождаются
+    // ДО попытки подключения и одинаковы для всех точек. Перебирать из-за них
+    // серверы - значит впустую молотить по списку и прятать от человека
+    // настоящую причину: просроченную или неоплаченную подписку.
+    bool isSubscriptionError(ErrorCode code)
+    {
+        const int value = static_cast<int>(code);
+        return value >= 1100 && value < 1200;
+    }
+}
+
 ConnectionController::ConnectionController(SecureServersRepository* serversRepository,
                                          SecureAppSettingsRepository* appSettingsRepository,
                                          VpnConnection* vpnConnection,
@@ -27,8 +41,23 @@ ConnectionController::ConnectionController(SecureServersRepository* serversRepos
       m_appSettingsRepository(appSettingsRepository),
       m_vpnConnection(vpnConnection)
 {
-    connect(m_vpnConnection, &VpnConnection::connectionStateChanged, this, &ConnectionController::connectionStateChanged);
+    // Состояние ловим своим обработчиком, а не пробрасываем напрямую в интерфейс:
+    // при провале нужно успеть попробовать запасную точку и не пугать человека
+    // ошибкой, которую мы прямо сейчас чиним сами.
+    connect(m_vpnConnection, &VpnConnection::connectionStateChanged, this, &ConnectionController::handleConnectionState);
     connect(m_vpnConnection, &VpnConnection::bytesChanged, this, &ConnectionController::bytesChanged);
+
+    // Код ошибки протокола. Сигнал существовал давно, но подписчика у него не
+    // было ни одного, поэтому причина провала до интерфейса не доходила вовсе.
+    connect(m_vpnConnection, &VpnConnection::vpnProtocolError, this, &ConnectionController::handleProtocolError);
+
+    // Общий лимит на весь перебор. Без него клиент может молотить точки минутами,
+    // а человек за это время решит, что сервис не работает, и уйдёт.
+    m_failoverBudget.setSingleShot(true);
+    connect(&m_failoverBudget, &QTimer::timeout, this, [this]() {
+        qWarning() << "ConnectionController: перебор точек не уложился в лимит";
+        m_failoverActive = false;
+    });
     connect(this, &ConnectionController::openConnectionRequested, m_vpnConnection, &VpnConnection::connectToVpn, Qt::QueuedConnection);
     connect(this, &ConnectionController::closeConnectionRequested, m_vpnConnection, &VpnConnection::disconnectFromVpn, Qt::QueuedConnection);
     connect(this, &ConnectionController::setConnectionStateRequested, m_vpnConnection, &VpnConnection::setConnectionState, Qt::QueuedConnection);
@@ -205,7 +234,7 @@ ErrorCode ConnectionController::prepareConnection(const QString &serverId,
     return ErrorCode::NoError;
 }
 
-ErrorCode ConnectionController::openConnection(const QString &serverId)
+ErrorCode ConnectionController::launchConnection(const QString &serverId)
 {
     QJsonObject vpnConfiguration;
     DockerContainer container;
@@ -217,6 +246,139 @@ ErrorCode ConnectionController::openConnection(const QString &serverId)
 
     emit openConnectionRequested(serverId, container, vpnConfiguration);
     return ErrorCode::NoError;
+}
+
+ErrorCode ConnectionController::openConnection(const QString &serverId)
+{
+    startFailover(serverId);
+    return launchConnection(serverId);
+}
+
+// Собираем очередь: первой идёт точка, которую выбрал человек, дальше остальные
+// в их обычном порядке. Ограничиваем тремя попытками - больше человек не ждёт.
+void ConnectionController::startFailover(const QString &requestedServerId)
+{
+    static constexpr int kMaxAttempts = 3;
+    static constexpr int kBudgetMs = 60000;
+
+    m_failoverQueue.clear();
+    m_failoverQueue.append(requestedServerId);
+
+    if (m_serversRepository) {
+        for (const QString &id : m_serversRepository->orderedServerIds()) {
+            if (id == requestedServerId) {
+                continue;
+            }
+            if (m_failoverQueue.size() >= kMaxAttempts) {
+                break;
+            }
+            m_failoverQueue.append(id);
+        }
+    }
+
+    m_failoverIndex = 0;
+    m_failoverActive = m_failoverQueue.size() > 1;
+    m_wasConnecting = false;
+    m_switching = false;
+    m_lastProtocolError = ErrorCode::NoError;
+
+    if (m_failoverActive) {
+        m_failoverBudget.start(kBudgetMs);
+    }
+}
+
+// Берём следующую точку. Те, что не удалось даже подготовить (нет конфига,
+// неподдерживаемый тип), молча пропускаем - на них пробовать нечего.
+bool ConnectionController::tryNextCandidate()
+{
+    if (!m_failoverActive) {
+        return false;
+    }
+
+    while (m_failoverIndex + 1 < m_failoverQueue.size()) {
+        ++m_failoverIndex;
+        const QString next = m_failoverQueue.at(m_failoverIndex);
+        qInfo() << "ConnectionController: основная точка не ответила, пробуем запасную"
+                << m_failoverIndex + 1 << "из" << m_failoverQueue.size();
+        // Флаг поднимаем ДО запуска: всё, что прилетит от оборванной попытки
+        // после этой строки, относится к ней, а не к новой точке.
+        m_switching = true;
+        if (launchConnection(next) == ErrorCode::NoError) {
+            return true;
+        }
+        m_switching = false;
+        qWarning() << "ConnectionController: запасную точку не удалось подготовить, пропускаю";
+    }
+
+    return false;
+}
+
+void ConnectionController::finishFailover(bool success)
+{
+    Q_UNUSED(success)
+    m_failoverBudget.stop();
+    m_failoverActive = false;
+    m_failoverIndex = -1;
+    m_switching = false;
+    m_failoverQueue.clear();
+}
+
+void ConnectionController::handleConnectionState(Vpn::ConnectionState state)
+{
+    if (state == Vpn::ConnectionState::Connecting || state == Vpn::ConnectionState::Reconnecting) {
+        m_switching = false;
+        m_wasConnecting = true;
+        emit connectionStateChanged(state);
+        return;
+    }
+
+    // Пока поднят флаг переключения, "отключено" и "ошибка" - это хвост уже
+    // списанной попытки: мы сами её только что оборвали, чтобы взять следующую
+    // точку. Считать это новым провалом нельзя, иначе очередь проматывается
+    // через две точки за один раз, а человек видит мигание ошибкой.
+    if (m_switching
+        && (state == Vpn::ConnectionState::Disconnected || state == Vpn::ConnectionState::Error)) {
+        return;
+    }
+
+    if (state == Vpn::ConnectionState::Connected) {
+        // Вышли не через ту точку, что выбирал человек - скажем об этом,
+        // иначе он увидит чужую страну и решит, что приложение сломалось.
+        if (m_failoverActive && m_failoverIndex > 0 && m_failoverIndex < m_failoverQueue.size()) {
+            emit switchedToBackup(m_failoverQueue.at(m_failoverIndex));
+        }
+        m_wasConnecting = false;
+        finishFailover(true);
+        emit connectionStateChanged(state);
+        return;
+    }
+
+    // Провал - это либо явная ошибка, либо разрыв на этапе подключения.
+    // Простое «отключено» после нормальной работы провалом не считаем:
+    // человек мог сам нажать кнопку.
+    const bool failed = (state == Vpn::ConnectionState::Error)
+            || (state == Vpn::ConnectionState::Disconnected && m_wasConnecting);
+
+    // Провал из-за подписки другой точкой не лечится: она просрочена везде.
+    // Молча перебирать серверы в этом случае - худшее, что можно сделать:
+    // человек ждёт, клиент стучится, а сказать ему правду некому.
+    if (failed && isSubscriptionError(lastConnectionError())) {
+        qWarning() << "ConnectionController: провал связан с подпиской или API, перебор точек не запускаем";
+        m_wasConnecting = false;
+        finishFailover(false);
+        emit connectionStateChanged(state);
+        return;
+    }
+
+    if (failed && tryNextCandidate()) {
+        // Ошибку не показываем: мы уже пробуем следующую точку.
+        emit connectionStateChanged(Vpn::ConnectionState::Connecting);
+        return;
+    }
+
+    m_wasConnecting = false;
+    finishFailover(false);
+    emit connectionStateChanged(state);
 }
 
 void ConnectionController::closeConnection()
@@ -244,7 +406,27 @@ void ConnectionController::onKillSwitchModeChanged(bool enabled)
 
 ErrorCode ConnectionController::lastConnectionError() const
 {
-    return m_vpnConnection->lastError();
+    if (!m_vpnConnection) {
+        return m_lastProtocolError;
+    }
+
+    const ErrorCode fromProtocol = m_vpnConnection->lastError();
+
+    // Протокол мог сообщить код сигналом и при этом уже быть снесённым - тогда
+    // здесь остаётся общая заглушка. Отдаём то, что реально поймали, иначе
+    // человек увидит "внутренняя ошибка" вместо настоящей причины.
+    if ((fromProtocol == ErrorCode::NoError || fromProtocol == ErrorCode::InternalError)
+        && m_lastProtocolError != ErrorCode::NoError) {
+        return m_lastProtocolError;
+    }
+
+    return fromProtocol;
+}
+
+void ConnectionController::handleProtocolError(ErrorCode error)
+{
+    qCritical() << "ConnectionController: протокол сообщил об ошибке, код" << error;
+    m_lastProtocolError = error;
 }
 
 QJsonObject ConnectionController::createConnectionConfiguration(const QPair<QString, QString> &dns,

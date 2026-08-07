@@ -49,6 +49,16 @@ void SecureAppSettingsRepository::setRuDirectSeedDone(bool done)
     setValue("Conf/ruDirectSeedDone", done);
 }
 
+int SecureAppSettingsRepository::ruDirectSeedVersion() const
+{
+    return value("Conf/ruDirectSeedVersion", 0).toInt();
+}
+
+void SecureAppSettingsRepository::setRuDirectSeedVersion(int version)
+{
+    setValue("Conf/ruDirectSeedVersion", version);
+}
+
 bool SecureAppSettingsRepository::isAwgDefaultMigrationDone() const
 {
     return value("Conf/awgDefaultMigrationDone", false).toBool();

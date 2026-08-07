@@ -1,3 +1,15 @@
+> ## Fresh VPN is a fork of AmneziaVPN
+>
+> This repository is a modified version of
+> [amnezia-vpn/amnezia-client](https://github.com/amnezia-vpn/amnezia-client),
+> published under the same licence, the **GNU General Public License v3**
+> ([full text](LICENSE)).
+>
+> What we changed is listed in **[FRESH-CHANGES.md](FRESH-CHANGES.md)**.
+>
+> Fresh VPN is not affiliated with or endorsed by the Amnezia project. The
+> README below is theirs and describes the original.
+
 # Amnezia VPN
 
 ### _The best client for self-hosted VPN_

@@ -94,6 +94,89 @@ PageType {
         footer: ColumnLayout {
             width: listView.width
 
+            // ── Открытый код ──────────────────────────────────────────────
+            //
+            // Это НЕ вежливость и не реклама чужого проекта. Fresh VPN собран
+            // из AmneziaVPN, а она под GNU GPL версии 3. Лицензия разрешает
+            // менять и распространять программу, но взамен требует четыре
+            // вещи от того, кто раздаёт СОБРАННУЮ версию:
+            //   1. отдать людям текст лицензии;
+            //   2. дать доступ к исходному коду СВОЕЙ, изменённой версии;
+            //   3. сказать, что именно изменено;
+            //   4. распространять свою версию на той же лицензии.
+            //
+            // До 07.08.2026 на этом экране не было ни одного из четырёх
+            // пунктов: мы сняли брендинг Amnezia и не поставили ничего
+            // взамен. Формально это нарушение, и чинится оно здесь и ссылкой
+            // на открытый репозиторий.
+            //
+            // ⚠️ Ссылка ниже обязана вести на ПУБЛИЧНЫЙ репозиторий. Пока он
+            // закрыт, обязательство не выполнено, сколько бы текста тут ни
+            // стояло.
+            Header2TextType {
+                Layout.fillWidth: true
+                Layout.topMargin: 40
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                text: qsTr("Open source")
+            }
+
+            ParagraphTextType {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                font.pixelSize: 14
+                color: AmneziaStyle.color.paleGray
+
+                text: qsTr("Fresh VPN is built on AmneziaVPN, a free and open source program. We changed the look and part of the behaviour; the tunnel itself, the protocols and the cryptography come from it. Distributed under the GNU General Public License v3.")
+            }
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+                Layout.topMargin: 16
+
+                text: qsTr("Fresh VPN source code")
+                descriptionText: qsTr("Our changes, open repository")
+                rightImageSource: "qrc:/images/controls/external-link.svg"
+
+                clickedFunction: function() {
+                    Qt.openUrlExternally("https://github.com/fr3shsmoke-ux/fresh-vpn")
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+
+                text: qsTr("AmneziaVPN source code")
+                descriptionText: qsTr("The project we are built on")
+                rightImageSource: "qrc:/images/controls/external-link.svg"
+
+                clickedFunction: function() {
+                    Qt.openUrlExternally("https://github.com/amnezia-vpn/amnezia-client")
+                }
+            }
+
+            DividerType {}
+
+            LabelWithButtonType {
+                Layout.fillWidth: true
+
+                text: qsTr("GNU GPL v3 licence")
+                descriptionText: qsTr("Full text of the licence")
+                rightImageSource: "qrc:/images/controls/external-link.svg"
+
+                clickedFunction: function() {
+                    Qt.openUrlExternally("https://www.gnu.org/licenses/gpl-3.0.html")
+                }
+            }
+
+            DividerType {}
+
             CaptionTextType {
                 Layout.fillWidth: true
                 Layout.topMargin: 48
