@@ -156,3 +156,10 @@ build_android/
 
 # workflows must never be swallowed by the broad *build-* rule above
 !.github/workflows/*
+
+# ...но снимки перед правкой - НЕ рабочие процессы. Строка выше их
+# возвращала обратно, и снимок висел неотслеживаемым, а гейт сборки
+# честно на него ругался.
+.github/workflows/*.bak*
+.github/workflows/*bak-pre*
+
