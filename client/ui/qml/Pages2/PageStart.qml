@@ -304,11 +304,57 @@ PageType {
             tabBarStackView.replace(pagePath, { "objectName" : pagePath }, StackView.Immediate)
         }
 
-        Component.onCompleted: {
+        // Похоже ли содержимое буфера на ключ Fresh. VPN-схемы принимаем
+        // безусловно; https — только со своим маркером fr3sh.online, чтобы
+        // случайная ссылка из буфера не ушла в сетевой разбор и не подвесила
+        // первый экран.
+        function looksLikeFreshKey(s) {
+            if (!s)
+                return false
+            s = s.trim()
+            var schemes = ["vpn://", "vless://", "vmess://", "trojan://", "ss://", "ssd://"]
+            for (var i = 0; i < schemes.length; i++)
+                if (s.indexOf(schemes[i]) === 0)
+                    return true
+            if ((s.indexOf("https://") === 0 || s.indexOf("http://") === 0) && s.indexOf("fr3sh.online") !== -1)
+                return true
+            return false
+        }
+
+        // Первый запуск: если в буфере лежит наш ключ, предлагаем добавить его
+        // одной кнопкой, а не гнать человека обратно в мини-приложение.
+        function offerClipboardImport() {
+            var clip = ""
+            try {
+                clip = SystemController.getClipboardText()
+            } catch (e) {
+                return
+            }
+            if (!looksLikeFreshKey(clip))
+                return
+            showQuestionDrawer(
+                qsTr("Found a key in the clipboard"),
+                qsTr("Looks like you copied a Fresh VPN key. Add it now?"),
+                qsTr("Add"),
+                qsTr("Not now"),
+                function() {
+                    PageController.showBusyIndicator(true)
+                    var ok = ImportController.extractConfigFromData(clip.trim())
+                    PageController.showBusyIndicator(false)
+                    if (ok)
+                        PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+                    else
+                        PageController.showNotificationMessage(qsTr("Could not read the key. Add it manually."))
+                },
+                function() {})
+        }
+
+                Component.onCompleted: {
             var pagePath
             if (PageController.isStartPageVisible()) {
                 tabBar.visible = false
                 pagePath = PageController.getPagePath(PageEnum.PageSetupWizardStart)
+                Qt.callLater(offerClipboardImport)
             } else {
                 tabBar.visible = true
                 pagePath = PageController.getPagePath(PageEnum.PageHome)

@@ -24,6 +24,11 @@ public slots:
     bool isAuthenticated();
     void sendTouch(float x, float y);
 
+    // Текст из буфера обмена. Нужен, чтобы при первом запуске (серверов
+    // ещё нет) предложить импортировать ключ, скопированный в
+    // мини-приложении, и не гонять человека обратно за ним.
+    QString getClipboardText();
+
 signals:
     void fileDialogClosed(const bool isAccepted);
 

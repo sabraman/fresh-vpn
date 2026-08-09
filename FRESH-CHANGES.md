@@ -39,6 +39,10 @@ project. Please do not send us their bugs, and do not send them ours.
   tunnel by default, so banks and government sites keep working.
 - **AmneziaWG by default** for imported subscriptions when the server offers it.
 - **Setup guide opens on the operating system the application is running on.**
+- **Clipboard key on first launch.** On the very first run, when no servers
+  exist yet, the app checks the clipboard: if it holds a Fresh subscription
+  link or a share URI, it offers to add it with one tap, so a key copied in
+  the mini app does not have to be pasted by hand.
 
 ## Behaviour we fixed
 

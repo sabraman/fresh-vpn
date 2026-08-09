@@ -4629,6 +4629,26 @@ Thank you for staying with us!</source>
         <translation>Инструкция</translation>
     </message>
     <message>
+        <source>Found a key in the clipboard</source>
+        <translation>В буфере обмена найден ключ</translation>
+    </message>
+    <message>
+        <source>Looks like you copied a Fresh VPN key. Add it now?</source>
+        <translation>Похоже, вы скопировали ключ Fresh VPN. Добавить его сейчас?</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Not now</source>
+        <translation>Не сейчас</translation>
+    </message>
+    <message>
+        <source>Could not read the key. Add it manually.</source>
+        <translation>Не удалось прочитать ключ. Добавьте его вручную.</translation>
+    </message>
+    <message>
       <source>Logging was disabled after 14 days, log files were deleted</source>
       <translation>Логирование было отключено по прошествии 14 дней, файлы логов были удалены.</translation>
     </message>

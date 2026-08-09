@@ -1,5 +1,7 @@
 #include "systemController.h"
 
+#include "amneziaApplication.h"
+
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
@@ -182,4 +184,11 @@ void SystemController::sendTouch(float x, float y)
 #ifdef Q_OS_ANDROID
     AndroidController::instance()->sendTouch(x, y);
 #endif
+}
+
+QString SystemController::getClipboardText()
+{
+    // amnApp->getClipboard() уже используется в проекте для записи ключа
+    // (subscriptionUiController). Здесь только читаем.
+    return amnApp->getClipboard()->text();
 }
