@@ -27,7 +27,11 @@ PageType {
     property int curProto: -1
     property bool acOn: false
 
-    property string statusUrl: "http://94.156.232.206:8088/node-status.json"
+    // Состояние стран спрашиваем у СВОЕГО домена по шифрованному каналу.
+    // Раньше адрес указывал на одну конкретную машину (порт 8088, без шифрования),
+    // и когда её вывели из работы 10.08.2026, показ состояния у людей замер.
+    // Домен от машин не зависит: узлы меняются, адрес остаётся.
+    property string statusUrl: "https://app.fr3sh.online/node-status.json"
     property var loadByCountry: ({})
     property bool feedKnown: false
     property bool allServersOk: false
