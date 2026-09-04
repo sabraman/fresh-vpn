@@ -11,6 +11,7 @@
 #include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QUrl>
 #include <QHostAddress>
 #include <QAbstractSocket>
@@ -42,6 +43,11 @@ ImportUiController::ImportUiController(ImportController* importController, QObje
     connect(m_importController, &ImportController::importFinished, this, &ImportUiController::importFinished);
     connect(m_importController, &ImportController::importErrorOccurred, this, &ImportUiController::importErrorOccurred);
     connect(m_importController, &ImportController::restoreAppConfig, this, &ImportUiController::restoreAppConfig);
+
+    m_nam = new QNetworkAccessManager(this);
+    m_hopTimer = new QTimer(this);
+    m_hopTimer->setSingleShot(true);
+    connect(m_hopTimer, &QTimer::timeout, this, &ImportUiController::onSubscriptionHopTimeout);
 }
 
 bool ImportUiController::extractConfigFromFile(const QString &fileName)
@@ -89,6 +95,11 @@ bool ImportUiController::extractConfigFromData(QString data)
     if (!url.isEmpty()) {
         bool gotBody = false;
         QStringList visited;
+        // One shared budget for all hops so the worst case stays bounded even
+        // when several redirects are followed on the calling thread.
+        QElapsedTimer budget;
+        budget.start();
+        static const int totalBudgetMs = 15000;
         for (int hop = 0; hop < 3; ++hop) {
             if (visited.contains(url, Qt::CaseInsensitive)) {
                 qWarning() << "Subscription fetch failed: open-page redirect loop";
@@ -98,7 +109,13 @@ bool ImportUiController::extractConfigFromData(QString data)
             visited.append(url);
             qDebug() << "Fetching subscription (hop" << hop << "):" << url;
             QString fetchError;
-            const QString body = fetchSubscriptionBody(url, fetchError);
+            const int remaining = totalBudgetMs - int(budget.elapsed());
+            if (remaining <= 0) {
+                qWarning() << "Subscription fetch failed: timed out following open-page redirects";
+                emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+                return false;
+            }
+            const QString body = fetchSubscriptionBody(url, fetchError, remaining);
             if (body.trimmed().isEmpty()) {
                 qWarning() << "Subscription fetch failed:" << fetchError;
                 emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
@@ -132,6 +149,30 @@ bool ImportUiController::extractConfigFromData(QString data)
         }
     }
 
+    return parseFetchedData(data);
+}
+
+void ImportUiController::requestConfigFromData(const QString &input)
+{
+    // A newer request supersedes any in-flight fetch.
+    abortPendingFetch();
+
+    const QString data = input.trimmed();
+    const QString url = extractFetchableUrl(data);
+    if (url.isEmpty()) {
+        if (parseFetchedData(data)) {
+            emit configExtracted();
+        }
+        return;
+    }
+
+    m_visited = QStringList{ url };
+    m_hopsLeft = 3;
+    fetchHop(url);
+}
+
+bool ImportUiController::parseFetchedData(const QString &data)
+{
     const auto results = m_importController->extractAllConfigsFromData(data);
 
     QList<QJsonObject> configs;
@@ -491,7 +532,7 @@ bool ImportUiController::isAllowedHopTarget(const QString &innerUrl) const
     return true;
 }
 
-QString ImportUiController::fetchSubscriptionBody(const QString &url, QString &errorString)
+QString ImportUiController::fetchSubscriptionBody(const QString &url, QString &errorString, int timeoutMs)
 {
     QNetworkAccessManager manager;
     QNetworkRequest request{ QUrl(url) };
@@ -514,7 +555,7 @@ QString ImportUiController::fetchSubscriptionBody(const QString &url, QString &e
     });
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
 
-    timeoutTimer.start(15000);
+    timeoutTimer.start(timeoutMs > 0 ? timeoutMs : 15000);
     loop.exec();
 
     QString body;
@@ -534,4 +575,117 @@ QString ImportUiController::fetchSubscriptionBody(const QString &url, QString &e
 
     reply->deleteLater();
     return body;
+}
+
+void ImportUiController::fetchHop(const QString &url)
+{
+    m_currentUrl = url;
+
+    QNetworkRequest request{ QUrl(url) };
+
+    // A v2ray-family User-Agent makes most panels (incl. Remnawave) return the
+    // base64 share-URI list, which the core parser understands universally.
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("v2rayNG/1.8.5 (FreshVPN)"));
+    request.setRawHeader("Accept", "*/*");
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+
+    qDebug() << "Fetching subscription (async hop):" << url;
+    m_pendingReply = m_nam->get(request);
+    connect(m_pendingReply, &QNetworkReply::finished, this, &ImportUiController::onSubscriptionReplyFinished);
+    m_hopTimer->start(15000);
+}
+
+void ImportUiController::abortPendingFetch()
+{
+    if (m_hopTimer) {
+        m_hopTimer->stop();
+    }
+    if (m_pendingReply) {
+        m_pendingReply->disconnect(this);
+        m_pendingReply->abort();
+        m_pendingReply->deleteLater();
+        m_pendingReply = nullptr;
+    }
+    m_currentUrl.clear();
+    m_visited.clear();
+    m_hopsLeft = 0;
+}
+
+void ImportUiController::onSubscriptionReplyFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply || reply != m_pendingReply) {
+        if (reply) {
+            reply->deleteLater();
+        }
+        return;
+    }
+    m_pendingReply = nullptr;
+    m_hopTimer->stop();
+    reply->deleteLater();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        qWarning() << "Subscription fetch failed:" << reply->errorString();
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return;
+    }
+
+    const QByteArray raw = reply->readAll();
+    if (raw.size() > 5 * 1024 * 1024) {
+        qWarning() << "Subscription fetch failed: Response too large";
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return;
+    }
+    const QString body = QString::fromUtf8(raw);
+    if (body.trimmed().isEmpty()) {
+        qWarning() << "Subscription fetch failed: empty response";
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return;
+    }
+
+    const QString inner = extractInnerUrlFromOpenPage(body);
+    if (inner.isEmpty()) {
+        if (looksLikeHtmlPage(body)) {
+            qWarning() << "Subscription fetch failed: page did not contain a subscription link";
+            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            return;
+        }
+        if (parseFetchedData(body.trimmed())) {
+            emit configExtracted();
+        }
+        return;
+    }
+
+    if (m_visited.contains(inner, Qt::CaseInsensitive)) {
+        qWarning() << "Subscription fetch failed: open-page redirect loop";
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return;
+    }
+    if (!isAllowedHopTarget(inner)) {
+        qWarning() << "Subscription fetch failed: open-page redirect target is not allowed";
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return;
+    }
+    if (--m_hopsLeft <= 0) {
+        qWarning() << "Subscription fetch failed: too many open-page redirects";
+        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        return;
+    }
+    m_visited.append(inner);
+    fetchHop(inner);
+}
+
+void ImportUiController::onSubscriptionHopTimeout()
+{
+    if (!m_pendingReply) {
+        return;
+    }
+    // Aborting triggers finished(), so detach first and report here exactly once.
+    qWarning() << "Subscription fetch failed: Request timed out";
+    QNetworkReply *reply = m_pendingReply;
+    m_pendingReply = nullptr;
+    reply->disconnect(this);
+    reply->abort();
+    reply->deleteLater();
+    emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
 }

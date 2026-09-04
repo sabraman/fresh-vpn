@@ -210,7 +210,17 @@ PageType {
         target: ImportController
 
         function onImportErrorOccurred(error, goToPageHome) {
+            PageController.showBusyIndicator(false)
+            tabBarStackView.expectingImport = false
             PageController.showErrorMessage(error)
+        }
+
+        function onConfigExtracted() {
+            PageController.showBusyIndicator(false)
+            if (tabBarStackView.expectingImport) {
+                tabBarStackView.expectingImport = false
+                PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+            }
         }
 
         function onRestoreAppConfig(data) {
@@ -287,6 +297,10 @@ PageType {
         id: tabBarStackView
         objectName: "tabBarStackView"
 
+        // Set while an async import extraction we triggered is in flight;
+        // onConfigExtracted navigates only for our own request.
+        property bool expectingImport: false
+
         // The nav is a left rail on desktop but a bottom bar on phones, so the
         // content area has to dodge it on a different side. Anchoring left to
         // tabBar.right unconditionally collapsed this to zero width on Android:
@@ -338,13 +352,9 @@ PageType {
                 qsTr("Add"),
                 qsTr("Not now"),
                 function() {
+                    tabBarStackView.expectingImport = true
                     PageController.showBusyIndicator(true)
-                    var ok = ImportController.extractConfigFromData(clip.trim())
-                    PageController.showBusyIndicator(false)
-                    if (ok)
-                        PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
-                    else
-                        PageController.showNotificationMessage(qsTr("Could not read the key. Add it manually."))
+                    ImportController.requestConfigFromData(clip.trim())
                 },
                 function() {})
         }

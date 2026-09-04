@@ -382,9 +382,11 @@ void CoreSignalHandlers::initAndroidConnectionHandler()
     });
     connect(AndroidController::instance(), &AndroidController::importConfigFromOutside, this, [this](QString data) {
         emit m_coreController->m_pageController->goToPageHome();
-        m_coreController->m_importController->extractConfigFromData(data);
-        data.clear();
-        emit m_coreController->m_pageController->goToPageViewConfig();
+        // Navigate to the parsed config only when extraction actually succeeded;
+        // failures are reported via importErrorOccurred.
+        if (m_coreController->m_importController->extractConfigFromData(data)) {
+            emit m_coreController->m_pageController->goToPageViewConfig();
+        }
     });
 #endif
 }
@@ -394,8 +396,11 @@ void CoreSignalHandlers::initIosImportHandler()
 #ifdef Q_OS_IOS
     connect(IosController::Instance(), &IosController::importConfigFromOutside, this, [this](QString data) {
         emit m_coreController->m_pageController->goToPageHome();
-        m_coreController->m_importController->extractConfigFromData(data);
-        emit m_coreController->m_pageController->goToPageViewConfig();
+        // Navigate to the parsed config only when extraction actually succeeded;
+        // failures are reported via importErrorOccurred.
+        if (m_coreController->m_importController->extractConfigFromData(data)) {
+            emit m_coreController->m_pageController->goToPageViewConfig();
+        }
     });
     connect(IosController::Instance(), &IosController::importBackupFromOutside, this, [this](QString filePath) {
         emit m_coreController->m_pageController->goToPageHome();

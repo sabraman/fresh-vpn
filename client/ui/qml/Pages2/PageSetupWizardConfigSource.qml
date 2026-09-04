@@ -16,6 +16,10 @@ import "../Config"
 PageType {
     id: root
 
+    // Set while an async import extraction we triggered is in flight;
+    // onConfigExtracted navigates only for our own request.
+    property bool expectingImport: false
+
     Connections {
         target: ImportController
 
@@ -24,6 +28,19 @@ PageType {
                 PageController.closePage()
             }
             PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+        }
+
+        function onConfigExtracted() {
+            PageController.showBusyIndicator(false)
+            if (root.expectingImport) {
+                root.expectingImport = false
+                PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
+            }
+        }
+
+        function onImportErrorOccurred(error, goToPageHome) {
+            PageController.showBusyIndicator(false)
+            root.expectingImport = false
         }
     }
 
@@ -233,12 +250,9 @@ PageType {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
+                        root.expectingImport = true
                         PageController.showBusyIndicator(true)
-                        var ok = ImportController.extractConfigFromData(keyField.text)
-                        PageController.showBusyIndicator(false)
-                        if (ok) {
-                            PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
-                        }
+                        ImportController.requestConfigFromData(keyField.text)
                     }
                 }
             }
