@@ -8,7 +8,8 @@ The GNU GPL v3, under which the original is published, asks anyone who
 distributes a modified build to say what was modified. This file is that
 statement, kept up to date on purpose rather than left to the commit log.
 
-**Upstream point we forked from:** `890103a1`.
+**Upstream point we forked from:** `890103a1`, synced with `dev` at `327e5985`
+(5.0.2.1, September 2026) on branch `sync-upstream-5.0.2.1`.
 **Licence:** GNU General Public License v3, unchanged. See [LICENSE](LICENSE).
 
 Fresh VPN is not affiliated with, endorsed by, or supported by the Amnezia
