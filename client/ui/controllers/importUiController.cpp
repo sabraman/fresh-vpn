@@ -80,16 +80,33 @@ bool ImportUiController::extractConfigFromData(QString data)
 
     // If the user pasted an http(s) subscription link (or a deep-link wrapper that
     // carries one), download the body first, then parse it like any other config.
-    const QString url = extractFetchableUrl(data);
+    // Fresh open-page links (https://app.fr3sh.online/api/open/<id>) serve an HTML
+    // redirect page instead of the subscription itself, so follow it to the inner
+    // subscription URL (bounded hops).
+    QString url = extractFetchableUrl(data);
     if (!url.isEmpty()) {
-        QString fetchError;
-        const QString body = fetchSubscriptionBody(url, fetchError);
-        if (body.trimmed().isEmpty()) {
-            qWarning() << "Subscription fetch failed:" << fetchError;
+        bool gotBody = false;
+        for (int hop = 0; hop < 3; ++hop) {
+            QString fetchError;
+            const QString body = fetchSubscriptionBody(url, fetchError);
+            if (body.trimmed().isEmpty()) {
+                qWarning() << "Subscription fetch failed:" << fetchError;
+                emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+                return false;
+            }
+            const QString inner = extractInnerUrlFromOpenPage(body);
+            if (inner.isEmpty()) {
+                data = body.trimmed();
+                gotBody = true;
+                break;
+            }
+            url = inner;
+        }
+        if (!gotBody) {
+            qWarning() << "Subscription fetch failed: too many open-page redirects";
             emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
             return false;
         }
-        data = body.trimmed();
     }
 
     const auto results = m_importController->extractAllConfigsFromData(data);
@@ -351,6 +368,19 @@ QString ImportUiController::extractFetchableUrl(const QString &data) const
         return trimmed;
     }
 
+    // Fresh / OS deep links: vpn://add/<percent-encoded-subscription-url>,
+    // e.g. vpn://add/https%3A%2F%2Fpanel.example%2Fapi%2Fsub%2F<id>
+    // (this is what https://app.fr3sh.online/api/open/<id> redirects to).
+    static const QString vpnAddPrefix = QStringLiteral("vpn://add/");
+    if (trimmed.startsWith(vpnAddPrefix, Qt::CaseInsensitive)) {
+        QString inner = trimmed.mid(vpnAddPrefix.size()).trimmed();
+        inner = QUrl::fromPercentEncoding(inner.toUtf8()).trimmed();
+        if (inner.startsWith("http://", Qt::CaseInsensitive) || inner.startsWith("https://", Qt::CaseInsensitive)) {
+            return inner;
+        }
+        return QString();
+    }
+
     // Deep-link wrappers carrying the real subscription URL in a "url=" parameter,
     // e.g. clash://install-config?url=...  sing-box://import-remote-profile?url=...
     //      hiddify://import?url=...  streisand://import?url=...  v2rayng://...?url=...
@@ -365,6 +395,36 @@ QString ImportUiController::extractFetchableUrl(const QString &data) const
         if (inner.startsWith("http://", Qt::CaseInsensitive) || inner.startsWith("https://", Qt::CaseInsensitive)) {
             return inner;
         }
+    }
+
+    return QString();
+}
+
+QString ImportUiController::extractInnerUrlFromOpenPage(const QString &body) const
+{
+    // Fresh open-page links (…/api/open/<id>) return an HTML page that redirects
+    // to vpn://add/<percent-encoded-subscription-url>. Detect that page and pull
+    // out the real subscription URL so it can be fetched next.
+    if (!body.contains("vpn://add/", Qt::CaseInsensitive)
+        && !body.contains("/api/sub/", Qt::CaseInsensitive)) {
+        return QString();
+    }
+
+    static const QRegularExpression vpnAddRe(QStringLiteral("vpn://add/([^\"'\\s<>]+)"),
+                                             QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch vpnAddMatch = vpnAddRe.match(body);
+    if (vpnAddMatch.hasMatch()) {
+        const QString inner = QUrl::fromPercentEncoding(vpnAddMatch.captured(1).toUtf8()).trimmed();
+        if (inner.startsWith("http://", Qt::CaseInsensitive) || inner.startsWith("https://", Qt::CaseInsensitive)) {
+            return inner;
+        }
+    }
+
+    static const QRegularExpression subRe(QStringLiteral("(https?://[^\"'\\s<>]+/api/sub/[^\"'\\s<>]+)"),
+                                          QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch subMatch = subRe.match(body);
+    if (subMatch.hasMatch()) {
+        return subMatch.captured(1).trimmed();
     }
 
     return QString();

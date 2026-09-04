@@ -58,6 +58,7 @@ private:
 #endif
 
     QString extractFetchableUrl(const QString &data) const;
+    QString extractInnerUrlFromOpenPage(const QString &body) const;
     QString fetchSubscriptionBody(const QString &url, QString &errorString);
 
     ImportController* m_importController;
