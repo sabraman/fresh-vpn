@@ -91,6 +91,13 @@ namespace PageLoader
         PageSettingsLanguage,
 
         PageUpdate,
+
+        // Fresh tab pages, absent from upstream (without them PageEnum.X is
+        // undefined in QML, getPagePath() falls back to PageStart.qml and
+        // every tap nests another bottom bar). Appended last so existing
+        // values keep their numbers.
+        PageProfile,
+        PageStatistics,
     };
     Q_ENUM_NS(PageEnum)
 
