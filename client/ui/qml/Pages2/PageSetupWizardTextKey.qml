@@ -13,24 +13,24 @@ import "../Config"
 PageType {
     id: root
 
-    // Set while an async import extraction we triggered is in flight;
+    // Id of the async import extraction we triggered, if any;
     // onConfigExtracted navigates only for our own request.
-    property bool expectingImport: false
+    property var expectingImportId: -1
 
     Connections {
         target: ImportController
 
-        function onConfigExtracted() {
+        function onConfigExtracted(requestId) {
             PageController.showBusyIndicator(false)
-            if (root.expectingImport) {
-                root.expectingImport = false
+            if (requestId === root.expectingImportId) {
+                root.expectingImportId = -1
                 PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
             }
         }
 
-        function onImportErrorOccurred(error, goToPageHome) {
+        function onConfigExtractFailed(error, requestId) {
             PageController.showBusyIndicator(false)
-            root.expectingImport = false
+            root.expectingImportId = -1
         }
     }
 
@@ -110,9 +110,8 @@ PageType {
                 text: qsTr("Continue")
 
                 clickedFunc: function() {
-                    root.expectingImport = true
                     PageController.showBusyIndicator(true)
-                    ImportController.requestConfigFromData(textKey.textField.text)
+                    root.expectingImportId = ImportController.requestConfigFromData(textKey.textField.text)
                 }
             }
         }

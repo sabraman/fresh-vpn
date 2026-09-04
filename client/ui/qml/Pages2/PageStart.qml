@@ -210,17 +210,21 @@ PageType {
         target: ImportController
 
         function onImportErrorOccurred(error, goToPageHome) {
-            PageController.showBusyIndicator(false)
-            tabBarStackView.expectingImport = false
             PageController.showErrorMessage(error)
         }
 
-        function onConfigExtracted() {
+        function onConfigExtracted(requestId) {
             PageController.showBusyIndicator(false)
-            if (tabBarStackView.expectingImport) {
-                tabBarStackView.expectingImport = false
+            if (requestId === tabBarStackView.expectingImportId) {
+                tabBarStackView.expectingImportId = -1
                 PageController.goToPage(PageEnum.PageSetupWizardViewConfig)
             }
+        }
+
+        function onConfigExtractFailed(error, requestId) {
+            PageController.showBusyIndicator(false)
+            tabBarStackView.expectingImportId = -1
+            PageController.showErrorMessage(error)
         }
 
         function onRestoreAppConfig(data) {
@@ -297,9 +301,9 @@ PageType {
         id: tabBarStackView
         objectName: "tabBarStackView"
 
-        // Set while an async import extraction we triggered is in flight;
+        // Id of the async import extraction we triggered, if any;
         // onConfigExtracted navigates only for our own request.
-        property bool expectingImport: false
+        property var expectingImportId: -1
 
         // The nav is a left rail on desktop but a bottom bar on phones, so the
         // content area has to dodge it on a different side. Anchoring left to
@@ -352,9 +356,8 @@ PageType {
                 qsTr("Add"),
                 qsTr("Not now"),
                 function() {
-                    tabBarStackView.expectingImport = true
                     PageController.showBusyIndicator(true)
-                    ImportController.requestConfigFromData(clip.trim())
+                    tabBarStackView.expectingImportId = ImportController.requestConfigFromData(clip.trim())
                 },
                 function() {})
         }

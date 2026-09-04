@@ -12,6 +12,7 @@
 #include <QRegularExpression>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QMetaObject>
 #include <QUrl>
 #include <QHostAddress>
 #include <QAbstractSocket>
@@ -48,6 +49,11 @@ ImportUiController::ImportUiController(ImportController* importController, QObje
     m_hopTimer = new QTimer(this);
     m_hopTimer->setSingleShot(true);
     connect(m_hopTimer, &QTimer::timeout, this, &ImportUiController::onSubscriptionHopTimeout);
+}
+
+ImportUiController::~ImportUiController()
+{
+    abortPendingFetch();
 }
 
 bool ImportUiController::extractConfigFromFile(const QString &fileName)
@@ -109,13 +115,13 @@ bool ImportUiController::extractConfigFromData(QString data)
             visited.append(url);
             qDebug() << "Fetching subscription (hop" << hop << "):" << url;
             QString fetchError;
-            const int remaining = totalBudgetMs - int(budget.elapsed());
+            const qint64 remaining = qint64(totalBudgetMs) - budget.elapsed();
             if (remaining <= 0) {
                 qWarning() << "Subscription fetch failed: timed out following open-page redirects";
                 emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
                 return false;
             }
-            const QString body = fetchSubscriptionBody(url, fetchError, remaining);
+            const QString body = fetchSubscriptionBody(url, fetchError, int(remaining));
             if (body.trimmed().isEmpty()) {
                 qWarning() << "Subscription fetch failed:" << fetchError;
                 emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
@@ -149,29 +155,38 @@ bool ImportUiController::extractConfigFromData(QString data)
         }
     }
 
-    return parseFetchedData(data);
+    return parseFetchedData(data, true);
 }
 
-void ImportUiController::requestConfigFromData(const QString &input)
+qint64 ImportUiController::requestConfigFromData(const QString &input)
 {
     // A newer request supersedes any in-flight fetch.
     abortPendingFetch();
 
+    const qint64 id = ++m_requestSeq;
     const QString data = input.trimmed();
     const QString url = extractFetchableUrl(data);
     if (url.isEmpty()) {
-        if (parseFetchedData(data)) {
-            emit configExtracted();
-        }
-        return;
+        // Deliver asynchronously so the caller can use the returned id to
+        // match the completion signals.
+        QMetaObject::invokeMethod(this, [this, data, id]() {
+            if (parseFetchedData(data, false)) {
+                emit configExtracted(id);
+            } else {
+                emit configExtractFailed(ErrorCode::ImportInvalidConfigError, id);
+            }
+        }, Qt::QueuedConnection);
+        return id;
     }
 
+    m_currentRequestId = id;
     m_visited = QStringList{ url };
     m_hopsLeft = 3;
     fetchHop(url);
+    return id;
 }
 
-bool ImportUiController::parseFetchedData(const QString &data)
+bool ImportUiController::parseFetchedData(const QString &data, bool reportError)
 {
     const auto results = m_importController->extractAllConfigsFromData(data);
 
@@ -192,7 +207,9 @@ bool ImportUiController::parseFetchedData(const QString &data)
     }
 
     if (!haveFirst) {
-        emit importErrorOccurred(firstError, false);
+        if (reportError) {
+            emit importErrorOccurred(firstError, false);
+        }
         return false;
     }
 
@@ -498,7 +515,10 @@ QString ImportUiController::extractInnerUrlFromOpenPage(const QString &body) con
 bool ImportUiController::looksLikeHtmlPage(const QString &body) const
 {
     return body.contains(QStringLiteral("<html"), Qt::CaseInsensitive)
-        || body.contains(QStringLiteral("<!doctype"), Qt::CaseInsensitive);
+        || body.contains(QStringLiteral("<!doctype"), Qt::CaseInsensitive)
+        || body.contains(QStringLiteral("<head"), Qt::CaseInsensitive)
+        || body.contains(QStringLiteral("<body"), Qt::CaseInsensitive)
+        || body.contains(QStringLiteral("<script"), Qt::CaseInsensitive);
 }
 
 bool ImportUiController::isAllowedHopTarget(const QString &innerUrl) const
@@ -579,8 +599,6 @@ QString ImportUiController::fetchSubscriptionBody(const QString &url, QString &e
 
 void ImportUiController::fetchHop(const QString &url)
 {
-    m_currentUrl = url;
-
     QNetworkRequest request{ QUrl(url) };
 
     // A v2ray-family User-Agent makes most panels (incl. Remnawave) return the
@@ -606,9 +624,22 @@ void ImportUiController::abortPendingFetch()
         m_pendingReply->deleteLater();
         m_pendingReply = nullptr;
     }
-    m_currentUrl.clear();
+    clearHopState();
+}
+
+void ImportUiController::clearHopState()
+{
     m_visited.clear();
     m_hopsLeft = 0;
+    m_currentRequestId = -1;
+}
+
+void ImportUiController::failAsyncRequest(const QString &warning)
+{
+    qWarning() << "Subscription fetch failed:" << warning;
+    const qint64 id = m_currentRequestId;
+    abortPendingFetch();
+    emit configExtractFailed(ErrorCode::ImportInvalidConfigError, id);
 }
 
 void ImportUiController::onSubscriptionReplyFinished()
@@ -616,59 +647,61 @@ void ImportUiController::onSubscriptionReplyFinished()
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply || reply != m_pendingReply) {
         if (reply) {
+            reply->disconnect(this);
             reply->deleteLater();
         }
         return;
     }
     m_pendingReply = nullptr;
     m_hopTimer->stop();
-    reply->deleteLater();
 
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << "Subscription fetch failed:" << reply->errorString();
-        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        const QString errorText = reply->errorString();
+        reply->deleteLater();
+        failAsyncRequest(errorText);
         return;
     }
 
     const QByteArray raw = reply->readAll();
+    reply->deleteLater();
+
     if (raw.size() > 5 * 1024 * 1024) {
-        qWarning() << "Subscription fetch failed: Response too large";
-        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        failAsyncRequest(QStringLiteral("Response too large"));
         return;
     }
     const QString body = QString::fromUtf8(raw);
     if (body.trimmed().isEmpty()) {
-        qWarning() << "Subscription fetch failed: empty response";
-        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        failAsyncRequest(QStringLiteral("empty response"));
         return;
     }
 
     const QString inner = extractInnerUrlFromOpenPage(body);
     if (inner.isEmpty()) {
         if (looksLikeHtmlPage(body)) {
-            qWarning() << "Subscription fetch failed: page did not contain a subscription link";
-            emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+            failAsyncRequest(QStringLiteral("page did not contain a subscription link"));
             return;
         }
-        if (parseFetchedData(body.trimmed())) {
-            emit configExtracted();
+        const qint64 id = m_currentRequestId;
+        const bool ok = parseFetchedData(body.trimmed(), false);
+        clearHopState();
+        if (ok) {
+            emit configExtracted(id);
+        } else {
+            emit configExtractFailed(ErrorCode::ImportInvalidConfigError, id);
         }
         return;
     }
 
     if (m_visited.contains(inner, Qt::CaseInsensitive)) {
-        qWarning() << "Subscription fetch failed: open-page redirect loop";
-        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        failAsyncRequest(QStringLiteral("open-page redirect loop"));
         return;
     }
     if (!isAllowedHopTarget(inner)) {
-        qWarning() << "Subscription fetch failed: open-page redirect target is not allowed";
-        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        failAsyncRequest(QStringLiteral("open-page redirect target is not allowed"));
         return;
     }
     if (--m_hopsLeft <= 0) {
-        qWarning() << "Subscription fetch failed: too many open-page redirects";
-        emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+        failAsyncRequest(QStringLiteral("too many open-page redirects"));
         return;
     }
     m_visited.append(inner);
@@ -681,11 +714,10 @@ void ImportUiController::onSubscriptionHopTimeout()
         return;
     }
     // Aborting triggers finished(), so detach first and report here exactly once.
-    qWarning() << "Subscription fetch failed: Request timed out";
     QNetworkReply *reply = m_pendingReply;
     m_pendingReply = nullptr;
     reply->disconnect(this);
     reply->abort();
     reply->deleteLater();
-    emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+    failAsyncRequest(QStringLiteral("Request timed out"));
 }
