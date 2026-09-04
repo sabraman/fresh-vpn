@@ -59,6 +59,8 @@ private:
 
     QString extractFetchableUrl(const QString &data) const;
     QString extractInnerUrlFromOpenPage(const QString &body) const;
+    bool looksLikeHtmlPage(const QString &body) const;
+    bool isAllowedHopTarget(const QString &innerUrl) const;
     QString fetchSubscriptionBody(const QString &url, QString &errorString);
 
     ImportController* m_importController;

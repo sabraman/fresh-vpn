@@ -598,7 +598,7 @@ QString ImportController::firstUriFromSubscription(const QString &data) const
     // 2) JSON subscription bodies, e.g. {"links": ["vless://...", ...]}.
     //    Remnawave panels return this shape unless the request carries a
     //    v2ray-family User-Agent.
-    {
+    if (data.trimmed().startsWith(QLatin1Char('{'))) {
         QJsonParseError parseError;
         const QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8(), &parseError);
         if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
@@ -665,7 +665,7 @@ QStringList ImportController::allUrisFromSubscription(const QString &data) const
     // 2) JSON subscription bodies, e.g. {"links": ["vless://...", ...]}.
     //    Remnawave panels return this shape unless the request carries a
     //    v2ray-family User-Agent.
-    {
+    if (data.trimmed().startsWith(QLatin1Char('{'))) {
         QJsonParseError parseError;
         const QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8(), &parseError);
         if (parseError.error == QJsonParseError::NoError && doc.isObject()) {

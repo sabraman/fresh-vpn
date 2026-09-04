@@ -12,6 +12,8 @@
 #include <QRegularExpression>
 #include <QTimer>
 #include <QUrl>
+#include <QHostAddress>
+#include <QAbstractSocket>
 #include <QImage>
 #include <cstring>
 
@@ -86,7 +88,15 @@ bool ImportUiController::extractConfigFromData(QString data)
     QString url = extractFetchableUrl(data);
     if (!url.isEmpty()) {
         bool gotBody = false;
+        QStringList visited;
         for (int hop = 0; hop < 3; ++hop) {
+            if (visited.contains(url, Qt::CaseInsensitive)) {
+                qWarning() << "Subscription fetch failed: open-page redirect loop";
+                emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+                return false;
+            }
+            visited.append(url);
+            qDebug() << "Fetching subscription (hop" << hop << "):" << url;
             QString fetchError;
             const QString body = fetchSubscriptionBody(url, fetchError);
             if (body.trimmed().isEmpty()) {
@@ -96,9 +106,22 @@ bool ImportUiController::extractConfigFromData(QString data)
             }
             const QString inner = extractInnerUrlFromOpenPage(body);
             if (inner.isEmpty()) {
+                // Don't feed an open-page HTML shell to the config parser: if the
+                // fetched body is a page (not a subscription), fail loudly so the
+                // user knows the link wasn't understood.
+                if (looksLikeHtmlPage(body)) {
+                    qWarning() << "Subscription fetch failed: page did not contain a subscription link";
+                    emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+                    return false;
+                }
                 data = body.trimmed();
                 gotBody = true;
                 break;
+            }
+            if (!isAllowedHopTarget(inner)) {
+                qWarning() << "Subscription fetch failed: open-page redirect target is not allowed";
+                emit importErrorOccurred(ErrorCode::ImportInvalidConfigError, false);
+                return false;
             }
             url = inner;
         }
@@ -378,6 +401,7 @@ QString ImportUiController::extractFetchableUrl(const QString &data) const
         if (inner.startsWith("http://", Qt::CaseInsensitive) || inner.startsWith("https://", Qt::CaseInsensitive)) {
             return inner;
         }
+        qWarning() << "vpn://add payload is not an http(s) URL, ignoring";
         return QString();
     }
 
@@ -428,6 +452,43 @@ QString ImportUiController::extractInnerUrlFromOpenPage(const QString &body) con
     }
 
     return QString();
+}
+
+bool ImportUiController::looksLikeHtmlPage(const QString &body) const
+{
+    return body.contains(QStringLiteral("<html"), Qt::CaseInsensitive)
+        || body.contains(QStringLiteral("<!doctype"), Qt::CaseInsensitive);
+}
+
+bool ImportUiController::isAllowedHopTarget(const QString &innerUrl) const
+{
+    const QUrl target(innerUrl);
+    const QString scheme = target.scheme().toLower();
+    if (scheme != QLatin1String("http") && scheme != QLatin1String("https")) {
+        return false;
+    }
+    // A fetched open-page can point the client at an arbitrary inner URL.
+    // Refuse literal-IP targets that are not publicly routable (loopback,
+    // private, link-local, multicast). DNS names cannot be checked without
+    // resolving here, so that residual risk is accepted and each hop is logged.
+    const QHostAddress host(target.host());
+    if (host.protocol() == QAbstractSocket::UnknownNetworkLayerProtocol) {
+        return true;
+    }
+    static const QStringList blockedSubnets = {
+        QStringLiteral("127.0.0.0/8"), QStringLiteral("10.0.0.0/8"),
+        QStringLiteral("172.16.0.0/12"), QStringLiteral("192.168.0.0/16"),
+        QStringLiteral("169.254.0.0/16"), QStringLiteral("0.0.0.0/8"),
+        QStringLiteral("::1/128"), QStringLiteral("fc00::/7"),
+        QStringLiteral("fe80::/10"), QStringLiteral("ff00::/8")
+    };
+    for (const QString &cidr : blockedSubnets) {
+        const auto subnet = QHostAddress::parseSubnet(cidr);
+        if (host.isInSubnet(subnet.first, subnet.second)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 QString ImportUiController::fetchSubscriptionBody(const QString &url, QString &errorString)
