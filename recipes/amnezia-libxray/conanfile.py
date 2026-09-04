@@ -62,16 +62,17 @@ class AmneziaLibxray(ConanFile):
         build_stat = os.stat(build_path)
         os.chmod(build_path, build_stat.st_mode | stat.S_IEXEC)
 
-        # build.sh deletes go.mod and regenerates it. That drops the pinned
-        # amnezia-xray-core v1.260206.0 and resolves to v1.260710.0, which
-        # declares its module path as github.com/xtls/xray-core - so "go mod
-        # tidy" fails, and since build.sh has no "set -e" it still exits 0
-        # leaving no .aar behind. Keep the go.mod/go.sum from the release.
-        replace_in_file(
-            self, build_path,
-            "    rm -f go.mod\n    rm -f go.sum\n    go mod init github.com/amnezia-vpn/amnezia-libxray\n    go mod tidy\n",
-            "    go mod download\n",
-        )
+        # Older build.sh deleted go.mod and regenerated it. That dropped the
+        # pinned amnezia-xray-core and resolved to a version whose module path
+        # broke "go mod tidy". Upstream 1.0.3 keeps the shipped go.mod (only
+        # runs "go mod tidy"), so patch only if the old block is still there.
+        build_sh = Path(build_path).read_text()
+        if "rm -f go.mod" in build_sh:
+            replace_in_file(
+                self, build_path,
+                "    rm -f go.mod\n    rm -f go.sum\n    go mod init github.com/amnezia-vpn/amnezia-libxray\n    go mod tidy\n",
+                "    go mod download\n",
+            )
 
     def build(self):
         self._patch_sources()

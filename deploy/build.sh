@@ -62,6 +62,7 @@ done
 : ${ABIS:="all"}
 : ${HOST:="$(uname -s)"}
 : ${TARGET:="$HOST"}
+: ${CLIENT_TARGET_NAME:="FreshVPN"}
 
 HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
 TARGET=$(echo "$TARGET" | tr '[:upper:]' '[:lower:]')
@@ -205,6 +206,7 @@ args=()
 [[ -n "$APP_ANDROID_MIN_SDK" ]]       && args+=("-DAPP_ANDROID_MIN_SDK=$APP_ANDROID_MIN_SDK")
 [[ -n "$APP_ANDROID_MAX_SDK" ]]       && args+=("-DAPP_ANDROID_MAX_SDK=$APP_ANDROID_MAX_SDK")
 [[ -n "$APP_ANDROID_VERSION_CODE_OFFSET" ]] && args+=("-DAPP_ANDROID_VERSION_CODE_OFFSET=$APP_ANDROID_VERSION_CODE_OFFSET")
+[[ -n "$CLIENT_TARGET_NAME" ]]              && args+=("-DCLIENT_TARGET_NAME=$CLIENT_TARGET_NAME")
 [[ -n "$QT_ANDROID_SIGN_APK" ]]       && args+=("-DQT_ANDROID_SIGN_APK=$QT_ANDROID_SIGN_APK")
 [[ -n "$QT_ANDROID_SIGN_AAB" ]]       && args+=("-DQT_ANDROID_SIGN_AAB=$QT_ANDROID_SIGN_AAB")
 [[ -n "$QT_ANDROID_ABIS" ]]           && args+=("-DQT_ANDROID_ABIS=$QT_ANDROID_ABIS")

@@ -23,6 +23,7 @@
 #include "core/utils/api/apiUtils.h"
 #include "core/utils/constants/apiKeys.h"
 #include "core/utils/networkUtilities.h"
+#include "core/utils/utilities.h"
 #include "cryptoUtils.h"
 
 #ifdef AMNEZIA_DESKTOP
