@@ -60,12 +60,12 @@ project. Please do not send us their bugs, and do not send them ours.
 - GitHub Actions workflows for Windows and Android added.
 - Android builds are signed with a persistent release key, so updates install
   over previous versions.
-- `deploy/build.sh` defaults `CLIENT_TARGET_NAME` to `FreshVPN` (upstream's
-  branding default is `AmneziaVPN`; without this the APK, target and launcher
-  label lose the Fresh name). Overridable via the environment.
-- `client/3rd/QSimpleCrypto` restored as a submodule with its cmake wiring:
-  our gateway protocol still uses it, upstream dropped it in favour of
-  `cryptoUtils`.
+- `deploy/build.sh` defaults the upstream branding knobs to Fresh values
+  (`CLIENT_TARGET_NAME`/`CLIENT_APPLICATION_NAME` to `FreshVPN`,
+  `CLIENT_ANDROID_PACKAGE` to `online.fr3sh.vpn`, so the APK, launcher label
+  and Play lookup use Fresh). The keychain name intentionally stays
+  `AmneziaVPN-Keychain` so updates keep reading existing encrypted settings.
+  All overridable via the environment.
 - `deploy/data/windows/vc_redist.x64.exe` is bundled so the Windows installer
   can install the Microsoft runtime on machines that lack it. It is
   redistributed under Microsoft's own terms and is not part of this project's

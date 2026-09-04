@@ -12,8 +12,6 @@
 #include <QPromise>
 #include <QUrl>
 
-#include "QBlockCipher.h"
-#include "QRsa.h"
 #include <QDateTime>
 #include "core/crypto/freshBetaCrypto.h"
 #include "core/crypto/freshDevKey.h"

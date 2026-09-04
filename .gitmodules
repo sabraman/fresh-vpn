@@ -11,6 +11,3 @@
 	path = client/3rd/qtgamepad
 	url = https://github.com/amnezia-vpn/qtgamepad.git
 	branch = 6.6
-[submodule "client/3rd/QSimpleCrypto"]
-	path = client/3rd/QSimpleCrypto
-	url = https://github.com/amnezia-vpn/QSimpleCrypto.git
